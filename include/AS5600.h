@@ -37,8 +37,8 @@
 
 class AS5600 {
     public:
+
         AS5600();
-        AS5600(I2CDriverWire *p_wirePtr);
         ~AS5600();
     //  ====================================================================
         
@@ -55,7 +55,7 @@ class AS5600 {
         float getVelocity();
     
     private:
-        I2CDriverWire *m_wirePtr;
+        I2CDriverWire *m_wireObj;
         const int m_ADDRESS = 0x36;
 
         unsigned int m_angleRaw;

@@ -7,31 +7,28 @@ AS5600::AS5600():
     m_dirPin(-1),
     m_GPOPin(-1)
 {
-    
-}
 
-
-AS5600::AS5600(I2CDriverWire *p_wirePtr):
-    m_aoutPin(-1),
-    m_dirPin(-1),
-    m_GPOPin(-1)
-{
-    m_wirePtr = p_wirePtr;
 }
 
 AS5600::~AS5600() {}
-
 
 int AS5600::setup(I2CDriverWire *p_wirePtr) {
     // Assign variables
     // Test I2C comms
     // Check if the sensor exists
     // Use technique from i2c scanner
-    m_wirePtr = p_wirePtr;
-    m_wirePtr->beginTransmission(m_ADDRESS);
+    m_wireObj = p_wirePtr;
+
+    if (m_wireObj == NULL) {
+        Serial.println("Setup: m_wireObj is null");
+        while (true) {}
+    }
+
+    m_wireObj->begin();
+    m_wireObj->beginTransmission(m_ADDRESS);
     
     // A successfully detected device will return a 0 on end transmission
-    char error = m_wirePtr->endTransmission();
+    char error = m_wireObj->endTransmission();
     // char error = 0;
 
     if (error != 0) {
@@ -45,11 +42,11 @@ int AS5600::setup(I2CDriverWire *p_wirePtr) {
 }
 
 int AS5600::requestData(unsigned int p_numBytesRequested, unsigned char * p_buffer, unsigned int p_bufferSize) {
-    return i2c_read(m_wirePtr, m_ADDRESS, p_numBytesRequested, p_buffer, p_bufferSize);
+    return i2c_read(m_wireObj, m_ADDRESS, p_numBytesRequested, p_buffer, p_bufferSize);
 }
 
 int AS5600::writeData(unsigned char * p_whichRegisters, unsigned int p_bufferSize) {
-    return i2c_write(m_wirePtr, m_ADDRESS, p_whichRegisters, p_bufferSize, false);
+    return i2c_write(m_wireObj, m_ADDRESS, p_whichRegisters, p_bufferSize, false);
 }
 
 unsigned int AS5600::getAngle() {

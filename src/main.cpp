@@ -21,22 +21,13 @@ Rosbot robot;
 
 void setup()
 {  
-    // stepperL.setMaxSpeed(stepperMaxSpeed);
-    // stepperL.setAcceleration(stepperMaxAccel);
-    // // stepperL.setSpeed(200);
-    // stepperR.setMaxSpeed(stepperMaxSpeed);
-    // stepperR.setAcceleration(stepperMaxAccel);
-    // stepperR.setSpeed(200);
-    pinMode(LED_BUILTIN, OUTPUT);
-    digitalWrite(LED_BUILTIN, HIGH);
-    Serial.begin(115200);
-    Serial.println("Begin!");
-    // Wire.begin();
-    // rx.setup();
     Wire.begin();
     Wire1.begin();
-    // encL.setup();
-    // encR.setup();
+    Serial.begin(115200);
+    Serial.println("Begin!");
+    pinMode(LED_BUILTIN, OUTPUT);
+    digitalWrite(LED_BUILTIN, HIGH);
+    robot.setup();
     
 }
 

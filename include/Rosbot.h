@@ -13,6 +13,8 @@ class Rosbot {
         Rosbot();
         ~Rosbot();
 
+        void setup();
+
         void tankDrive();
 
         void targetStepperPosL(int target);

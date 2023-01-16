@@ -4,6 +4,13 @@ Rosbot::Rosbot() :
     m_stepperL(MOTORINTERFACETYPE, m_stepPinL, m_dirPinL),
     m_stepperR(MOTORINTERFACETYPE, m_stepPinR, m_dirPinR)
 { 
+    
+}
+
+Rosbot::~Rosbot() {}
+
+void Rosbot::setup() 
+{
     m_encL.setup(&Wire);
     m_encR.setup(&Wire1);
     m_rx.setup();
@@ -16,10 +23,6 @@ Rosbot::Rosbot() :
     m_stepperL.setAcceleration(m_stepperMaxAccel);
     m_stepperR.setAcceleration(m_stepperMaxAccel);
 }
-
-Rosbot::~Rosbot() {}
-
-
 
 void Rosbot::targetStepperPosL(int target) 
 {
