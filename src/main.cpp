@@ -43,7 +43,6 @@ void loop()
     
     // Serial.print("encL: " + String(encLStatus) + ", encR: " + String(encRStatus));
     // Serial.println("");
-    delay(10);
 }
 
 
