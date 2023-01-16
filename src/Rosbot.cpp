@@ -1,8 +1,8 @@
 #include <Rosbot.h>
 
 Rosbot::Rosbot() : 
-    m_stepperL(MOTORINTERFACETYPE, m_stepPinL, m_dirPinL),
-    m_stepperR(MOTORINTERFACETYPE, m_stepPinR, m_dirPinR)
+    m_stepperL(AccelStepper::DRIVER, 12,14),
+    m_stepperR(AccelStepper::DRIVER, 2,3)
 { 
     
 }
@@ -57,7 +57,6 @@ void Rosbot::tankDrive()
 
     float roll = channels[CHANNEL_ROLL];
     float throttle = channels[CHANNEL_THROTTLE];
-
 
     throttleMax = channelMaxEndpoints[CHANNEL_THROTTLE];
     throttleMin = channelMinEndpoints[CHANNEL_THROTTLE];
