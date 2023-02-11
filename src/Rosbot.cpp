@@ -69,13 +69,21 @@ void Rosbot::tankDrive()
     float demandSteer = map(roll, rollMin, rollMax, 
                             -m_stepperMaxSpeed/2, m_stepperMaxSpeed/2);
 
-    m_stepperL.setSpeed(demandThrottle + demandSteer);
-    m_stepperR.setSpeed(demandThrottle - demandSteer);
+    
+    if (m_rx.hasLostConnection() || !m_rx.isSafetyOff()) {
+        demandThrottle = 0;
+        demandSteer = 0;
+    } else {
+        m_stepperL.setSpeed(demandThrottle + demandSteer);
+        m_stepperR.setSpeed(demandThrottle - demandSteer);
+
+        m_stepperL.runSpeed();
+        m_stepperR.runSpeed();
+    }
+
+    
 
     Serial.println("Throttle: " + String(demandThrottle) + ", steer: " + String(demandSteer) + ", encL: " 
                     + String(m_encL.getAngle()) + ", encR: " + String(m_encR.getAngle()));
-
-    m_stepperL.runSpeed();
-    m_stepperR.runSpeed();
 }
 
