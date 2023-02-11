@@ -71,7 +71,7 @@ class AS5600 {
         unsigned char m_status;
         unsigned char m_AGC;
         
-        enum registerNames {
+        enum registerMap {
           ZMCO, 
           ZPOSL, ZPOSH,
           MPOSL, MPOSH,
