@@ -3,8 +3,10 @@
 #include <i2c_device.h>
 #include <i2c_driver_wire.h>
 
-#define INT_PIN 2
+#include "I2CInterface.h"
 
+#define INT_PIN 2
+#define MPU6050_ADDRESS 0x68
 // The IMU starts in sleep mode
 
 class IMU {
@@ -12,6 +14,9 @@ class IMU {
         IMU(I2CDriverWire * wireObj);
         ~IMU();
 
+        // Setup - Take the MPU6050 out of sleep mode
+        void setup();
+        
         // Updates all data objects
         void update();
 
@@ -19,8 +24,10 @@ class IMU {
         void getAccel();
 
     private:
-        const int m_ADDRESS = 0x68;
-        I2CDriverWire * m_wireObj;        
+        // const int m_ADDRESS = 0x68;
+        // I2CDriverWire * m_wireObj;        
+        I2Cinterface m_i2cInterface;
+
         bool blinkState = false;
 
         // Raw data array
