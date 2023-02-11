@@ -46,7 +46,7 @@ int AS5600::requestData(unsigned int p_numBytesRequested, unsigned char * p_buff
 }
 
 int AS5600::writeData(unsigned char * p_whichRegisters, unsigned int p_bufferSize) {
-    return i2c_write(m_wireObj, m_ADDRESS, p_whichRegisters, p_bufferSize, false);
+    return i2c_write(m_wireObj, m_ADDRESS, p_whichRegisters, p_bufferSize, true);
 }
 
 unsigned int AS5600::getAngle() {
