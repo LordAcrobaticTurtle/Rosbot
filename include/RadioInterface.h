@@ -4,7 +4,7 @@
 #define CHANNEL_THROTTLE 2
 #define CHANNEL_ROLL 0
 #define TX_NUM_CHANNELS 16
-
+#define CHANNEL_SAFETY 4
 class RadioInterface {
     // Functions
     public:
@@ -14,10 +14,11 @@ class RadioInterface {
         void update();
         void getChannels(uint16_t *p_channelValues);
         void getChannelEndpoints(uint16_t *p_minPoints, uint16_t * p_maxPoints);
-    
+        bool hasLostConnection();
+        bool isSafetyOff();
+
     // Functions
     private:
-        bool hasLostConnection();
         void readSBUS();
         void readEndPoints(uint16_t * p_endPointsMax, uint16_t * p_endPointsMin);
         void applyDeadbandToChannels(uint16_t * p_currValues, uint16_t * p_prevValues, int p_deadband);
@@ -30,6 +31,7 @@ class RadioInterface {
         bool m_lostFrame;       
         int m_deadband;
 
+        // m_channel values is a integer between 0 and 1000 
         uint16_t m_channelValues[TX_NUM_CHANNELS];
         uint16_t m_prevChannelValues[TX_NUM_CHANNELS];
         uint16_t m_channelEndpointsMax[TX_NUM_CHANNELS];

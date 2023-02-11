@@ -1,4 +1,5 @@
 #include <RadioInterface.h>
+#include <Arduino.h>
 
 RadioInterface::RadioInterface() : 
 m_tx(Serial1)
@@ -36,12 +37,13 @@ void RadioInterface::update()
 {
     // Read new values into currChannelValues
     readSBUS();
-
+    Serial.print(hasLostConnection());
     if (hasLostConnection()) {
         // Set all data to zero
         for(int ch = 0; ch < TX_NUM_CHANNELS; ch++) 
             m_channelValues[ch] = 0;
-        
+            
+            // Serial.print("ch[" + String(ch) + "]: " + String(m_channelValues) + ", ");
         return;
     }
 
@@ -53,19 +55,26 @@ void RadioInterface::update()
     // scale input
 }
 
-
-void RadioInterface::readSBUS() 
-{
-    for (int ch = 0; ch < TX_NUM_CHANNELS; ch++) 
-        m_prevChannelValues[ch] = m_channelValues[ch];
-    
-    m_tx.read(m_channelValues, &m_failsafe, &m_lostFrame);
-}
-
 bool RadioInterface::hasLostConnection() 
 {
     return m_failsafe;
 }
+
+bool RadioInterface::isSafetyOff()
+{
+    return m_channelValues[CHANNEL_SAFETY] > 500;
+}
+
+void RadioInterface::readSBUS() 
+{
+    // TODO - Memcpy
+    for (int ch = 0; ch < TX_NUM_CHANNELS; ch++) 
+        m_prevChannelValues[ch] = m_channelValues[ch];
+
+    m_tx.read(m_channelValues, &m_failsafe, &m_lostFrame);
+}
+
+
 
 void RadioInterface::applyDeadbandToChannels(uint16_t * p_currChannelValues, uint16_t  * p_prevChannelValues, int p_deadband) 
 {
