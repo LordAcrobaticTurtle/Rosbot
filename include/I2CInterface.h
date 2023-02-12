@@ -6,12 +6,24 @@
 
 class I2Cinterface {
     public:
-        I2Cinterface(I2CDriverWire * wirePtr, int deviceAddress);
-        
-        void i2cWrite(byte * buffer, int bufferLength);
-        void i2cRead(byte * outBuffer, int bufferLength);
 
+        enum I2Ccodes {
+            SUCCESS = 0, 
+            MSG_TOO_LONG, 
+            NACK_ADDRESS,
+            NACK_DATA,
+            OTHER,
+            TIMEOUT
+        };
+
+        I2Cinterface();
+
+        void setup(I2CDriverWire * wirePtr, int deviceAddress);
         
+        int i2cWrite(byte * buffer, int bufferLength);
+        int i2cRead(byte * outBuffer, int bufferLength);
+        
+        bool isDeviceConnected();
     private:
 
 

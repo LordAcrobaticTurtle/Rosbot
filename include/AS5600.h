@@ -2,7 +2,8 @@
 #include <Arduino.h>
 #include <i2c_device.h>
 #include <i2c_driver_wire.h>
-#include "utility.h"
+
+#include "I2CInterface.h"
 
 //  Functionality
 //  ====================================================================
@@ -34,6 +35,7 @@
     // -> Fast filter can be switched on by setting FTH bits in CONF register
     // -> HYsteresis can be enabled to avoid the output changing while not moving. 
 
+#define AS5600_ADDRESS 0x36
 
 class AS5600 {
     public:
@@ -55,8 +57,9 @@ class AS5600 {
         float getVelocity();
     
     private:
-        I2CDriverWire *m_wireObj;
-        const int m_ADDRESS = 0x36;
+        // I2CDriverWire *m_wireObj;
+        // const int m_ADDRESS = 0x36;
+        I2Cinterface m_i2cInterface;
 
         unsigned int m_angleRaw;
         float m_angle;
