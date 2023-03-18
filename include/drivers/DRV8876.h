@@ -3,6 +3,15 @@
 
 #define MAX_THROTTLE 255
 
+#define A_IPROPI 1000 // uA/A
+#define R_IPROPI 1500 // ohms
+
+#define ADC_MAX 1023
+#define ADC_MIN 0
+
+#define VOLTAGE_MAX 3.3
+#define VOLTAGE_MIN 0
+// Requires 3v3 signal sent to the VREF pin
 class DRV8876 {
     public:
         DRV8876(int pinEN, int pinPH, int pinCurrSense, 
@@ -12,6 +21,12 @@ class DRV8876 {
         void setThrottle(int throttle);
         void setDirection(bool isClockwise);
         void wakeup(bool setToSleep);
+
+        /** Read current is tricky. Greatly depends on what state the driver is
+        * in. Fairly certain it is only useful when actively driving or braking
+        * Returns current in Amps
+        */ 
+        double readCurrent();
 
     private:
 
