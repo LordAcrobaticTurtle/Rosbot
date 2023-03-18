@@ -3,7 +3,7 @@
 #include <i2c_device.h>
 #include <i2c_driver_wire.h>
 
-#include "I2CInterface.h"
+#include "comms/I2CInterface.h"
 
 //  Functionality
 //  ====================================================================

@@ -3,7 +3,7 @@
 #include <i2c_device.h>
 #include <i2c_driver_wire.h>
 
-#include "I2CInterface.h"
+#include "comms/I2CInterface.h"
 
 #define INT_PIN 2
 #define MPU6050_ADDRESS 0x68
@@ -22,17 +22,21 @@ class IMU {
 
     private:
         void getRawSensorRegisters();
-
+        void parseRawData(); // MPU6050 specific
+ 
     private:
         I2Cinterface m_i2cInterface;
 
         bool blinkState = false;
 
+        byte m_rawRegisters[14];
         // Raw data array
         // [x ,y, z]
         uint16_t m_accelData[3];
+        uint16_t m_temp;
         uint16_t m_gyroData[3];
 
+        
         enum registerMap {
             // Self test registers
             SELF_TEST_x = 0x0D,

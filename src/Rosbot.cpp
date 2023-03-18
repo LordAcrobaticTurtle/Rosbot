@@ -45,6 +45,7 @@ void Rosbot::tankDrive()
 {
     // Update command values
     m_rx.update();
+    m_imu.update();
     // Grab current values + endpoints
     uint16_t channels[TX_NUM_CHANNELS];
     m_rx.getChannels(channels);

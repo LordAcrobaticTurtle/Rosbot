@@ -1,10 +1,11 @@
 #pragma once
-#include <AS5600.h>
-#include <i2c_device.h>
-#include <i2c_driver_wire.h>
-#include <AccelStepper.h>
-#include <RadioInterface.h>
-#include <SBUS.h>
+
+#include "AccelStepper.h"
+
+#include "drivers/AS5600.h"
+#include "drivers/RadioInterface.h"
+#include "SBUS.h"
+#include "drivers/IMU.h"
 
 #define MOTORINTERFACETYPE 1
 
@@ -29,6 +30,7 @@ class Rosbot {
         RadioInterface m_rx;
         AS5600 m_encL;
         AS5600 m_encR;
+        IMU m_imu;
 
         int m_stepperMaxSpeed;
         int m_stepperMaxAccel;

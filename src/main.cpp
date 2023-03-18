@@ -1,14 +1,14 @@
 
 #include <AccelStepper.h>
 #include <MultiStepper.h>
-#include <RadioInterface.h>
 #include <Rosbot.h>
-#include <AS5600.h>
-#include <IMU.h>
+#include <drivers/RadioInterface.h>
+#include <drivers/AS5600.h>
+#include <drivers/IMU.h>
 #include <i2c_device.h>
 #include <i2c_driver.h>
 
-IMU imu(&Wire1);
+IMU imu;
 // Rosbot robot;
 
 void setup()
@@ -28,7 +28,7 @@ void setup()
     
     // Setup rosbot
     // robot.setup();    
-    imu.setup();
+    imu.setup(&Wire1);
 }
 
 void loop()
