@@ -18,6 +18,19 @@ void DRV8876::wakeup(bool setAwake) {
     digitalWrite(m_pinSleep, setAwake);
 }
 
+void DRV8876::setThrottle(int throttle) {
+    int throttleSet = throttle;
+    if (throttleSet < 0) {
+        throttleSet = 0;
+    }
+
+    if (throttleSet > PWM_MAX) {
+        throttleSet = PWM_MAX;
+    }
+    
+    analogWrite(m_pinPWM, throttleSet);
+}
+
 void DRV8876::setDirection(bool isClockwise) {
     digitalWrite(m_pinDirection, isClockwise);
     m_isClockwise = isClockwise;
