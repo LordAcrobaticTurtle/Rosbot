@@ -23,7 +23,8 @@ class IMU {
     private:
         void getRawSensorRegisters();
         void parseRawData(); // MPU6050 specific
- 
+        int calculateEulerAngles();
+
     private:
         I2Cinterface m_i2cInterface;
 

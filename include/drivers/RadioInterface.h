@@ -1,14 +1,16 @@
 #pragma once
 #include <SBUS.h>
 
+
 #define CHANNEL_THROTTLE 2
 #define CHANNEL_ROLL 0
 #define TX_NUM_CHANNELS 16
 #define CHANNEL_SAFETY 4
+
 class RadioInterface {
     // Functions
     public:
-        RadioInterface();
+        RadioInterface(HardwareSerial p_serialPort);
         ~RadioInterface();
         void setup();
         void update();

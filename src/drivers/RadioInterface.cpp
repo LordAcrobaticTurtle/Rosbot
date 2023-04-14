@@ -1,8 +1,8 @@
 #include <drivers/RadioInterface.h>
 #include <Arduino.h>
 
-RadioInterface::RadioInterface() : 
-m_tx(Serial1)
+RadioInterface::RadioInterface(HardwareSerial p_serialPort) : 
+m_tx(p_serialPort)
 {
     m_deadband = 50;
 }
