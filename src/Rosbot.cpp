@@ -1,7 +1,7 @@
 #include <Rosbot.h>
 
 Rosbot::Rosbot() : 
-m_rx(Serial1)
+m_rx(&Serial1)
 { 
     
 }

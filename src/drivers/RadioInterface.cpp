@@ -1,10 +1,11 @@
 #include <drivers/RadioInterface.h>
 #include <Arduino.h>
 
-RadioInterface::RadioInterface(HardwareSerial p_serialPort) : 
-m_tx(p_serialPort)
+RadioInterface::RadioInterface(HardwareSerial *p_serialPort) : 
+m_tx(*p_serialPort)
 {
     m_deadband = 50;
+    m_isInitialised = true;
 }
 
 RadioInterface::~RadioInterface() {}
@@ -32,11 +33,24 @@ void RadioInterface::getChannelEndpoints(uint16_t * p_minEndpoints, uint16_t * p
     memcpy(p_maxEndpoints, m_channelEndpointsMax, sizeof(uint16_t)*TX_NUM_CHANNELS);
 }
 
+int RadioInterface::getChannelPercentage(double *p_channelValues) {
+
+    if (!m_isInitialised) return -1;
+
+    for (int ch = 0; ch < TX_NUM_CHANNELS; ch++) {
+        p_channelValues[ch] = (double) m_channelValues[ch]/(m_channelEndpointsMax[ch] - m_channelEndpointsMin[ch]);
+    }
+
+}
+
 // Called publicly.
 void RadioInterface::update() 
 {
     // Read new values into currChannelValues
     readSBUS();
+
+    if (!m_isInitialised) return;
+
     Serial.print(hasLostConnection());
     if (hasLostConnection()) {
         // Set all data to zero
@@ -52,7 +66,6 @@ void RadioInterface::update()
     scaleChannels(m_channelValues, m_channelEndpointsMin, m_channelEndpointsMax);
     int deadband = 5;
     applyDeadbandToChannels(m_channelValues, m_prevChannelValues, deadband);
-    // scale input
 }
 
 bool RadioInterface::hasLostConnection() 
@@ -98,5 +111,11 @@ void RadioInterface::scaleChannels(uint16_t * p_currValues, uint16_t * p_minValu
     
 }
 
+
+void RadioInterface::printChannels() {
+    for (int ch = 0; ch < TX_NUM_CHANNELS; ch++) {
+        Serial.print("ch[" + String(ch) + "] = " + String(m_channelValues[ch]));
+    }
+}
 
  

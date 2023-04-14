@@ -10,15 +10,17 @@
 class RadioInterface {
     // Functions
     public:
-        RadioInterface(HardwareSerial p_serialPort);
+        RadioInterface(HardwareSerial *p_serialPort);
         ~RadioInterface();
         void setup();
         void update();
         void getChannels(uint16_t *p_channelValues);
         void getChannelEndpoints(uint16_t *p_minPoints, uint16_t * p_maxPoints);
+        int getChannelPercentage(double *p_channelValues);
         bool hasLostConnection();
         bool isSafetyOff();
 
+        void printChannels();
     // Functions
     private:
         void readSBUS();
@@ -32,6 +34,7 @@ class RadioInterface {
         bool m_failsafe;
         bool m_lostFrame;       
         int m_deadband;
+        bool m_isInitialised;
 
         // m_channel values is a integer between 0 and 1000 
         uint16_t m_channelValues[TX_NUM_CHANNELS];
