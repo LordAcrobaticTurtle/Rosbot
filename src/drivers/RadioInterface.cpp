@@ -18,8 +18,15 @@ void RadioInterface::setup()
 
 void RadioInterface::readEndPoints(uint16_t *p_endPointsMax, uint16_t *p_endPointsMin)
 {
-    for (int i = 0; i < TX_NUM_CHANNELS; i++) 
+    for (int i = 0; i < TX_NUM_CHANNELS; i++) {
         m_tx.getEndPoints(i,&p_endPointsMin[i],&p_endPointsMax[i]);
+    }    
+    // while (1) {
+    //     for (int i = 0; i < TX_NUM_CHANNELS; i++) {
+    //         Serial.print("For ch[" + String(i) + "], min:" + String(p_endPointsMin[i]) + ", max:" + String(p_endPointsMax[i]));
+    //     }
+    //     Serial.println();
+    // }
 }
 
 void RadioInterface::getChannels(uint16_t *p_channelValues) 
@@ -33,25 +40,24 @@ void RadioInterface::getChannelEndpoints(uint16_t * p_minEndpoints, uint16_t * p
     memcpy(p_maxEndpoints, m_channelEndpointsMax, sizeof(uint16_t)*TX_NUM_CHANNELS);
 }
 
-int RadioInterface::getChannelPercentage(double *p_channelValues) {
+int RadioInterface::getChannelPercentage(double *p_channelValues, double scaleFactor) {
 
     if (!m_isInitialised) return -1;
 
     for (int ch = 0; ch < TX_NUM_CHANNELS; ch++) {
-        p_channelValues[ch] = (double) m_channelValues[ch]/(m_channelEndpointsMax[ch] - m_channelEndpointsMin[ch]);
+        p_channelValues[ch] = (double) m_channelValues[ch]/1000.0 * scaleFactor;
     }
-
 }
 
 // Called publicly.
 void RadioInterface::update() 
 {
     // Read new values into currChannelValues
-    readSBUS();
+    int result = readSBUS();
+    if (result == -1) return;
 
     if (!m_isInitialised) return;
 
-    Serial.print(hasLostConnection());
     if (hasLostConnection()) {
         // Set all data to zero
         for(int ch = 0; ch < TX_NUM_CHANNELS; ch++) 
@@ -78,13 +84,18 @@ bool RadioInterface::isSafetyOff()
     return m_channelValues[CHANNEL_SAFETY] > 500;
 }
 
-void RadioInterface::readSBUS() 
+int RadioInterface::readSBUS() 
 {
     // TODO - Memcpy
     for (int ch = 0; ch < TX_NUM_CHANNELS; ch++) 
         m_prevChannelValues[ch] = m_channelValues[ch];
 
-    m_tx.read(m_channelValues, &m_failsafe, &m_lostFrame);
+    bool result = m_tx.read(m_channelValues, &m_failsafe, &m_lostFrame);
+    
+    if (!result) {
+        return -1;
+    }
+
 }
 
 
@@ -101,20 +112,20 @@ void RadioInterface::applyDeadbandToChannels(uint16_t * p_currChannelValues, uin
     }
 }
 
-void RadioInterface::scaleChannels(uint16_t * p_currValues, uint16_t * p_minValues, uint16_t * p_maxValues) 
+void RadioInterface::scaleChannels(uint16_t *p_currValues, uint16_t *p_minValues, uint16_t *p_maxValues) 
 {
     
-    uint16_t min = 0;
-    uint16_t max = 1000;
-    for (int ch = 0; ch < TX_NUM_CHANNELS; ch++) 
-        int value = map(p_currValues[ch], p_minValues[ch], p_maxValues[ch], min, max);
+    for (int ch = 0; ch < TX_NUM_CHANNELS; ch++) {
+        p_currValues[ch] = map(p_currValues[ch], RAW_CHANNEL_MIN, RAW_CHANNEL_MAX, POST_CHANNEL_MIN, POST_CHANNEL_MAX);
+    }
+    
     
 }
 
 
 void RadioInterface::printChannels() {
-    for (int ch = 0; ch < TX_NUM_CHANNELS; ch++) {
-        Serial.print("ch[" + String(ch) + "] = " + String(m_channelValues[ch]));
+    for (int ch = 0; ch < 8; ch++) {
+        Serial.print("ch[" + String(ch) + "] = " + String(m_channelValues[ch]) + ", ");
     }
 }
 

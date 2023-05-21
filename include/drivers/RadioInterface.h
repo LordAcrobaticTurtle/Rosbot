@@ -7,6 +7,11 @@
 #define TX_NUM_CHANNELS 16
 #define CHANNEL_SAFETY 4
 
+#define RAW_CHANNEL_MAX 1760
+#define RAW_CHANNEL_MIN 224
+#define POST_CHANNEL_MAX 1000
+#define POST_CHANNEL_MIN 0
+
 class RadioInterface {
     // Functions
     public:
@@ -16,14 +21,14 @@ class RadioInterface {
         void update();
         void getChannels(uint16_t *p_channelValues);
         void getChannelEndpoints(uint16_t *p_minPoints, uint16_t * p_maxPoints);
-        int getChannelPercentage(double *p_channelValues);
+        int getChannelPercentage(double *p_channelValues, double scaleFactor);
         bool hasLostConnection();
         bool isSafetyOff();
 
         void printChannels();
     // Functions
     private:
-        void readSBUS();
+        int readSBUS();
         void readEndPoints(uint16_t * p_endPointsMax, uint16_t * p_endPointsMin);
         void applyDeadbandToChannels(uint16_t * p_currValues, uint16_t * p_prevValues, int p_deadband);
         void scaleChannels(uint16_t * p_currValues, uint16_t * p_minValues, uint16_t * p_maxValues);
