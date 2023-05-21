@@ -17,10 +17,20 @@ A collection of src files for the rosbot code.
   - Accuracy confirmation with AS5600
   - Localisation estimate
   - Raw angle to degrees
-- HARDWARE
+
+
+### Encoder software
+- Need a way to zero encoders when not moving
+- There is a lot of noise, might be trying to read encoder while it is being written to.
+- Make count more accurate
+- Find a way to measure RPMs -> Watch it aand measure a minunte. Record throttle + estimated RPM
+
+
+### HARDWARE
   - PCB design
   - Purchase crimping tool
   - Bluetooth connection to computer. 
+  - Add battery measurement system to PCB
 
 - 3D PRINT  
   - Print stepper base board
