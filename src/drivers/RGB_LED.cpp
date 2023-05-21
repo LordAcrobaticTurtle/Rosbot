@@ -25,30 +25,32 @@ RGBLED::RGBLED(int pinRed, int pinGreen, int pinBlue, bool isCommonGnd) {
 
 void RGBLED::switchRedOn() {
     setCurrentColour(255,0,0);
-    digitalWrite(m_pinBlue, m_offState);
-    digitalWrite(m_pinGreen, m_offState);
-    digitalWrite(m_pinRed, m_onState);
+    write(m_onState, m_offState, m_offState);
 }
 
 void RGBLED::switchGreenOn() {
     setCurrentColour(0,255,0);
-    digitalWrite(m_pinBlue, m_offState);
-    digitalWrite(m_pinGreen, m_onState);
-    digitalWrite(m_pinRed, m_offState);
+    write(m_offState, m_onState, m_offState);
+}
+
+void RGBLED::toggleGreen() {
+    if (m_currentColour[1] > 0) {
+        setCurrentColour(m_currentColour[0], 0, m_currentColour[2]);
+        digitalWrite(m_pinGreen, m_offState);
+    } else {
+        setCurrentColour(m_currentColour[0], 255, m_currentColour[2]);
+        digitalWrite(m_pinGreen, m_onState);
+    }
 }
 
 void RGBLED::switchBlueOn() {
     setCurrentColour(0, 0, 255);
-    digitalWrite(m_pinBlue, m_onState);
-    digitalWrite(m_pinGreen, m_offState);
-    digitalWrite(m_pinRed, m_offState);
+    write(m_offState, m_offState, m_onState);
 }
 
 void RGBLED::switchOff() {
     setCurrentColour(0, 0, 0);
-    digitalWrite(m_pinBlue, m_offState);
-    digitalWrite(m_pinGreen, m_offState);
-    digitalWrite(m_pinRed, m_offState);
+    write(m_offState, m_offState, m_offState);
 }
 
 void RGBLED::mix(int red, int green, int blue) {
@@ -62,4 +64,10 @@ void RGBLED::setCurrentColour(int red, int green, int blue) {
     m_currentColour[0] = red;
     m_currentColour[1] = green;
     m_currentColour[2] = blue;
+}
+// R G B
+void RGBLED::write(bool red, bool green, bool blue) {
+    digitalWrite(m_pinRed, red);
+    digitalWrite(m_pinGreen, green);
+    digitalWrite(m_pinBlue, blue);
 }
