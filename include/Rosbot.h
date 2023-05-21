@@ -1,13 +1,10 @@
 #pragma once
 
-#include "AccelStepper.h"
-
-#include "drivers/AS5600.h"
 #include "drivers/RadioInterface.h"
-#include "SBUS.h"
+#include "drivers/RGB_LED.h"
 #include "drivers/IMU.h"
-
-#define MOTORINTERFACETYPE 1
+#include "drivers/DRV8876.h"
+#include "drivers/N20Encoder.h"
 
 class Rosbot {
     public:
@@ -15,13 +12,19 @@ class Rosbot {
         ~Rosbot();
 
         void setup();
-
         void tankDrive();
-        
+        void update();
     private:
         RadioInterface m_rx;
-        AS5600 m_encL;
-        AS5600 m_encR;
-        IMU m_imu;
+
+        DRV8876 m_driverL;
+        DRV8876 m_driverR;
+
+        N20Encoder m_encoderL;
+        N20Encoder m_encoderR;
+
+        RGBLED m_status;
+
+        long int m_timer;
 
 };
