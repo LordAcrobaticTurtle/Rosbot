@@ -11,7 +11,15 @@ DRV8876::DRV8876(
     m_pinNFault = pinNFault;
     m_pinSleep = pinSleep;
 
+    pinMode(m_pinPWM, OUTPUT);
+    pinMode(m_pinDirection, OUTPUT);
+    pinMode(m_pinCurrSense, INPUT);
+    pinMode(m_pinNFault, OUTPUT);
+    pinMode(m_pinSleep, OUTPUT);
     wakeup(true);
+    
+    setThrottle(0);
+    setThrottle(0);
 }
 
 void DRV8876::wakeup(bool setAwake) {

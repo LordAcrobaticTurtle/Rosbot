@@ -22,7 +22,7 @@ class DRV8876 {
         // Clamp between 0 and 255
         void setThrottle(int throttle);
         void setDirection(bool isClockwise);
-        void wakeup(bool setToSleep);
+        void wakeup(bool setAwake);
 
         /** Read current is tricky. Greatly depends on what state the driver is
         * in. Fairly certain it is only useful when actively driving or braking
