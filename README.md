@@ -27,12 +27,18 @@ A collection of src files for the rosbot code.
 
 
 ### HARDWARE
-  - PCB design
+  - ~~PCB design~~
   - Purchase crimping tool
   - Bluetooth connection to computer. 
-  - Add battery measurement system to PCB
+  - Add battery measurement system to PCB -> Voltage divider is good solution. Just select right voltage for 3.3V 
+  - JST connectors for motors
+  - straight XT30 connection for power, no dangling cable
+  - 
+  - 
 
 - 3D PRINT  
   - Print stepper base board
   - Print new wheels 
+
+
   
