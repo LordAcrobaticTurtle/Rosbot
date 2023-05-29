@@ -17,6 +17,7 @@ A collection of src files for the rosbot code.
   - Accuracy confirmation with AS5600
   - Localisation estimate
   - Raw angle to degrees
+  - Change IMU implementation to use the I2CMaster/I2Cdevice classes
 
 
 ### Encoder software
@@ -30,11 +31,13 @@ A collection of src files for the rosbot code.
   - ~~PCB design~~
   - Purchase crimping tool
   - Bluetooth connection to computer. 
-  - Add battery measurement system to PCB -> Voltage divider is good solution. Just select right voltage for 3.3V 
+    - TEST RX+TX pins then switch if necessary
+  - Add battery measurement system to PCB -> 
+    - Voltage divider is good solution. Just select right voltage for 3.3V 
   - JST connectors for motors
   - straight XT30 connection for power, no dangling cable
-  - 
-  - 
+  - POWER SWITCH
+  - Pull up resistors on I2C
 
 - 3D PRINT  
   - Print stepper base board
