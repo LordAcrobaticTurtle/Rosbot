@@ -51,7 +51,7 @@ void Rosbot::update() {
     m_rx.update();
     m_encoderL.update();
     m_encoderR.update();
-
+    // m_imu.update()
     double channels[TX_NUM_CHANNELS];
     memset(channels, 0, TX_NUM_CHANNELS*sizeof(double));
     

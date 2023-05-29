@@ -1,6 +1,5 @@
 #include "comms/I2CInterface.h"
 
-
 I2Cinterface::I2Cinterface() {}
 
 void I2Cinterface::setup(I2CDriverWire * wirePtr, int deviceAddress) {
@@ -15,7 +14,7 @@ int I2Cinterface::i2cWrite(byte * buffer, int bufLength) {
         m_wirePtr->write(*ptr);
     }
 
-    m_wirePtr->endTransmission(true);
+    return m_wirePtr->endTransmission(true);
 }
 
 int I2Cinterface::i2cRead(byte * outBuf, int requestedBytes) {
