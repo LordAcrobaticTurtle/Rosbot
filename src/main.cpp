@@ -1,7 +1,7 @@
 
 #include <AccelStepper.h>
 #include <MultiStepper.h>
-#include <Rosbot.h>
+// #include <Rosbot.h>
 #include <drivers/RadioInterface.h>
 #include <drivers/AS5600.h>
 #include <drivers/IMU.h>
@@ -11,19 +11,22 @@
 #include <i2c_device.h>
 #include <i2c_driver.h>
 
-Rosbot robot;
+// Rosbot robot;
+IMU imu;
 
 void setup()
 {  
     Serial.begin(115200);
     Serial.println("Begin!");
-    robot.setup();
+    Master.begin(100 * 1000U);
+    imu.setup(Master);
+    // robot.setup();
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, HIGH);
 }
 
 void loop()
 {
-    robot.update();
+    // robot.update();
 }
 
