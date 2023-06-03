@@ -5,8 +5,8 @@ Rosbot::Rosbot() :
     m_rx(&Serial1), 
     m_driverL(11, 12, 10, -1, 5), 
     m_driverR(22, 20, 14, -1, 23), 
-    m_encoderL(enc1_c1, enc1_c2), 
-    m_encoderR(enc2_c1, enc2_c2),
+    // m_encoderL(enc1_c1, enc1_c2), 
+    // m_encoderR(enc2_c1, enc2_c2),
     m_status(3,4,2,true)
 { 
     
@@ -17,8 +17,8 @@ Rosbot::~Rosbot() {}
 void Rosbot::setup() 
 {
     m_timer = 0;
-    m_encoderL.setup();
-    m_encoderR.setup();
+    // m_encoderL.setup();
+    // m_encoderR.setup();
     m_rx.setup();
     // m_imu.setup(&Wire1);
 }
@@ -49,8 +49,8 @@ void Rosbot::tankDrive()
 
 void Rosbot::update() {
     m_rx.update();
-    m_encoderL.update();
-    m_encoderR.update();
+    // m_encoderL.update();
+    // m_encoderR.update();
 
     double channels[TX_NUM_CHANNELS];
     memset(channels, 0, TX_NUM_CHANNELS*sizeof(double));

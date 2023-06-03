@@ -4,7 +4,6 @@
 #include "drivers/RGB_LED.h"
 #include "drivers/IMU.h"
 #include "drivers/DRV8876.h"
-#include "drivers/N20Encoder.h"
 
 class Rosbot {
     public:
@@ -20,8 +19,8 @@ class Rosbot {
         DRV8876 m_driverL;
         DRV8876 m_driverR;
 
-        N20Encoder m_encoderL;
-        N20Encoder m_encoderR;
+        // N20Encoder m_encoderL;
+        // N20Encoder m_encoderR;
 
         RGBLED m_status;
 
