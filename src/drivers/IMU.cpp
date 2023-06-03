@@ -1,14 +1,17 @@
 #include "drivers/IMU.h"
 
-IMU::IMU(I2CMaster *interface)
+IMU::IMU()
 {
     
 }
 
 IMU::~IMU() {}
 
-void IMU::setup(I2CMaster *interface) {
+bool IMU::setup(I2CMaster &interface) {
+    m_interface = std::make_shared<I2CDevice>(interface, MPU6050_ADDRESS, __ORDER_BIG_ENDIAN__);
+    m_interface->write()
     
+
 }
 
 void IMU::update() {
@@ -19,7 +22,7 @@ void IMU::update() {
  
 void IMU::getRawSensorRegisters() {
     byte value = registerMap::ACCEL_XOUT_H;
- 
+    
 }
 
 void IMU::parseRawData() {

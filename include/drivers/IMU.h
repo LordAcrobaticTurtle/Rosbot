@@ -1,7 +1,7 @@
 #pragma once
 #include <Arduino.h>
 #include <i2c_device.h>
-
+#include <memory>
 
 #define INT_PIN 2
 #define MPU6050_ADDRESS 0x68
@@ -9,11 +9,11 @@
 
 class IMU {
     public:
-        IMU(I2CMaster *interface);
+        IMU();
         ~IMU();
 
         // Setup - Take the MPU6050 out of sleep mode
-        void setup(I2CMaster *interface);
+        bool setup(I2CMaster &interface);
 
         // Updates all data objects
         void update();
@@ -24,7 +24,8 @@ class IMU {
         int calculateEulerAngles();
 
     private:
-        I2CDevice *m_interface;
+        // I2CDevice *m_interface;
+        std::shared_ptr<I2CDevice> m_interface;
         // I2Cinterface m_i2cInterface;
 
         bool blinkState = false;
