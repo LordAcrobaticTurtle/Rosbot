@@ -8,15 +8,13 @@ A collection of src files for the rosbot code.
 - Development code goes on development branch 
 - Code doesn't go into main until it has been unit tested
 
-## TODO
-- SOFTWARE
-  - A stepper driver code that incorporates feedback from AS5600 for disturbance rejection
-    - Set speeds
-  - IMU class -> Mostly done with Electronic Cats library
-  - Velocity estimation from AS5600
-  - Accuracy confirmation with AS5600
-  - Localisation estimate
-  - Raw angle to degrees
+# TODO
+## SOFTWARE
+### LOCALISATION
+- Kalman filter: Use accel measurements as orientation measurements and rates as partials / predicted 
+  - Hopefully will eliminate gyro drift
+  - ~~Change IMU implementation to use the I2CMaster/I2Cdevice classes~~
+- Encoders: Pass a "count" variable into a class as a reference to manage
 
 
 ### Encoder software
@@ -30,11 +28,14 @@ A collection of src files for the rosbot code.
   - ~~PCB design~~
   - Purchase crimping tool
   - Bluetooth connection to computer. 
-  - Add battery measurement system to PCB -> Voltage divider is good solution. Just select right voltage for 3.3V 
+    - TEST RX+TX pins then switch if necessary
+  - Add battery measurement system to PCB -> 
+    - Voltage divider is good solution. Just select right voltage for 3.3V 
   - JST connectors for motors
   - straight XT30 connection for power, no dangling cable
-  - 
-  - 
+  - POWER SWITCH
+  - Pull up resistors on I2C - a maybe
+  - Input button. 
 
 - 3D PRINT  
   - Print stepper base board

@@ -26,15 +26,12 @@ void DRV8876::wakeup(bool setAwake) {
     digitalWrite(m_pinSleep, setAwake);
 }
 
+// Expects values between -255 and 255
 void DRV8876::setThrottle(int throttle) {
     int throttleSet = throttle;
-    if (throttleSet < 0) {
-        throttleSet = 0;
-    }
 
-    if (throttleSet > PWM_MAX) {
-        throttleSet = PWM_MAX;
-    }
+    throttleSet = constrain(throttleSet, MIN_THROTTLE, MAX_THROTTLE);
+    
     
     analogWrite(m_pinPWM, throttleSet);
 }

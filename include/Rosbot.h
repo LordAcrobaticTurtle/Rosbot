@@ -4,7 +4,6 @@
 #include "drivers/RGB_LED.h"
 #include "drivers/IMU.h"
 #include "drivers/DRV8876.h"
-#include "drivers/N20Encoder.h"
 
 class Rosbot {
     public:
@@ -14,17 +13,24 @@ class Rosbot {
         void setup();
         void tankDrive();
         void update();
+
+    private:
+        void printRobotState();
+    
     private:
         RadioInterface m_rx;
+        double m_channels[TX_NUM_CHANNELS];
 
         DRV8876 m_driverL;
         DRV8876 m_driverR;
 
-        N20Encoder m_encoderL;
-        N20Encoder m_encoderR;
-
         RGBLED m_status;
 
+        IMU m_imu;
+                
+
+        float m_tf;
+        float m_ti;
         long int m_timer;
 
 };

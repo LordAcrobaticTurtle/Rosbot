@@ -1,12 +1,11 @@
 #pragma once
 #include <Arduino.h>
 #include <i2c_device.h>
-#include <i2c_driver_wire.h>
-
-#include "comms/I2CInterface.h"
+#include <memory>
 
 #define INT_PIN 2
 #define MPU6050_ADDRESS 0x68
+#define GRAVITY 9.81
 // The IMU starts in sleep mode
 
 class IMU {
@@ -15,29 +14,36 @@ class IMU {
         ~IMU();
 
         // Setup - Take the MPU6050 out of sleep mode
-        void setup(I2CDriverWire * wireObj);
+        void setup(I2CMaster &interface);
 
         // Updates all data objects
-        void update();
+        void update(float ts);
 
     private:
+        bool init(I2CMaster &interface);
         void getRawSensorRegisters();
-        void parseRawData(); // MPU6050 specific
+        void parseRawData(); 
         int calculateEulerAngles();
 
     private:
-        I2Cinterface m_i2cInterface;
-
-        bool blinkState = false;
+        double m_dt;
+    
+        std::shared_ptr<I2CDevice> m_interface;
+        bool m_configured;
 
         byte m_rawRegisters[14];
         // Raw data array
         // [x ,y, z]
-        uint16_t m_accelData[3];
-        uint16_t m_temp;
-        uint16_t m_gyroData[3];
+        int16_t m_accelData[3];
+        int16_t m_temp;
+        int16_t m_gyroDataRaw[3];
+        //                            Units
+        float m_gyroDataF[3];    //   degrees/second
+        float m_accelDataF[3];   //   m/s/s
+        float m_eulerXYZ[3];     //   radians
+        float m_gyroAngle[3];    //   Dead reckoning estimate. degrees
+        float m_gyroRateOffset[3];//  degrees/second
 
-        
         enum registerMap {
             // Self test registers
             SELF_TEST_x = 0x0D,
