@@ -17,7 +17,7 @@ class IMU {
         void setup(I2CMaster &interface);
 
         // Updates all data objects
-        void update();
+        void update(uint32_t ts);
 
     private:
         bool init(I2CMaster &interface);
@@ -26,6 +26,9 @@ class IMU {
         int calculateEulerAngles();
 
     private:
+        float m_tf;
+        float m_ti;
+    
         std::shared_ptr<I2CDevice> m_interface;
         bool m_configured;
 

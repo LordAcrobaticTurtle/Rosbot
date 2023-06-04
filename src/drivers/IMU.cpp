@@ -15,7 +15,7 @@ void IMU::setup(I2CMaster &interface) {
     m_configured = init(interface);
     
     // Compute bias of gyroscope at rest
-    const int numSamples = 2000;
+    const int numSamples = 1000;
     float gyroSamples[3] = {0,0,0};
 
     for (int i = 0; i < numSamples; i++) {
@@ -32,6 +32,8 @@ void IMU::setup(I2CMaster &interface) {
         Serial.print(String(m_gyroRateOffset[i]) + ", ");
     }
     Serial.println();
+
+    m_gyroAngle[0] = atan2(m_accelDataF[2], m_accelDataF[1]); // Initiate setup for absolute angles 
     
 }
 
@@ -48,10 +50,12 @@ bool IMU::init(I2CMaster &interface) {
     return result1 && result2 && result3; 
 }
 
-void IMU::update() {
+void IMU::update(uint32_t ts) {
+    m_tf = ts;
     getRawSensorRegisters();
     parseRawData();
     calculateEulerAngles();
+    m_ti = m_tf;
 }
  
 void IMU::getRawSensorRegisters() {
@@ -100,31 +104,25 @@ int IMU::calculateEulerAngles() {
     if (!m_configured) {
         return 0;
     }
-    static double tf = 0;
-    static double ti = 0;
 
     // Remove bias
     for (int i = 0; i < 3; i++) {
         m_gyroDataF[i] = m_gyroDataF[i] - m_gyroRateOffset[i];
     }
 
-    tf = micros();
-    double dt = (tf-ti)/1000000;
+    double dt = (m_tf-m_ti)/1000000;
 
     m_gyroAngle[0] = m_gyroDataF[0] * dt + m_gyroAngle[0];
 
     m_eulerRPY[0] = atan2(m_accelDataF[2], m_accelDataF[1]);
     m_eulerRPY[1] = m_gyroAngle[0];
     m_eulerRPY[2] = m_gyroAngle[0] * PI/180 * 0.96 + m_eulerRPY[0] * 0.04;
-    // m_eulerRPY[1] = m_gyroDataF[0] + m_eulerRPY[1];
 
     for (int i = 0; i < 3; i++) {
         Serial.print(String(m_eulerRPY[i]) + ", ");
     }
 
     Serial.println();
-
-    ti = tf;
 }
 
 // bool configure_sensor() {
