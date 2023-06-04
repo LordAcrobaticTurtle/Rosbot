@@ -1,5 +1,6 @@
 #include <Rosbot.h>
 #include <utility/math.h>
+#include <control/PID.h>
 
 Rosbot::Rosbot() : 
     m_rx(&Serial1), 
@@ -76,7 +77,6 @@ void Rosbot::update() {
         m_driverL.setThrottle(-sumL);
         m_driverR.setThrottle(sumR);
     }
-
 
     if (millis() - m_timer > 100) {
         m_timer = millis();
