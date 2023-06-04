@@ -26,6 +26,7 @@ class RadioInterface {
         bool isSafetyOff();
 
         void printChannels();
+    
     // Functions
     private:
         int readSBUS();
@@ -36,6 +37,7 @@ class RadioInterface {
     // Member variables
     private:
         SBUS m_tx;
+        bool m_isDeadSwitchOff;
         bool m_failsafe;
         bool m_lostFrame;       
         int m_deadband;

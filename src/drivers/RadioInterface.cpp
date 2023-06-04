@@ -6,6 +6,7 @@ m_tx(*p_serialPort)
 {
     m_deadband = 50;
     m_isInitialised = true;
+    m_isDeadSwitchOff = false;
 }
 
 RadioInterface::~RadioInterface() {}
@@ -62,8 +63,6 @@ void RadioInterface::update()
         // Set all data to zero
         for(int ch = 0; ch < TX_NUM_CHANNELS; ch++) 
             m_channelValues[ch] = 0;
-            
-            // Serial.print("ch[" + String(ch) + "]: " + String(m_channelValues) + ", ");
         return;
     }
 
@@ -72,6 +71,13 @@ void RadioInterface::update()
     scaleChannels(m_channelValues, m_channelEndpointsMin, m_channelEndpointsMax);
     int deadband = 5;
     applyDeadbandToChannels(m_channelValues, m_prevChannelValues, deadband);
+
+    if (m_channelValues[7] > 500) {
+        m_isDeadSwitchOff = true;
+    } else {
+        m_isDeadSwitchOff = false;
+    }
+
 }
 
 bool RadioInterface::hasLostConnection() 
@@ -81,7 +87,8 @@ bool RadioInterface::hasLostConnection()
 
 bool RadioInterface::isSafetyOff()
 {
-    return m_channelValues[CHANNEL_SAFETY] > 500;
+    return m_isDeadSwitchOff;
+    // return m_channelValues[CHANNEL_SAFETY] > 500;
 }
 
 int RadioInterface::readSBUS() 
