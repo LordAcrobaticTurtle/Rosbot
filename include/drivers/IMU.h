@@ -35,12 +35,12 @@ class IMU {
         int16_t m_accelData[3];
         int16_t m_temp;
         int16_t m_gyroDataRaw[3];
-
-        float m_gyroDataF[3];   // Units 
-        float m_accelDataF[3];
-        float m_eulerRPY[3];
-        float m_gyroAngle[3];
-        float m_gyroRateOffset[3];
+        //                            Units
+        float m_gyroDataF[3];    //   degrees/second
+        float m_accelDataF[3];   //   m/s/s
+        float m_eulerRPY[3];     //   radians
+        float m_gyroAngle[3];    //   Dead reckoning estimate. degrees
+        float m_gyroRateOffset[3];//  degrees/second
 
         enum registerMap {
             // Self test registers
