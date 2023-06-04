@@ -32,8 +32,13 @@ void DRV8876::setThrottle(int throttle) {
 
     throttleSet = constrain(throttleSet, MIN_THROTTLE, MAX_THROTTLE);
     
-    
-    analogWrite(m_pinPWM, throttleSet);
+    if (throttleSet < 0) {
+        setDirection(false);
+    } else {
+        setDirection(true);
+    }
+
+    analogWrite(m_pinPWM, abs(throttleSet));
 }
 
 void DRV8876::setDirection(bool isClockwise) {

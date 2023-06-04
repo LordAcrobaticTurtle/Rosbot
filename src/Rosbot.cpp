@@ -63,17 +63,24 @@ void Rosbot::update() {
     m_rx.getChannelPercentage(m_channels, scaleFactor);
     double steering = m_channels[0];
     double throttle = m_channels[2];
-    // steering = floatMap(steering, 0, scaleFactor, -1, 1)*255.0;
+    steering = floatMap(steering, 0, scaleFactor, -0.5, 0.5);
+    throttle = floatMap(throttle, 0, scaleFactor, -1, 1);
+    
+    int sumL = (throttle + steering)*PWM_MAX;
+    int sumR = (throttle - steering)*PWM_MAX;
 
     if (!m_rx.isSafetyOff() || m_rx.hasLostConnection()) {
         m_driverL.setThrottle(0);
         m_driverR.setThrottle(0);
+    } else {
+        m_driverL.setThrottle(-sumL);
+        m_driverR.setThrottle(sumR);
     }
+
 
     if (millis() - m_timer > 100) {
         m_timer = millis();
-        Serial.println("TX: " + String(throttle) + ", " + String(steering));
-        // m_status.toggleGreen();
+        Serial.println("L: " + String(sumL) + ", R:" + String(sumR) + ", " + String(m_rx.isSafetyOff()));
     }
 
     m_ti = m_tf;
