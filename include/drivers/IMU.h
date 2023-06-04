@@ -5,6 +5,7 @@
 
 #define INT_PIN 2
 #define MPU6050_ADDRESS 0x68
+#define GRAVITY 9.81
 // The IMU starts in sleep mode
 
 class IMU {
@@ -13,31 +14,34 @@ class IMU {
         ~IMU();
 
         // Setup - Take the MPU6050 out of sleep mode
-        bool setup(I2CMaster &interface);
+        void setup(I2CMaster &interface);
 
         // Updates all data objects
         void update();
 
     private:
+        bool init(I2CMaster &interface);
         void getRawSensorRegisters();
-        void parseRawData(); // MPU6050 specific
+        void parseRawData(); 
         int calculateEulerAngles();
 
     private:
-        // I2CDevice *m_interface;
         std::shared_ptr<I2CDevice> m_interface;
-        // I2Cinterface m_i2cInterface;
-
-        bool blinkState = false;
+        bool m_configured;
 
         byte m_rawRegisters[14];
         // Raw data array
         // [x ,y, z]
-        uint16_t m_accelData[3];
-        uint16_t m_temp;
-        uint16_t m_gyroData[3];
+        int16_t m_accelData[3];
+        int16_t m_temp;
+        int16_t m_gyroDataRaw[3];
 
-        
+        float m_gyroDataF[3];   // Units 
+        float m_accelDataF[3];
+        float m_eulerRPY[3];
+        float m_gyroAngle[3];
+        float m_gyroRateOffset[3];
+
         enum registerMap {
             // Self test registers
             SELF_TEST_x = 0x0D,
