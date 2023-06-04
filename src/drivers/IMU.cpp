@@ -8,7 +8,7 @@ IMU::IMU()
 IMU::~IMU() {}
 
 void IMU::setup(I2CMaster &interface) {
-    memset(m_eulerRPY, 0, sizeof(float) * 3);
+    memset(m_eulerXYZ, 0, sizeof(float) * 3);
     memset(m_gyroAngle, 0, sizeof(float) * 3);
     memset(m_gyroRateOffset, 0, sizeof(float) * 3);
 
@@ -33,7 +33,7 @@ void IMU::setup(I2CMaster &interface) {
     }
     Serial.println();
 
-    m_gyroAngle[0] = atan2(m_accelDataF[2], m_accelDataF[1]); // Initiate setup for absolute angles 
+    m_gyroAngle[0] = -atan2(m_accelDataF[2], m_accelDataF[1]); // Initiate setup for absolute angles 
     
 }
 
@@ -50,12 +50,11 @@ bool IMU::init(I2CMaster &interface) {
     return result1 && result2 && result3; 
 }
 
-void IMU::update(uint32_t ts) {
-    m_tf = ts;
+void IMU::update(float dt) {
+    m_dt = dt;
     getRawSensorRegisters();
     parseRawData();
     calculateEulerAngles();
-    m_ti = m_tf;
 }
  
 void IMU::getRawSensorRegisters() {
@@ -105,35 +104,23 @@ int IMU::calculateEulerAngles() {
         return 0;
     }
 
-    // Remove bias
     for (int i = 0; i < 3; i++) {
-        m_gyroDataF[i] = m_gyroDataF[i] - m_gyroRateOffset[i];
+        // Remove bias
+        // Switch to radians
+        m_gyroDataF[i] = (m_gyroDataF[i] - m_gyroRateOffset[i]) * PI/180; 
+
+        // Update dead reckoning estimate
+        m_gyroAngle[i] = m_gyroDataF[i]*m_dt + m_gyroAngle[i];
     }
 
-    double dt = (m_tf-m_ti)/1000000;
+    double accelAngleX = atan2(m_accelDataF[2], m_accelDataF[1]);
+    double alpha = 0.96;
 
-    m_gyroAngle[0] = m_gyroDataF[0] * dt + m_gyroAngle[0];
+    m_eulerXYZ[0] = m_gyroAngle[0]*alpha + accelAngleX*(1.0-alpha);
 
-    m_eulerRPY[0] = atan2(m_accelDataF[2], m_accelDataF[1]);
-    m_eulerRPY[1] = m_gyroAngle[0];
-    m_eulerRPY[2] = m_gyroAngle[0] * PI/180 * 0.96 + m_eulerRPY[0] * 0.04;
+    // for (int i = 0; i < 3; i++) {
+    //     Serial.print(String(m_eulerXYZ[i]) + ", ");
+    // }
 
-    for (int i = 0; i < 3; i++) {
-        Serial.print(String(m_eulerRPY[i]) + ", ");
-    }
-
-    Serial.println();
+    // Serial.println();
 }
-
-// bool configure_sensor() {
-//     uint16_t wakeup = 0;
-//     if (!sensor.write(0x6B, wakeup, false)) {
-//         return false;
-//     }
-//     uint16_t gyroSenstivity = 0b00001000;
-//     if (!sensor.write(0x1B, gyroSenstivity, false)) {
-//         return false;
-//     }
-
-//     return true;
-// }

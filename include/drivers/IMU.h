@@ -17,7 +17,7 @@ class IMU {
         void setup(I2CMaster &interface);
 
         // Updates all data objects
-        void update(uint32_t ts);
+        void update(float ts);
 
     private:
         bool init(I2CMaster &interface);
@@ -26,8 +26,7 @@ class IMU {
         int calculateEulerAngles();
 
     private:
-        float m_tf;
-        float m_ti;
+        double m_dt;
     
         std::shared_ptr<I2CDevice> m_interface;
         bool m_configured;
@@ -41,7 +40,7 @@ class IMU {
         //                            Units
         float m_gyroDataF[3];    //   degrees/second
         float m_accelDataF[3];   //   m/s/s
-        float m_eulerRPY[3];     //   radians
+        float m_eulerXYZ[3];     //   radians
         float m_gyroAngle[3];    //   Dead reckoning estimate. degrees
         float m_gyroRateOffset[3];//  degrees/second
 
