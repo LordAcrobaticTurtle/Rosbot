@@ -19,6 +19,8 @@ class IMU {
         // Updates all data objects
         void update(float ts);
 
+        float *getEulerXYZ() {return m_eulerXYZ;}
+
     private:
         bool init(I2CMaster &interface);
         void getRawSensorRegisters();
