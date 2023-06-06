@@ -4,6 +4,7 @@
 #include "drivers/RGB_LED.h"
 #include "drivers/IMU.h"
 #include "drivers/DRV8876.h"
+#include <control/pid_controller.h>
 
 class Rosbot {
     public:
@@ -27,7 +28,7 @@ class Rosbot {
         RGBLED m_status;
 
         IMU m_imu;
-                
+        PIDParams m_imuParams;                
 
         float m_tf;
         float m_ti;
