@@ -1,6 +1,6 @@
 #include <Rosbot.h>
 #include <utility/math.h>
-#include <control/PID.h>
+
 
 Rosbot::Rosbot() : 
     m_rx(&Serial1), 
@@ -12,6 +12,7 @@ Rosbot::Rosbot() :
 { 
     m_tf = 0;
     m_ti = 0;
+    memset(&m_imuParams, 0, sizeof(PIDParams));
 }
 
 Rosbot::~Rosbot() {}
@@ -58,8 +59,8 @@ void Rosbot::update() {
     float dt = m_tf - m_ti;
     m_imu.update(dt/1000.0);
     m_rx.update();
-    // m_encoderL.update();
-    // m_encoderR.update();
+    float *eulerXYZ = m_imu.getEulerXYZ();
+    
     double scaleFactor = 1.0;
     m_rx.getChannelPercentage(m_channels, scaleFactor);
     double steering = m_channels[0];
@@ -67,8 +68,18 @@ void Rosbot::update() {
     steering = floatMap(steering, 0, scaleFactor, -0.5, 0.5);
     throttle = floatMap(throttle, 0, scaleFactor, -1, 1);
     
+    PIDParams params;
+    params.currValue = eulerXYZ[0];
+    params.kd = 1;
+    params.target = 0.0;
+    params.dt = dt;
+    
+    float response = PIDController::computeResponse(params);
+
     int sumL = (throttle + steering)*PWM_MAX;
     int sumR = (throttle - steering)*PWM_MAX;
+
+
 
     if (!m_rx.isSafetyOff() || m_rx.hasLostConnection()) {
         m_driverL.setThrottle(0);
@@ -78,9 +89,11 @@ void Rosbot::update() {
         m_driverR.setThrottle(sumR);
     }
 
+    
+
     if (millis() - m_timer > 100) {
         m_timer = millis();
-        Serial.println("L: " + String(sumL) + ", R:" + String(sumR) + ", " + String(m_rx.isSafetyOff()));
+        Serial.println("Response: " + String(response));
     }
 
     m_ti = m_tf;
