@@ -30,30 +30,6 @@ void Rosbot::setup()
     memset(m_channels, 0, TX_NUM_CHANNELS*sizeof(double));
 }
 
-void Rosbot::tankDrive() 
-{
-    // Update command values
-    m_rx.update();
-    // m_imu.update();
-    // Grab current values + endpoints
-    uint16_t channels[TX_NUM_CHANNELS];
-    m_rx.getChannels(channels);
-    uint16_t channelMinEndpoints[TX_NUM_CHANNELS];
-    uint16_t channelMaxEndpoints[TX_NUM_CHANNELS];
-    m_rx.getChannelEndpoints(channelMinEndpoints, channelMaxEndpoints);
-
-    uint16_t rollMax, rollMin;
-    uint16_t throttleMax, throttleMin;
-
-    float roll = channels[CHANNEL_ROLL];
-    float throttle = channels[CHANNEL_THROTTLE];
-
-    throttleMax = channelMaxEndpoints[CHANNEL_THROTTLE];
-    throttleMin = channelMinEndpoints[CHANNEL_THROTTLE];
-    rollMax = channelMaxEndpoints[CHANNEL_ROLL];
-    rollMin = channelMinEndpoints[CHANNEL_ROLL];
-}
-
 void Rosbot::update() {
     m_tf = millis();
     float dt = m_tf - m_ti;
@@ -73,7 +49,7 @@ void Rosbot::update() {
     params.kd = 1;
     params.target = 0.0;
     params.dt = dt;
-    
+
     float response = PIDController::computeResponse(params);
 
     int sumL = (throttle + steering)*PWM_MAX;
