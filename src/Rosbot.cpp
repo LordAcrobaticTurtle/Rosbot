@@ -12,7 +12,8 @@ Rosbot::Rosbot() :
 { 
     m_tf = 0;
     m_ti = 0;
-    memset(&m_imuParams, 0, sizeof(PIDParams));
+    memset(&m_angleControl, 0, sizeof(PIDParams));
+    memset(&m_angleRateControl, 0, sizeof(PIDParams));
 }
 
 Rosbot::~Rosbot() {}
@@ -44,28 +45,24 @@ void Rosbot::update() {
     steering = floatMap(steering, 0, scaleFactor, -0.5, 0.5);
     throttle = floatMap(throttle, 0, scaleFactor, -1, 1);
     
-    PIDParams params;
-    params.currValue = eulerXYZ[0];
-    params.kd = 1;
-    params.target = 0.0;
-    params.dt = dt;
-
-    float response = PIDController::computeResponse(params);
-
+    m_angleControl.currValue = eulerXYZ[0];
+    m_angleControl.kp = 1;
+    m_angleControl.target = 0.0;
+    m_angleControl.dt = dt;
+    
+    float response = PIDController::computeResponse(m_angleControl);
+ 
     int sumL = (throttle + steering)*PWM_MAX;
     int sumR = (throttle - steering)*PWM_MAX;
-
-
 
     if (!m_rx.isSafetyOff() || m_rx.hasLostConnection()) {
         m_driverL.setThrottle(0);
         m_driverR.setThrottle(0);
+        m_status.mix(255, 163, 0);
     } else {
         m_driverL.setThrottle(-sumL);
         m_driverR.setThrottle(sumR);
     }
-
-    
 
     if (millis() - m_timer > 100) {
         m_timer = millis();
