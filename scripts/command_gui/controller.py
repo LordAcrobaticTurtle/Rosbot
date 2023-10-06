@@ -3,7 +3,10 @@ import serial.tools.list_ports
 import threading
 import math
 import time
-        
+import comms.packetID
+from comms.packet import PacketHeader
+from comms.packet import PacketHandler
+import struct
 
 class Controller:
     def __init__(self, model, view):
@@ -36,7 +39,20 @@ class Controller:
 
     def serialUpdate(self) -> None:
         print("Serial update")
-        pass
+        if (self._openPort.in_waiting > 0):
+            # Get data and put into buffer
+            
+            # Look for a single packet
+            buffer = self._openPort.read(PacketHeader.HEADER_SIZE + PacketHeader.MAX_PACKET_DATA_SIZE)
+            
+            # Get the header out of the packet
+            header = PacketHeader()
+            
+            header = struct.unpack(PacketHeader.FORMAT, buffer, PacketHeader.HEADER_SIZE)
+            
+
+
+            
 
     def closeSerialPort(self, port: str):
         self._openPort.close()
