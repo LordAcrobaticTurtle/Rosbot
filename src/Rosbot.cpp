@@ -1,5 +1,7 @@
 #include <Rosbot.h>
 #include <utility/math.h>
+#include <comms/packet.h>
+#include <comms/packetID.h>
 
 
 Rosbot::Rosbot() : 
@@ -19,6 +21,7 @@ Rosbot::~Rosbot() {}
 
 void Rosbot::setup() 
 {
+    m_bleComms.init(&Serial4, 9600);
     m_timer = 0;
     // m_encoderL.setup();
     // m_encoderR.setup();
@@ -55,8 +58,6 @@ void Rosbot::update() {
     int sumL = (throttle + steering)*PWM_MAX;
     int sumR = (throttle - steering)*PWM_MAX;
 
-
-
     if (!m_rx.isSafetyOff() || m_rx.hasLostConnection()) {
         m_driverL.setThrottle(0);
         m_driverR.setThrottle(0);
@@ -65,12 +66,26 @@ void Rosbot::update() {
         m_driverR.setThrottle(sumR);
     }
 
-    
-
     if (millis() - m_timer > 100) {
         m_timer = millis();
         Serial.println("Response: " + String(response));
     }
+    
+
+    commsPacket::State state;
+    state.current[0] = m_driverL.readCurrent();
+    state.current[1] = m_driverR.readCurrent();
+    state.eulerXYZ = m_imu.getEulerXYZ();
+    state.velocity[0] = 0;
+    state.velocity[1] = 0;
+    
+    Packet packet;
+    packet.m_header.m_dataSize = sizeof(state) + sizeof(PacketHeader);
+    packet.m_header.m_packetID = PacketID::STATE;
+    packet.m_header.m_timestamp = micros();
+    packet.m_data = (unsigned char *) &state;
+    
+    m_bleComms.sendBytes();
 
     m_ti = m_tf;
 }
