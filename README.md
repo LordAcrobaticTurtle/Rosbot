@@ -16,6 +16,12 @@ A collection of src files for the rosbot code.
   - ~~Change IMU implementation to use the I2CMaster/I2Cdevice classes~~
 - Encoders: Pass a "count" variable into a class as a reference to manage
 
+### Control
+- Torque constant -> According to website https://www.aliexpress.com/item/1005004999529855.html?spm=a2g0o.order_list.order_list_main.5.2d5218023v7Bh6
+- 12V motor reductino ratio of 100 with 300rpm 
+  - Max torque = 1.6kgcm 
+  - Stall current = 0.9A
+  - Therefore 
 
 ### Encoder software
 - Need a way to zero encoders when not moving
@@ -27,15 +33,17 @@ A collection of src files for the rosbot code.
 ### HARDWARE
   - ~~PCB design~~
   - Purchase crimping tool
-  - Bluetooth connection to computer. 
-    - TEST RX+TX pins then switch if necessary
+  - Bluetooth connection to computer/phone 
+    - ~~TEST RX+TX pins then switch if necessary~~
   - Add battery measurement system to PCB -> 
     - Voltage divider is good solution. Just select right voltage for 3.3V 
-  - JST connectors for motors
-  - straight XT30 connection for power, no dangling cable
+  - ~~JST connectors for motors~~
+  - ~~straight XT30 connection for power, no dangling cable~~
   - POWER SWITCH
   - Pull up resistors on I2C - a maybe
-  - Input button. 
+  - ~~Input button. ~~
+
+- HC-05 password is 1234 on phone
 
 - 3D PRINT  
   - Print stepper base board
