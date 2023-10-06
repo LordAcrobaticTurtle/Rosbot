@@ -4,7 +4,7 @@
 #include "drivers/RGB_LED.h"
 #include "drivers/IMU.h"
 #include "drivers/DRV8876.h"
-#include "drivers/N20Encoder.h"
+#include <drivers/N20Encoder.h>
 #include <control/pid_controller.h>
 
 
@@ -23,6 +23,8 @@ class Rosbot {
         void setup();
         void tankDrive();
         void update();
+        
+        void test();
 
     private:
         void printRobotState();
@@ -37,6 +39,9 @@ class Rosbot {
         RGBLED m_status;
 
         IMU m_imu;
+
+        N20Encoder m_encoder1;
+        N20Encoder m_encoder2;
 
         // Modelling
         robotState m_state;
