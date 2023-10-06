@@ -21,6 +21,7 @@ RGBLED::RGBLED(int pinRed, int pinGreen, int pinBlue, bool isCommonGnd) {
     pinMode(m_pinRed, OUTPUT);
     pinMode(m_pinGreen, OUTPUT);
     pinMode(m_pinBlue, OUTPUT);
+    switchOff();
 }
 
 void RGBLED::switchRedOn() {
@@ -55,9 +56,16 @@ void RGBLED::switchOff() {
 
 void RGBLED::mix(int red, int green, int blue) {
     setCurrentColour(red, green, blue);
-    analogWrite(m_pinRed, red);
-    analogWrite(m_pinGreen, green);
-    analogWrite(m_pinBlue, blue);
+    if (m_isCommonGnd) {
+        analogWrite(m_pinRed, red);
+        analogWrite(m_pinGreen, green);
+        analogWrite(m_pinBlue, blue);
+    } 
+    else {
+        analogWrite(m_pinRed, 255-red);
+        analogWrite(m_pinGreen, 255-green);
+        analogWrite(m_pinBlue, 255-blue);
+    }
 }
 
 void RGBLED::setCurrentColour(int red, int green, int blue) {
