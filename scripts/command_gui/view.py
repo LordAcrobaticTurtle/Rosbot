@@ -45,13 +45,16 @@ class View(ttk.Frame):
         commandFrame = self.createCommandWindow(self._parent)
         commandFrame.grid(column=0,row=0, sticky=(tk.N,tk.S), rowspan=numRows)        
 
+        self.collectedPlots = {}
+
         # Create graphing windows
-        plot1 = self.createPlotWindow(self._parent)
+        self.collectedPlots["Plot1"] = False
+        plot1, plotVariables = self.createPlotWindow(self._parent, "Plot1")
+        self.collectedPlots["Plot1"] = plotVariables
         plot1.grid(column=1, row=0, sticky=(tk.E), padx=10)
 
-        # plot2 = self.createPlotWindow(self._parent)
-        # plot2.grid(column=2, row=0, sticky=(tk.W), padx=10)
-
+        print(plotVariables)
+        
         # Create app settings panel
         appSettingsFrame = self.createAppSettingsWindow(self._parent)
         appSettingsFrame.grid(column=1, row=1)
@@ -61,49 +64,51 @@ class View(ttk.Frame):
         comSettingsFrame.grid(column=2, row=1, sticky=(tk.W,tk.E))
 
 
-    def createPlotWindow(self, tkRootElement :tk.Tk) -> tk.Frame:
-        
-        self.plotT = list(range(0, 200))
-        self.plotX = [0] * 200
-
+    def createPlotWindow(self, tkRootElement :tk.Tk, plotIndex : str) -> (tk.Frame, dict):
+    
         plotBaseFrame = tk.Frame(tkRootElement)
 
         style.use('ggplot')
 
-        self.fig = Figure(figsize=(8,8), dpi=100)
-         # the figure that will contain the plot
-  
-        # adding the subplot
-        self.axis = self.fig.add_subplot(111)
-        self.axis.set_title("Plot")
-        self.axis.set_xlabel("time (s)")
-        self.axis.set_ylabel("magnitude of signal")
-        self.axis.set_ylim([-1, 1])
+        plotVariables = {
+            "plotIndex" : plotIndex,
+            "t" : list(range(0, 200)),
+            "x" : [0] * 200
+        }
+        fig = Figure(figsize=(8,8), dpi=100)
+        axis = fig.add_subplot(111)
+        axis.set_title("Plot")
+        axis.set_xlabel("time (s)")
+        axis.set_ylabel("magnitude of signal")
+        axis.set_ylim([-1, 1])
+        
         # plotting the graph
-        self.linePlot, = self.axis.plot([])
+        linePlot, = axis.plot([])
+
+
         # creating the Tkinter canvas
         # containing the Matplotlib figure
-        canvas = FigureCanvasTkAgg(self.fig, master = plotBaseFrame)  
-        self.animation = animation.FuncAnimation(self.fig, self.plotAnimate, fargs=(self.plotX,),
-                                                 interval=50, blit=True, repeat=True)
+        canvas = FigureCanvasTkAgg(fig, master = plotBaseFrame)  
+        # ani = animation.FuncAnimation(fig, self.plotAnimate, fargs=(plotIndex,),
+        #                                          interval=50, blit=True, repeat=True)
         canvas.draw()
-  
-        # placing the canvas on the Tkinter window
         canvas.get_tk_widget().grid()
+        
+        plotVariables["figure"] = fig
+        plotVariables["axis"] = axis
+        plotVariables["lineplot"] = linePlot
+        plotVariables["canvas"] = canvas
+        # plotVariables["animation"] = ani
   
-        # creating the Matplotlib toolbar
-        # placing the toolbar on the Tkinter window
-        canvas.get_tk_widget().grid()
-
-        return plotBaseFrame
+        return plotBaseFrame, plotVariables
     
-    def plotAnimate(self, i, y_axis_data):
+    def plotAnimate(self, i, plotIndex : str):
         (t, xS) = self.controller.generateSineWaveDataPoint(i)
-        # self.plotT.append(t)
-        y_axis_data.append(xS)
-        y_axis_data = y_axis_data[-200:0]
-        self.linePlot.set_ydata(y_axis_data)
-        print(t, xS)
+        print(self.collectedPlots[plotIndex])
+        if (self.collectedPlots[plotIndex]):
+            self.collectedPlots[plotIndex]["x"].append(xS)
+            print(t, xS)
+            return self.collectedPlots[plotIndex]["lineplot"]
         return self.linePlot,
 
         
