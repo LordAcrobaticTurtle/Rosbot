@@ -1,14 +1,12 @@
 #include <Rosbot.h>
 #include <utility/math.h>
-
+#include <utility/error_codes.h>
 
 Rosbot::Rosbot() : 
     m_rx(&Serial1), 
     m_driverL(11, 12, 10, -1, 5), 
     m_driverR(22, 20, 14, -1, 23), 
-    // m_encoderL(enc1_c1, enc1_c2), 
-    // m_encoderR(enc2_c1, enc2_c2),
-    m_status(3,4,2,true)
+    m_status(4,3,2,false)
 { 
     m_tf = 0;
     m_ti = 0;
@@ -21,12 +19,12 @@ Rosbot::~Rosbot() {}
 void Rosbot::setup() 
 {
     m_timer = 0;
-    // m_encoderL.setup();
-    // m_encoderR.setup();
     m_rx.setup();
     m_status.switchRedOn();
     m_imu.setup(Master);
     m_status.switchGreenOn();
+    // m_encoder1.setup(encoder1_c1_callback, encoder1_c2_callback, &enc1Count, enc1_c1, enc1_c2);
+    // m_encoder2.setup(encoder2_c1_callback, encoder2_c2_callback, &enc2Count, enc2_c1, enc2_c2);
 
     memset(m_channels, 0, TX_NUM_CHANNELS*sizeof(double));
 }
@@ -46,14 +44,17 @@ void Rosbot::update() {
     throttle = floatMap(throttle, 0, scaleFactor, -1, 1);
     
     m_angleControl.currValue = eulerXYZ[0];
-    m_angleControl.kp = 1;
-    m_angleControl.target = 0.0;
+    m_angleControl.kp = 1.0; // 3.0
+    m_angleControl.ki = 0.2; //0.1
+    m_angleControl.target = 0.05;
     m_angleControl.dt = dt;
     
-    float response = PIDController::computeResponse(m_angleControl);
- 
-    int sumL = (throttle + steering)*PWM_MAX;
-    int sumR = (throttle - steering)*PWM_MAX;
+    // float response = PIDController::computeResponse(m_angleControl);
+    float response = 0;
+    // int responseInt = static_cast<int>(response);
+
+    int sumL = (throttle + steering + response)*PWM_MAX;
+    int sumR = (throttle - steering + response)*PWM_MAX;
 
     if (!m_rx.isSafetyOff() || m_rx.hasLostConnection()) {
         m_driverL.setThrottle(0);
@@ -62,11 +63,12 @@ void Rosbot::update() {
     } else {
         m_driverL.setThrottle(-sumL);
         m_driverR.setThrottle(sumR);
+        m_status.mix(0,255,0);
     }
-
+ 
     if (millis() - m_timer > 100) {
         m_timer = millis();
-        Serial.println("Response: " + String(response));
+        // Serial.println("Response: " + String(response) + ", Angle: " + String(m_angleControl.currValue));
     }
 
     m_ti = m_tf;
@@ -74,4 +76,9 @@ void Rosbot::update() {
 
 void Rosbot::printRobotState() {
 
+}
+
+void Rosbot::test() {
+    m_encoder1.update();
+    // m_encoder2.update();
 }
