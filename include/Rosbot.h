@@ -5,6 +5,7 @@
 #include "drivers/IMU.h"
 #include "drivers/DRV8876.h"
 #include <drivers/N20Encoder.h>
+#include "drivers/BleTransceiver.h"
 #include <control/pid_controller.h>
 
 
@@ -30,14 +31,15 @@ class Rosbot {
         void printRobotState();
     
     private:
-        RadioInterface m_rx;
-        double m_channels[TX_NUM_CHANNELS];
 
+        double m_channels[TX_NUM_CHANNELS];
+        RadioInterface m_rx;
+    
         DRV8876 m_driverL;
         DRV8876 m_driverR;
-
+    
         RGBLED m_status;
-
+    
         IMU m_imu;
 
         N20Encoder m_encoder1;
@@ -50,6 +52,10 @@ class Rosbot {
         PIDParams m_velocityControl;
         PIDParams m_angleControl;
         PIDParams m_angleRateControl;                
+        // PIDParams m_imuParams;   
+    
+        BLETransceiver m_bleComms;
+
 
         float m_tf;
         float m_ti;

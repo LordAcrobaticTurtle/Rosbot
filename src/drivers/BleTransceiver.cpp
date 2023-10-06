@@ -1,9 +1,15 @@
-#include <comms/BleTransceiver.h>
+#include <drivers/BleTransceiver.h>
+#include <comms/packet.h>
 
+BLETransceiver::BLETransceiver() {}
 
-BLETransceiver::BLETransceiver(HardwareSerial *hwSerial) {
+void BLETransceiver::init(HardwareSerial *hwSerial, long int baudrate) {
     m_hwSerial = hwSerial;
+    m_hwSerial->begin(baudrate);
 }
+
+
+
 
 int BLETransceiver::readBytes(byte * buffer, uint32_t bufferLength) {
     
@@ -20,6 +26,7 @@ int BLETransceiver::sendBytes(byte *buffer, uint32_t bufferLength) {
     if (buffer == NULL) return EARG;
     if (bufferLength <= 0) return EARG;
 
+    // This may cause issues with dropped packets later
     if (m_hwSerial->availableForWrite() >= bufferLength) {
         int error = m_hwSerial->write(buffer, bufferLength);
     } else {

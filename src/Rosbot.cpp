@@ -1,6 +1,9 @@
 #include <Rosbot.h>
 #include <utility/math.h>
 #include <utility/error_codes.h>
+#include <comms/packet.h>
+#include <comms/packetID.h>
+
 
 Rosbot::Rosbot() : 
     m_rx(&Serial1), 
@@ -18,6 +21,7 @@ Rosbot::~Rosbot() {}
 
 void Rosbot::setup() 
 {
+    m_bleComms.init(&Serial4, 9600);
     m_timer = 0;
     m_rx.setup();
     m_status.switchRedOn();
@@ -70,6 +74,22 @@ void Rosbot::update() {
         m_timer = millis();
         // Serial.println("Response: " + String(response) + ", Angle: " + String(m_angleControl.currValue));
     }
+    
+
+    commsPacket::State state;
+    state.current[0] = m_driverL.readCurrent();
+    state.current[1] = m_driverR.readCurrent();
+    state.eulerXYZ = m_imu.getEulerXYZ();
+    state.velocity[0] = 0;
+    state.velocity[1] = 0;
+    
+    Packet packet;
+    packet.m_header.m_dataSize = sizeof(state) + sizeof(PacketHeader);
+    packet.m_header.m_packetID = PacketID::STATE;
+    packet.m_header.m_timestamp = micros();
+    packet.m_data = (unsigned char *) &state;
+    
+    m_bleComms.sendBytes();
 
     m_ti = m_tf;
 }
