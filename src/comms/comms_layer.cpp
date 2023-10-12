@@ -27,7 +27,8 @@ void PacketSerializer::debugPrintByteStream(byte* buffer, uint32_t numBytes) {
     for (int i = 0; i < numBytes; i++) {
         Serial.print("0x");
         Serial.print(buffer[i], HEX);
-        Serial.println("");
+        Serial.print(" ");
     }
+    Serial.println(" ");
     // printf("\n");
 }

@@ -7,7 +7,7 @@ enum PacketID {
     REQUEST,         // Contains the requested packet encoded into its data
     STATE,           // command program requests, mbed side sends. Or mbed just sends periodically 
     ESTIMATE_BIAS,   // Perform bias estimate
-    LED_CHANGE       // Command program sends, r,g,b values contained in data body
+    LED_CHANGE      // Command program sends, r,g,b values contained in data body
 };
 
 
@@ -38,8 +38,12 @@ namespace commsPacket {
             char buffer[128];
             sprintf(buffer, "eulerXYZ: %f, %f, %f \ncurrent (L, R): %f, %f\nvelocity (L, R): %f, %f", 
                     eulerXYZ[0], eulerXYZ[1], eulerXYZ[2], current[0], current[1], velocity[0], velocity[1]);
-            std::string str = buffer;
+            return String(buffer);
         }
+    };
+
+    struct Error {
+        int errorCode;
     };
 
 }

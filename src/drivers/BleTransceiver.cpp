@@ -26,12 +26,11 @@ int BLETransceiver::sendBytes(byte *buffer, uint32_t bufferLength) {
     if (buffer == NULL) return EARG;
     if (bufferLength <= 0) return EARG;
 
-    // This may cause issues with dropped packets later
-    if (m_hwSerial->availableForWrite() >= bufferLength) {
-        int error = m_hwSerial->write(buffer, bufferLength);
-    } else {
-        return ENOSPC;
-    }
+    int error = m_hwSerial->write(buffer, bufferLength);
+    // if (m_hwSerial->availableForWrite() >= bufferLength) {
+    // } else {
+    //     return ENOSPC;
+    // }
 
     return 0;
 }

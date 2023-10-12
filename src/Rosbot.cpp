@@ -3,7 +3,7 @@
 #include <utility/error_codes.h>
 #include <comms/packet.h>
 #include <comms/packetID.h>
-
+#include <comms/comms_layer.h>
 
 Rosbot::Rosbot() : 
     m_rx(&Serial1), 
@@ -75,22 +75,25 @@ void Rosbot::update() {
         // Serial.println("Response: " + String(response) + ", Angle: " + String(m_angleControl.currValue));
     }
     
-
     commsPacket::State state;
-    state.current[0] = m_driverL.readCurrent();
-    state.current[1] = m_driverR.readCurrent();
-    state.eulerXYZ = m_imu.getEulerXYZ();
-    state.velocity[0] = 0;
-    state.velocity[1] = 0;
+    state.current[0] = 1; //m_driverL.readCurrent();
+    state.current[1] = 2; //m_driverR.readCurrent();
+    state.eulerXYZ[0] = 3;//eulerXYZ[0];
+    state.eulerXYZ[1] = 4;//eulerXYZ[1];
+    state.eulerXYZ[2] = 5;//eulerXYZ[2];
+    state.velocity[0] = 6;
+    state.velocity[1] = 7;
     
     Packet packet;
-    packet.m_header.m_dataSize = sizeof(state) + sizeof(PacketHeader);
+    packet.m_header.m_packetSize = sizeof(state) + sizeof(PacketHeader);
     packet.m_header.m_packetID = PacketID::STATE;
-    packet.m_header.m_timestamp = micros();
-    packet.m_data = (unsigned char *) &state;
-    
-    m_bleComms.sendBytes();
+    packet.m_header.m_timestamp = millis();
+    memcpy(packet.m_data, &state, sizeof(commsPacket::State));
 
+    byte buffer[PACKET_DATA_SIZE+sizeof(PacketHeader)];
+    PacketSerializer::serialize(packet, buffer);
+    m_bleComms.sendBytes(buffer, packet.m_header.m_packetSize);
+    PacketSerializer::debugPrintByteStream(buffer, packet.m_header.m_packetSize);
     m_ti = m_tf;
 }
 
