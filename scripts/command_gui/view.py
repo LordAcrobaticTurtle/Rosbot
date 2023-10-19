@@ -53,7 +53,7 @@ class View(ttk.Frame):
         self.collectedPlots["Plot1"] = plotVariables
         plot1.grid(column=1, row=0, sticky=(tk.E), padx=10)
 
-        print(plotVariables)
+        # print(plotVariables)
         
         # Create app settings panel
         appSettingsFrame = self.createAppSettingsWindow(self._parent)
@@ -104,7 +104,7 @@ class View(ttk.Frame):
     
     def plotAnimate(self, i, plotIndex : str):
         (t, xS) = self.controller.generateSineWaveDataPoint(i)
-        print(self.collectedPlots[plotIndex])
+        # print(self.collectedPlots[plotIndex])
         if (self.collectedPlots[plotIndex]):
             self.collectedPlots[plotIndex]["x"].append(xS)
             print(t, xS)
@@ -237,6 +237,12 @@ class View(ttk.Frame):
 
     def openComPort(self):
         self.controller.openSerialPort(self._chosen_com_port.get(), self._chosen_baud_rate.get())
+
+    def updateSerialConsole(self, buffer : str):
+        self._serialConsole.insert("end", buffer)
+        self._serialConsole.select_clear(self._serialConsole.size() - 2)
+        self._serialConsole.select_set("end")
+        self._serialConsole.yview("end")
 
     def comPortListUpdate(self):
         pass

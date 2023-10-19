@@ -21,7 +21,7 @@ Rosbot::~Rosbot() {}
 
 void Rosbot::setup() 
 {
-    m_bleComms.init(&Serial4, 9600);
+    // m_bleComms.init(&Serial4, 9600);
     m_timer = 0;
     m_rx.setup();
     m_status.switchRedOn();
@@ -71,33 +71,28 @@ void Rosbot::update() {
     }
  
     if (millis() - m_timer > 100) {
+        // 
         m_timer = millis();
         // Serial.println("Response: " + String(response) + ", Angle: " + String(m_angleControl.currValue));
     }
-    
-    commsPacket::State state;
-    state.current[0] = 1; //m_driverL.readCurrent();
-    state.current[1] = 2; //m_driverR.readCurrent();
-    state.eulerXYZ[0] = 3;//eulerXYZ[0];
-    state.eulerXYZ[1] = 4;//eulerXYZ[1];
-    state.eulerXYZ[2] = 5;//eulerXYZ[2];
-    state.velocity[0] = 6;
-    state.velocity[1] = 7;
-    
-    Packet packet;
-    packet.m_header.m_packetSize = sizeof(state) + sizeof(PacketHeader);
-    packet.m_header.m_packetID = PacketID::STATE;
-    packet.m_header.m_timestamp = millis();
-    memcpy(packet.m_data, &state, sizeof(commsPacket::State));
 
-    byte buffer[PACKET_DATA_SIZE+sizeof(PacketHeader)];
-    PacketSerializer::serialize(packet, buffer);
-    m_bleComms.sendBytes(buffer, packet.m_header.m_packetSize);
-    PacketSerializer::debugPrintByteStream(buffer, packet.m_header.m_packetSize);
+    motorControl();
+    
     m_ti = m_tf;
 }
 
 void Rosbot::printRobotState() {
+
+}
+
+void Rosbot::motorControl() {
+    // For both left and right motors
+    // I need to control the current of the motor, then I can do velocity
+    // Current first
+
+    double currentL = m_driverL.readCurrent();
+    
+
 
 }
 

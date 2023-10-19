@@ -5,7 +5,7 @@
 #include "drivers/IMU.h"
 #include "drivers/DRV8876.h"
 #include <drivers/N20Encoder.h>
-#include "drivers/BleTransceiver.h"
+// #include "drivers/BleTransceiver.h"
 #include <control/pid_controller.h>
 
 
@@ -29,6 +29,7 @@ class Rosbot {
 
     private:
         void printRobotState();
+        void motorControl();
     
     private:
 
@@ -54,7 +55,7 @@ class Rosbot {
         PIDParams m_angleRateControl;                
         // PIDParams m_imuParams;   
     
-        BLETransceiver m_bleComms;
+        // BLETransceiver m_bleComms;
 
 
         float m_tf;

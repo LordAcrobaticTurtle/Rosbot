@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "cmath": "cpp",
-        "pid.h": "c"
+        "pid.h": "c",
+        "*.tcc": "cpp"
     }
 }

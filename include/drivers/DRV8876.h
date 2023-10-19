@@ -7,6 +7,8 @@
 #define A_IPROPI 1000 // uA/A
 #define R_IPROPI 1500 // ohms
 
+#define K_t
+
 #define ADC_MAX 1023
 #define ADC_MIN 0
 

@@ -1,0 +1,27 @@
+cmake_minimum_required(VERSION 3.16)
+project(ROSBOT_TESTING)
+
+# GoogleTest requires at least C++14
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+set(INCLUDE_FILES 
+    include/
+)
+
+add_subdirectory(submodules/googletest)
+
+set(SRC_FILES
+    test/test_comms.cpp
+    src/comms/comms_layer.cpp
+    test/test_main.cpp
+)
+
+
+add_executable(${PROJECT_NAME} 
+    ${SRC_FILES}
+)
+
+target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_FILES})
+
+target_link_libraries(${PROJECT_NAME} PUBLIC gtest gmock)

@@ -6,6 +6,7 @@ BLETransceiver::BLETransceiver() {}
 void BLETransceiver::init(HardwareSerial *hwSerial, long int baudrate) {
     m_hwSerial = hwSerial;
     m_hwSerial->begin(baudrate);
+    m_hwSerial->setTimeout(10);
 }
 
 
@@ -16,7 +17,7 @@ int BLETransceiver::readBytes(byte * buffer, uint32_t bufferLength) {
     if (m_hwSerial == NULL) {return -1;}
 
     if (m_hwSerial->available()) {
-        m_hwSerial->readBytes(buffer, bufferLength);
+        return m_hwSerial->readBytes(buffer, bufferLength);
     }
 
     return 0;

@@ -1,14 +1,17 @@
-from enum import Enum
+from enum import IntEnum
+from enum import auto
 
+class PacketIDs(IntEnum):
+    BEGIN = 1  
+    STANDBY = auto()
+    ESTOP = auto()
+    REQUEST = auto()
+    STATE = auto()  
+    ESTIMATE_BIAS = auto()
+    LED_CHANGE = auto()
+    DEMO = auto()
+    NUM_PACKETS = auto()
 
-class PacketIDs(Enum):
-    BEGIN = 1   
-    STANDBY = 2
-    ESTOP = 3
-    STATE = 4   
-    ESTIMATE_BIAS = 5
-    LED_CHANGE = 6 
-    DEMO = 7
 
 class Begin():
    def  __init__(self):
@@ -24,13 +27,13 @@ class ESTOP():
         self.doSTOP = True
 
 class State():
+    FORMAT = '<fffffff'
+    SIZE = 7
     def __init__(self) -> None:
         self.current = [0,0]
         self.velocity = [0,0]
         self.eulerXYZ = [0,0,0]
-        self.format = 'ddddddd'
         
-    
     def toString(self) -> str:
         currString = f"Current (L,R): {self.current}\n"
         velString = f"Velocity (L,R): {self.velocity}\n"

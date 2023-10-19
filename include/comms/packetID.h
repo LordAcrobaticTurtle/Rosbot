@@ -34,12 +34,12 @@ namespace commsPacket {
         float current[2]; // left, right
         float velocity[2]; // left, right
 
-        String toString() {
-            char buffer[128];
-            sprintf(buffer, "eulerXYZ: %f, %f, %f \ncurrent (L, R): %f, %f\nvelocity (L, R): %f, %f", 
-                    eulerXYZ[0], eulerXYZ[1], eulerXYZ[2], current[0], current[1], velocity[0], velocity[1]);
-            return String(buffer);
-        }
+        // String toString() {
+        //     char buffer[128];
+        //     sprintf(buffer, "eulerXYZ: %f, %f, %f \ncurrent (L, R): %f, %f\nvelocity (L, R): %f, %f", 
+        //             eulerXYZ[0], eulerXYZ[1], eulerXYZ[2], current[0], current[1], velocity[0], velocity[1]);
+        //     return String(buffer);
+        // }
     };
 
     struct Error {

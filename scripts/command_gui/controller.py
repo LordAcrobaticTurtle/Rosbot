@@ -3,15 +3,15 @@ import serial.tools.list_ports
 import threading
 import math
 import time
-import comms.packetID
+from comms.packetID import PacketIDs
 from comms.packet import PacketHeader
-from comms.packet import PacketHandler
-import struct
+from comms.comms_layer import PacketSerializer
 
 class Controller:
     def __init__(self, model, view):
         self.model = model
         self.view = view
+        self.isAppRunning = True
 
     def getComPortList(self) -> list:
         ports = serial.tools.list_ports.comports()
@@ -20,9 +20,7 @@ class Controller:
         return comPortList
         
     def openSerialPort(self, port: str, baudrate: str) -> None:
-        threading.Thread(target=self.handleSerialOpen, args=(), daemon=1)
-
-    def handleSerialOpen(self, port: str, baudrate: str) -> None:
+        self.view.updateSerialConsole(f"Opening {port} @ {baudrate}")
         self._openPort = serial.Serial()
         self._openPort.baudrate = baudrate
         self._openPort.port = port
@@ -36,30 +34,52 @@ class Controller:
         self._t1 = threading.Thread(target=self.serialUpdate, args=(), daemon=1)
         self._t1.start()
 
+        # threading.Thread(target=self.handleSerialOpen, args=(), daemon=1)
+
+    # def handleSerialOpen(self, port: str, baudrate: str) -> None:
+        
 
     def serialUpdate(self) -> None:
-        print("Serial update")
-        if (self._openPort.in_waiting > 0):
-            # Get data and put into buffer
+        
+        while (self.isAppRunning):
             
-            # Look for a single packet
-            buffer = self._openPort.read(PacketHeader.HEADER_SIZE + PacketHeader.MAX_PACKET_DATA_SIZE)
-            
-            # Get the header out of the packet
-            header = PacketHeader()
-            
-            header = struct.unpack(PacketHeader.FORMAT, buffer, PacketHeader.HEADER_SIZE)
-            
+            if (self._openPort.in_waiting > 0):
+                # Read in all the available bytes
+                buffer = self._openPort.read(self._openPort.in_waiting)
+
+                # Find the first instance of a packet in the byte stream. Discard all other packets
+                # What I would prefer is to find all packets in a byte stream 
+                # Incomplete frames in the buffer will be dropped
+                startpos = PacketSerializer.findIdentifyingByte(buffer)
+                header = PacketSerializer.decodeHeader(buffer, startpos)
+                data = PacketSerializer.decodeData(buffer, header, startpos)
+                
+                # Now do something with the data
+                self.handlePacket(header, data)
+
+                
 
 
-            
+    def handlePacket(self, header : PacketHeader, data):
+    
+        if header.packetID == PacketIDs.BEGIN:
+            pass
+        elif header.packetID == PacketIDs.STANDBY:
+            pass
+        elif header.packetID == PacketIDs.ESTOP:
+            pass
+        elif header.packetID == PacketIDs.REQUEST:
+            pass
+        elif header.packetID == PacketIDs.STATE:
+            # Store into the model and update view
+            pass
+        
 
     def closeSerialPort(self, port: str):
         self._openPort.close()
 
 
     def decodeSerial(self):
-        # Writing bytes into the buffer. When do I start vs stop reading
         pass
 
 

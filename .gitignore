@@ -5,3 +5,5 @@
 .vscode/ipch
 /lib/*
 *.pyc
+
+build_test/
