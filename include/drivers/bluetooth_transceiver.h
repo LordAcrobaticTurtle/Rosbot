@@ -5,10 +5,13 @@
 #define EARG -1
 
 
-
-class BLETransceiver {
+/**
+ * @brief Basically a wrapper around a serial port. Nothing too special 
+ * 
+ */
+class BluetoothTransceiver {
     public:
-        BLETransceiver();
+        BluetoothTransceiver();
 
         void init(HardwareSerial* hwSerial, long int baudrate);
         void configure();
