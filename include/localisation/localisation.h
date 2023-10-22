@@ -1,7 +1,6 @@
 #pragma once
 #include <memory>
 #include <utility/utility.h>
-#include <drivers/IMU.h>
 #include <interfaces/encoder_interface.h>
 #include <interfaces/imu_interface.h>
 

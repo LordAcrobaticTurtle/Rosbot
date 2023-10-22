@@ -1,4 +1,4 @@
-#include <drivers/BleTransceiver.h>
+#include <drivers/bluetooth_transceiver.h>
 #include <comms/packet.h>
 
 BluetoothTransceiver::BluetoothTransceiver() {}
@@ -9,10 +9,11 @@ void BluetoothTransceiver::init(HardwareSerial *hwSerial, long int baudrate) {
     m_hwSerial->setTimeout(10);
 }
 
+int BluetoothTransceiver::isDataReady() {
+    return 0;
+}
 
-
-
-int BluetoothTransceiver::readBytes(byte * buffer, uint32_t bufferLength) {
+int BluetoothTransceiver::readBytes(byte * buffer, size_t bufferLength) {
     
     if (m_hwSerial == NULL) {return -1;}
 
@@ -23,7 +24,7 @@ int BluetoothTransceiver::readBytes(byte * buffer, uint32_t bufferLength) {
     return 0;
 }
 
-int BluetoothTransceiver::sendBytes(byte *buffer, uint32_t bufferLength) {
+int BluetoothTransceiver::sendBytes(byte *buffer, size_t bufferLength) {
     if (buffer == NULL) return EARG;
     if (bufferLength <= 0) return EARG;
 
@@ -33,5 +34,5 @@ int BluetoothTransceiver::sendBytes(byte *buffer, uint32_t bufferLength) {
     //     return ENOSPC;
     // }
 
-    return 0;
+    return error;
 }

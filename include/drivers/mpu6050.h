@@ -2,20 +2,22 @@
 #include <Arduino.h>
 #include <i2c_device.h>
 #include <memory>
+#include <interfaces/imu_interface.h>
 
 #define INT_PIN 2
 #define MPU6050_ADDRESS 0x68
 #define GRAVITY 9.81
-// The IMU starts in sleep mode
+// The Mpu6050 starts in sleep mode
 
-class IMU {
+class Mpu6050 : public ImuInterface {
     public:
-        IMU();
-        ~IMU();
+        Mpu6050(I2CMaster &interface);
 
-        // Setup - Take the MPU6050 out of sleep mode
-        void setup(I2CMaster &interface);
-
+        virtual int readGyroRates(vector3D &rates);
+        virtual int readAccel(vector3D &accel);
+        virtual int readTemperature(float *temp);
+        virtual int readMagnetField(vector3D &field);
+    
         // Updates all data objects
         void update(float ts);
 
@@ -23,6 +25,8 @@ class IMU {
 
     private:
         bool init(I2CMaster &interface);
+        // Setup - Take the MPU6050 out of sleep mode
+        void setup();
         void getRawSensorRegisters();
         void parseRawData(); 
         int calculateEulerAngles();

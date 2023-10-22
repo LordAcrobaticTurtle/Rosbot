@@ -1,11 +1,7 @@
 
 #include <Rosbot.h>
-#include <drivers/BleTransceiver.h>
-#include <comms/comms_layer.h>
-
+#include <i2c_device.h>
 Rosbot robot;
-
-BLETransceiver blComms;
 
 void mainloop();
 
@@ -18,7 +14,7 @@ void setup()
     robot.setup();
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, HIGH);    
-    blComms.init(&Serial4, 9600);
+    // blComms.init(&Serial4, 9600);
     
 }
  
@@ -28,14 +24,7 @@ void loop()
     // Debounce button press. 
     // Change state
     // Serial4.println("BEANS");
-    robot.update();
-
-    // Receive bytes from serial port
-    char buffer[256];
-    byte bytesRead = blComms.readBytes(buffer, 256);
-
-    Packet pkt;
-    PacketSerializer::deserialize(buffer, pkt);
+    robot.run();
     
 }
 

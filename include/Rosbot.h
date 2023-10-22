@@ -6,7 +6,7 @@
 #include <control/control.h>
 
 #include <drivers/RGB_LED.h>
-#include <drivers/RadioInterface.h>
+#include <drivers/radio_interface.h>
 
 
 class Rosbot {
@@ -19,9 +19,9 @@ class Rosbot {
 
     private:
 
-        double m_channels[TX_NUM_CHANNELS];
-        RadioInterface m_rx;
         RGBLED m_status;
+        RadioInterface m_rx;
+        double m_channels[TX_NUM_CHANNELS];
         
         std::shared_ptr<Localisation> m_localisation;
         std::shared_ptr<Control> m_control;

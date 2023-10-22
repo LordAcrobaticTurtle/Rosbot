@@ -1,4 +1,4 @@
-#include <drivers/N20Encoder.h>
+#include <drivers/encoder_N20.h>
 #include <utility/error_codes.h>
 
 
@@ -96,9 +96,9 @@ void encoder2_c2_callback() {
     sei();
 }
 
-N20Encoder::N20Encoder() {}
+EncoderN20::EncoderN20() {}
 
-int N20Encoder::setup(  void (*c1_Callback)(void), void (*c2_Callback)(void), 
+int EncoderN20::setup(  void (*c1_Callback)(void), void (*c2_Callback)(void), 
                         volatile int *count,
                         uint32_t pinC1, uint32_t pinC2) {
     
@@ -118,7 +118,7 @@ int N20Encoder::setup(  void (*c1_Callback)(void), void (*c2_Callback)(void),
     *m_count = 0;
 }
 
-void N20Encoder::update() {
+void EncoderN20::update() {
     float count;
     cli();
     memcpy(&count, (float *)&RPM, sizeof(float));
@@ -152,4 +152,7 @@ void N20Encoder::update() {
     // Do computation for velocity here
 }
 
+float EncoderN20::readRPM() {
+    return 0.0;
+}
 

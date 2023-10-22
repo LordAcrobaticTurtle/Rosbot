@@ -1,4 +1,4 @@
-#include <drivers/RadioInterface.h>
+#include <drivers/radio_interface.h>
 #include <Arduino.h>
 
 RadioInterface::RadioInterface(HardwareSerial *p_serialPort) : 

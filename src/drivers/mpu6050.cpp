@@ -1,18 +1,15 @@
-#include "drivers/IMU.h"
+#include "drivers/mpu6050.h"
 
-IMU::IMU()
+Mpu6050::Mpu6050(I2CMaster &interface)
 {
-    
-}
-
-IMU::~IMU() {}
-
-void IMU::setup(I2CMaster &interface) {
     memset(m_eulerXYZ, 0, sizeof(float) * 3);
     memset(m_gyroAngle, 0, sizeof(float) * 3);
     memset(m_gyroRateOffset, 0, sizeof(float) * 3);
-
     m_configured = init(interface);
+    setup();
+}
+
+void Mpu6050::setup() {
     
     // Compute bias of gyroscope at rest
     const int numSamples = 1000;
@@ -37,7 +34,7 @@ void IMU::setup(I2CMaster &interface) {
     
 }
 
-bool IMU::init(I2CMaster &interface) {
+bool Mpu6050::init(I2CMaster &interface) {
     m_interface = std::make_shared<I2CDevice>(interface, MPU6050_ADDRESS, __ORDER_BIG_ENDIAN__);
     uint16_t wakeup = 0;
     uint16_t gyroScale = 0b00000000;
@@ -50,14 +47,14 @@ bool IMU::init(I2CMaster &interface) {
     return result1 && result2 && result3; 
 }
 
-void IMU::update(float dt) {
+void Mpu6050::update(float dt) {
     m_dt = dt;
     getRawSensorRegisters();
     parseRawData();
     calculateEulerAngles();
 }
  
-void IMU::getRawSensorRegisters() {
+void Mpu6050::getRawSensorRegisters() {
     byte value = registerMap::ACCEL_XOUT_H;
     
     if (!m_configured) {
@@ -69,7 +66,7 @@ void IMU::getRawSensorRegisters() {
     }
 }
 
-void IMU::parseRawData() {
+void Mpu6050::parseRawData() {
     // Take the m_rawRegisters and put 6 bytes into each 
     // Accel is first in buffer
     
@@ -99,7 +96,7 @@ void IMU::parseRawData() {
     // Serial.println();
 }
 
-int IMU::calculateEulerAngles() {
+int Mpu6050::calculateEulerAngles() {
     if (!m_configured) {
         return 0;
     }
@@ -123,4 +120,5 @@ int IMU::calculateEulerAngles() {
     // }
 
     // Serial.println();
+    return 0;
 }

@@ -1,14 +1,11 @@
 #include <Rosbot.h>
-// #include <utility/math.h>
-// #include <utility/error_codes.h>
-// #include <comms/packet.h>
-// #include <comms/packetID.h>
+#include <drivers/bluetooth_transceiver.h>
+#include <drivers/mpu6050.h>
+#include <drivers/DRV8876.h>
+#include <drivers/encoder_N20.h>
 
 
-    // m_driverL(11, 12, 10, -1, 5), 
-    // m_driverR(22, 20, 14, -1, 23), 
-
-
+I2CMaster& master = Master;
 
 Rosbot::Rosbot() : 
     m_status(4,3,2,false),
@@ -27,21 +24,28 @@ void Rosbot::setup()
     // m_imu.setup(Master);
     m_status.switchGreenOn();
     
-    m_localisation = std::make_shared<Localisation>(
+    // Drivers need to inherit
+    // Then can create drivers here, and pass into respective classes
+    std::shared_ptr<CommsInterface> transceiver = std::make_shared<BluetoothTransceiver>();
+    std::shared_ptr<ImuInterface> imu = std::make_shared<Mpu6050>(Master);
+    std::shared_ptr<DcMotorInterface> motorL = std::make_shared<DRV8876>(11, 12, 10, -1, 5);
+    std::shared_ptr<DcMotorInterface> motorR = std::make_shared<DRV8876>(22, 20, 14, -1, 23);
+    std::shared_ptr<EncoderInterface> encoderL = std::make_shared<EncoderN20>();
+    std::shared_ptr<EncoderInterface> encoderR = std::make_shared<EncoderN20>();
 
+    
+
+    m_localisation = std::make_shared<Localisation>(
+        imu, encoderL, encoderR
     );
 
-
     m_control = std::make_shared<Control>(
-        m_localisation,
-        
+        m_localisation, motorL, motorR
     );
 
     
     m_comms = std::make_shared<Comms>(
-        m_localisation, 
-        m_control,
-
+        m_localisation, m_control, transceiver
     );
     
 

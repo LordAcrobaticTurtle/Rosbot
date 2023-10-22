@@ -7,7 +7,6 @@
 
 class Comms {
 public:
-
     Comms(
         std::shared_ptr<Localisation> localisation, 
         std::shared_ptr<Control> control,
