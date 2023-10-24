@@ -51,7 +51,7 @@ int RadioInterface::getChannelPercentage(double *p_channelValues, double scaleFa
 }
 
 // Called publicly.
-void RadioInterface::update() 
+void RadioInterface::run() 
 {
     // Read new values into currChannelValues
     int result = readSBUS();

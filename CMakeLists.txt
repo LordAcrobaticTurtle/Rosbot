@@ -12,8 +12,8 @@ set(INCLUDE_FILES
 add_subdirectory(submodules/googletest)
 
 set(SRC_FILES
-    test/test_comms.cpp
-    src/comms/comms_layer.cpp
+    test/test_packet_serializer.cpp
+    src/comms/packet_serializer.cpp
     test/test_main.cpp
 )
 

@@ -19,11 +19,14 @@ DRV8876::DRV8876(
     wakeup(true);
     
     setThrottle(0);
-    setThrottle(0);
 }
 
 void DRV8876::wakeup(bool setAwake) {
     digitalWrite(m_pinSleep, setAwake);
+}
+
+void DRV8876::setVoltage(float voltage) {
+    return;
 }
 
 // Expects values between -255 and 255

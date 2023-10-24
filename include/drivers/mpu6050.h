@@ -12,7 +12,7 @@
 class Mpu6050 : public ImuInterface {
     public:
         Mpu6050(I2CMaster &interface);
-
+        ~Mpu6050() {}
         virtual int readGyroRates(vector3D &rates);
         virtual int readAccel(vector3D &accel);
         virtual int readTemperature(float *temp);

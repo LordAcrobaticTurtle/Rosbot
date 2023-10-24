@@ -10,6 +10,18 @@ A collection of src files for the rosbot code.
 
 # TODO
 ## SOFTWARE
+
+23-10-23
+Can now setup testing for each module so I can be certain that the code is working before putting on
+the robot
+
+Can start writing localisation, control or comms modules. SHOULD ABSOLUTELY BE USING TDD
+
+ANYTIME a serial connection is made while data is already being streamed, any zero bit in that stream can be 
+interpreted as the start bit 
+DON'T STREAM DATA UNLESS A CONNECTION IS MADE
+
+
 ### LOCALISATION
 - Kalman filter: Use accel measurements as orientation measurements and rates as partials / predicted 
   - Hopefully will eliminate gyro drift
@@ -18,21 +30,14 @@ A collection of src files for the rosbot code.
 
 
 ## Comms
-- How do I notify the command GUI that a particular packet is incoming. 
-1. Poll the serial port.
-2. When the rx buffer has X number of bytes in it, read a *packet header* number of bytes
-3. Analyze packet header, to get timestamp, *datasize*, and *datatype*
-4. Read the next *datasize* bytes into a *datatype* struct 
-5. Make the *datatype* struct/data available for the rest of the program
-
-6. ~~Use packet writing logic and write a byte string to a file. ~~
+1. ~~Use packet writing logic and write a byte string to a file. ~~
    1. It worked!!! I can implement a comms layer to send bytes off through the UART interface
    2. Abstracting it away.
       1. Create a module that receives a byte stream and the maximum size length of the stream. 
       2. Starting at index 0, look for a packet header, then decode the packet appropriately. There's a huge number of edge/failure cases that I need to take into account AND CAN TEST FOR
          1. Assume header is at index 0 for now.
       3. Preferrably should return an array of found packets
-7. Read file in Python treat as a byte string and decode appropriately. 
+2. Read file in Python treat as a byte string and decode appropriately. 
 
 
 ## Comms Questions 

@@ -23,7 +23,7 @@ class DRV8876 : public DcMotorInterface {
     public:
         DRV8876(int pinEN, int pinPH, int pinCurrSense, 
                 int pinNFault, int pinSleep);
-
+        ~DRV8876() {};
         // Clamp between 0 and 255
         virtual void setVoltage(float voltage);
         virtual void setThrottle(int throttle);

@@ -12,7 +12,7 @@
 class BluetoothTransceiver : public CommsInterface {
     public:
         BluetoothTransceiver();
-
+        ~BluetoothTransceiver() {};
         void init(HardwareSerial* hwSerial, long int baudrate);
         void configure();
 

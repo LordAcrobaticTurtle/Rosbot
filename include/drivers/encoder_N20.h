@@ -32,7 +32,7 @@ class EncoderN20 : public EncoderInterface {
 
     public:
         EncoderN20();
-
+        ~EncoderN20() {};
         virtual float readRPM();
 
         int setup(  void (*c1_callback)(void), void (*c2_callback)(void), 

@@ -9,6 +9,22 @@ Mpu6050::Mpu6050(I2CMaster &interface)
     setup();
 }
 
+int Mpu6050::readGyroRates(vector3D &rates) {
+    return -1;
+}
+
+int Mpu6050::readAccel(vector3D &accel) {
+    return -1;
+}
+
+int Mpu6050::readTemperature(float *temp) {
+    return -1;
+}
+
+int Mpu6050::readMagnetField(vector3D &field) {
+    return -1;
+}
+
 void Mpu6050::setup() {
     
     // Compute bias of gyroscope at rest

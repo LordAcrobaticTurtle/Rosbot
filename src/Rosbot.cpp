@@ -19,21 +19,19 @@ Rosbot::~Rosbot() {}
 void Rosbot::setup() 
 {
     // m_bleComms.init(&Serial4, 9600);
-    m_rx.setup();
+    memset(m_channels, 0, TX_NUM_CHANNELS*sizeof(double));
     m_status.switchRedOn();
+    m_rx.setup();
     // m_imu.setup(Master);
-    m_status.switchGreenOn();
-    
     // Drivers need to inherit
     // Then can create drivers here, and pass into respective classes
-    std::shared_ptr<CommsInterface> transceiver = std::make_shared<BluetoothTransceiver>();
-    std::shared_ptr<ImuInterface> imu = std::make_shared<Mpu6050>(Master);
-    std::shared_ptr<DcMotorInterface> motorL = std::make_shared<DRV8876>(11, 12, 10, -1, 5);
-    std::shared_ptr<DcMotorInterface> motorR = std::make_shared<DRV8876>(22, 20, 14, -1, 23);
-    std::shared_ptr<EncoderInterface> encoderL = std::make_shared<EncoderN20>();
-    std::shared_ptr<EncoderInterface> encoderR = std::make_shared<EncoderN20>();
-
-    
+    std::shared_ptr<BluetoothTransceiver> transceiver = std::make_shared<BluetoothTransceiver>();
+    std::shared_ptr<Mpu6050> imu = std::make_shared<Mpu6050>(Master);
+    m_status.switchGreenOn();
+    std::shared_ptr<DRV8876> motorL = std::make_shared<DRV8876>(11, 12, 10, -1, 5);
+    std::shared_ptr<DRV8876> motorR = std::make_shared<DRV8876>(22, 20, 14, -1, 23);
+    std::shared_ptr<EncoderN20> encoderL = std::make_shared<EncoderN20>();
+    std::shared_ptr<EncoderN20> encoderR = std::make_shared<EncoderN20>();
 
     m_localisation = std::make_shared<Localisation>(
         imu, encoderL, encoderR
@@ -43,17 +41,17 @@ void Rosbot::setup()
         m_localisation, motorL, motorR
     );
 
-    
     m_comms = std::make_shared<Comms>(
         m_localisation, m_control, transceiver
     );
-    
-
-
-    memset(m_channels, 0, TX_NUM_CHANNELS*sizeof(double));
 }
 
 void Rosbot::run() {
+
+    m_rx.run();
+    m_localisation->run();
+    m_control->run();
+    m_comms->run();
     // m_tf = millis();
     // float dt = m_tf - m_ti;
     // m_imu.update(dt/1000.0);

@@ -7,7 +7,8 @@ enum PacketID {
     REQUEST,         // Contains the requested packet encoded into its data
     STATE,           // command program requests, mbed side sends. Or mbed just sends periodically 
     ESTIMATE_BIAS,   // Perform bias estimate
-    LED_CHANGE      // Command program sends, r,g,b values contained in data body
+    LED_CHANGE,      // Command program sends, r,g,b values contained in data body
+    NUM_PACKETIDS
 };
 
 
