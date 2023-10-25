@@ -11,7 +11,7 @@ public:
     // Step 1
     static int findIdentifyingByte(byte* buffer, size_t numBytes, int* identifyingBytes);
     // Step 2
-    static void decodeHeader(
+    static int decodeHeader(
         byte* buffer, size_t bufferLength, int* identifyingBytes, int numIdBytesFound, Packet &packet
     );
     // Step 3

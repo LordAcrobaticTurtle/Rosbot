@@ -28,8 +28,8 @@ Cases in this buffer
 2. Incorrect identifying byte
 44 bytes in total
 */
-byte encodedHeaderAndData[44] = {
-    0x01, 0x02, 0xFF,  0xFF, // Noise, Noise, Noise, start byte
+byte encodedHeaderAndDataWithNoise[44] = {
+    0x01, 0x02, 0xFF, 0xFF, // Noise, Noise, Noise, start byte
     0x05, 0x00, 0x00, 0x00,  // PacketID = 5, STATE PACKET
     0x28, 0x00, 0x00, 0x00,  // 28 + 12 = 40 = 0x28
     0xAD, 0x00, 0x00, 0x00,   // Timestamp irrelevant in this case /**| END HEADER |*/,
@@ -40,6 +40,26 @@ byte encodedHeaderAndData[44] = {
     0x3F, 0x00, 0x00, 0x00, // 0.5
     0x3F, 0x19, 0x99, 0x9A, // 0.6
     0x3F, 0x19, 0x99, 0x9A, // 0.6
+};
+
+/*
+Cases in this buffer
+1.Noise prior to packet
+2. Incorrect identifying byte
+41 bytes in total
+*/
+byte encodedHeaderAndData[41] = {
+    0xFF,                    // start byte
+    0x05, 0x00, 0x00, 0x00,  // PacketID = 5, STATE PACKET
+    0x28, 0x00, 0x00, 0x00,  // 28 + 12 = 40 = 0x28
+    0xAD, 0x00, 0x00, 0x00,   // Timestamp irrelevant in this case /**| END HEADER |*/,
+    0x9A, 0x99, 0x99, 0x3F, // 1.2             
+    0x33, 0x33, 0xB3, 0x3F, // 1.4
+    0x00, 0x00, 0x80, 0x3F, // 1.0
+    0x00, 0x00, 0x00, 0x3F, // 0.5
+    0x00, 0x00, 0x00, 0x3F, // 0.5
+    0x9A, 0x99, 0x19, 0x3F, // 0.6
+    0x9A, 0x99, 0x19, 0x3F, // 0.6
 };
 
 byte byteStreamNoIdentifyingBytes[] = {
@@ -55,12 +75,12 @@ byte byteStreamNoIdentifyingBytes[] = {
     0x3F, 0x19, 0x99, 0x9A, 
 };
 
-TEST_F(CommsTest, test_packet_decode_packet) {
+TEST_F(CommsTest, test_packet_deserialize_packet) {
     // Test the packet can be deciphered correctly
     Packet packet;
-    // PacketSerializer::deserialize(encodedHeaderAndData, 45, packet);
+    PacketSerializer::deserialize(encodedHeaderAndDataWithNoise, 45, packet);
     EXPECT_EQ(packet.m_header.m_packetID, PacketID::STATE);
-    EXPECT_EQ(packet.m_header.m_packetSize, 0x40);
+    EXPECT_EQ(packet.m_header.m_packetSize, 0x28);
     EXPECT_EQ(packet.m_header.m_timestamp, 0xAD);
 }
 
@@ -71,7 +91,7 @@ TEST_F(CommsTest, test_packet_decode_packet) {
 TEST_F(CommsTest, test_find_identifying_bytes) {
     int array[256];
     memset(array, 0, sizeof(int)*256);
-    int numBytesFound = PacketSerializer::findIdentifyingByte(encodedHeaderAndData, 44, array);
+    int numBytesFound = PacketSerializer::findIdentifyingByte(encodedHeaderAndDataWithNoise, 44, array);
     EXPECT_EQ(numBytesFound, 2);
     EXPECT_EQ(array[0], 2);
     EXPECT_EQ(array[1], 3);
@@ -108,10 +128,10 @@ TEST_F(CommsTest, test_decodeHeader_multiple_id_bytes) {
     int array[256];
     memset(array, 0, sizeof(int)*256);
 
-    int numBytesFound = PacketSerializer::findIdentifyingByte(encodedHeaderAndData, 44, array);
+    int numBytesFound = PacketSerializer::findIdentifyingByte(encodedHeaderAndDataWithNoise, 44, array);
 
     Packet packet;
-    PacketSerializer::decodeHeader(encodedHeaderAndData, 44, array, numBytesFound, packet);
+    PacketSerializer::decodeHeader(encodedHeaderAndDataWithNoise, 44, array, numBytesFound, packet);
 
     EXPECT_EQ(packet.m_header.m_packetID, 0x05);
     EXPECT_EQ(packet.m_header.m_packetSize, 0x28);
@@ -123,7 +143,7 @@ TEST_F(CommsTest, test_decodeHeader_multiple_id_bytes) {
  * @brief The serialize function should implant an identifying byte, 0xFF (at time of writing),
  * following by the packet header, then the packet data
 */
-TEST_F(CommsTest, test_packet_header_encode) {
+TEST_F(CommsTest, test_packet_header_serialize) {
     Packet pkt;
     pkt.m_header.m_packetID = PacketID::BEGIN;
     pkt.m_header.m_packetSize = 0xDE;
@@ -137,10 +157,29 @@ TEST_F(CommsTest, test_packet_header_encode) {
     }
 }
 
-// TEST_F(CommsTest, test_packet_encode_decode) {
-//     Packet pkt;
-//     commsPacket::State state;
-//     state.current = {1.0, 1.5};
-//     state.eulerXYZ = {90.0, 45.0, 180.0};
-//     state.velocity = {5.0, 4.5};
-// }
+
+TEST_F(CommsTest, test_packet_serialize) {
+    Packet pkt;
+    pkt.m_header.m_packetID = PacketID::STATE;
+    pkt.m_header.m_packetSize = sizeof(PacketHeader) + sizeof(commsPacket::State);
+    pkt.m_header.m_timestamp = 0xAD;
+    commsPacket::State state;
+    state.eulerXYZ[0] = 1.2;
+    state.eulerXYZ[1] = 1.4;
+    state.eulerXYZ[2] = 1.0;
+    state.current[0] = 0.5;
+    state.current[1] = 0.5;
+    state.velocity[0] = 0.6;
+    state.velocity[1] = 0.6;
+
+    memcpy(pkt.m_data, &state, sizeof(commsPacket::State));
+
+    byte array[256];
+
+    PacketSerializer::serialize(pkt, array);
+
+    for (int i = 0; i < 41; i++) {
+        // printf("%d) array[]: %d, test[i]: %d\n", i, array[i], encodedHeaderAndData[i]);
+        EXPECT_EQ(array[i], encodedHeaderAndData[i]);
+    }
+}

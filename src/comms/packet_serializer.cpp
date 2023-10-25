@@ -25,11 +25,10 @@ void PacketSerializer::deserialize(byte* buffer, size_t bufferLength, Packet &pa
     int identifyingBytes[256];
     memset(identifyingBytes, 0, sizeof(int)*256);
 
-    int packetStart = findIdentifyingByte(buffer, bufferLength, identifyingBytes);
-    // Copy header into header of packet
+    int numIDBytes = findIdentifyingByte(buffer, bufferLength, identifyingBytes);
     
-    // decodeHeader(buffer, bufferLength, packetStart, packet);
-    // decodeData(buffer, bufferLength, packetStart, packet);
+    int packetStart = decodeHeader(buffer, bufferLength, identifyingBytes, numIDBytes, packet);
+    decodeData(buffer, bufferLength, packetStart, packet);
     
 }
 
@@ -44,32 +43,34 @@ int PacketSerializer::findIdentifyingByte(byte* buffer, size_t numbytes, int* id
     }
     return idBytesCounter;
 }
-
-void PacketSerializer::decodeHeader(
+/**
+ * @brief Uses the identifying bytes found and decodes a header object from the byte stream.
+ * Checks for validity by comparing ID to list of known packetIDs. When a packet is found, the packet.m_header 
+ * object will be populated with ID, size and timestamp. If not found, those fields will be set to -1.
+ * Packetsize and timestamp will underflow though.
+ * @return Returns the offset from the start of the byte stream of the identifying byte of the valid packet.
+ * 
+*/
+int PacketSerializer::decodeHeader(
     byte* buffer, size_t bufferLength, int* identifyingBytes, int numIdBytesFound, Packet &packet
 ) {
-    // packetID
-    // packetSize
-    // timestamp
-    // const int headerStart = packetStart + 1;
     int i = 0;
     Packet pkt;
     pkt.m_header.m_packetID = -1;
     pkt.m_header.m_packetSize = -1;
     pkt.m_header.m_timestamp = -1;
-    // debugPrintByteStream(buffer, 44);
+    
     bool validHeader = false;
     while (i < numIdBytesFound && !validHeader) {
         byte packetStart = identifyingBytes[i];
         byte headerStart = packetStart + 1;
         memcpy(&pkt.m_header, buffer+headerStart, sizeof(PacketHeader));
         validHeader = isHeaderValid(pkt);
-        // printf("%d) packetStart = %d, headerStart = %d, validHeader: %d, val: %d\n", i, packetStart, headerStart, validHeader, buffer[packetStart]);
         i++;
     }
 
     packet = pkt;
-    
+    return identifyingBytes[i];
     // Compute CRC and checksum
 }
 
