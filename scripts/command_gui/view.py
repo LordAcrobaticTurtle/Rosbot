@@ -4,6 +4,8 @@ from custom_errors import GUIError
 from controller import Controller
 from toggle_button import ToggleButton
 
+from comms.packetID import PacketIDs
+
 # Import dependenues for LIVE plotting
 from matplotlib import style
 import matplotlib.animation as animation
@@ -129,29 +131,25 @@ class View(ttk.Frame):
     def createCommandWindow(self, tkRootElement : tk.Tk) -> tk.Frame:
         commandFrameBase = ttk.LabelFrame(tkRootElement, text="Robot commands", width=20)
 
-        commands = ["Begin", "Standby" , "Estimate bias", "Disable motors", "Enable motors"]
+        commands = ["Begin", "Standby" ]
         self.commandButtons = [self.beginButtonClicked, self.standbyButtonClicked]
         for counter, c in enumerate(commands):
             button = ttk.Button(commandFrameBase, text=c, padding=15, command=self.commandButtons[counter])
             button.grid(column=0, row=counter, pady=10)
             self.commandButtons[counter] = button
     
-            
-
-        
-        
-
         # toggle is WIP
         toggleButton = ToggleButton()
         toggleButton.create(commandFrameBase)
         toggleButton.getFrame().grid(column=0, row=5, pady=10)
         return commandFrameBase
 
-    def beginButtonClicked():
+    def beginButtonClicked(self):
+        
         print("Begin clicked!")
 
 
-    def standbyButtonClicked():
+    def standbyButtonClicked(self):
         print("Standby clicked!")
 
 
