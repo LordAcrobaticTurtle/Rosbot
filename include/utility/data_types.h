@@ -8,5 +8,5 @@ struct vector3D {
 };
 
 struct vector2D {
-    float x, y;
+    float v1, v2;
 };

@@ -8,8 +8,7 @@
 I2CMaster& master = Master;
 
 Rosbot::Rosbot() : 
-    m_status(4,3,2,false),
-    m_rx(&Serial1)
+    m_status(4,3,2,false)
 { 
 
 }
@@ -19,9 +18,8 @@ Rosbot::~Rosbot() {}
 void Rosbot::setup() 
 {
     // m_bleComms.init(&Serial4, 9600);
-    memset(m_channels, 0, TX_NUM_CHANNELS*sizeof(double));
+
     m_status.switchRedOn();
-    m_rx.setup();
     // m_imu.setup(Master);
     // Drivers need to inherit
     // Then can create drivers here, and pass into respective classes
@@ -41,17 +39,21 @@ void Rosbot::setup()
         m_localisation, motorL, motorR
     );
 
-    m_comms = std::make_shared<Comms>(
-        m_localisation, m_control, transceiver
-    );
+    // m_comms = std::make_shared<Comms>(
+    //     m_localisation, m_control, transceiver
+    // );
 }
 
 void Rosbot::run() {
 
-    m_rx.run();
+    if (m_isStandbyOn) {
+        return;
+    }
+    
     m_localisation->run();
     m_control->run();
-    m_comms->run();
+    
+
     // m_tf = millis();
     // float dt = m_tf - m_ti;
     // m_imu.update(dt/1000.0);

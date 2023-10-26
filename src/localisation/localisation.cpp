@@ -10,3 +10,32 @@ Localisation::Localisation(
 {
 
 }
+
+
+void Localisation::run() {
+    // Localisation updates
+}
+
+vector2D Localisation::getWheelVelocity() {
+    vector2D vec;
+    vec.v1 = -1;
+    vec.v2 = -1;
+    return vec;
+}
+
+
+vector3D Localisation::getPosition() {
+    vector3D vec;
+    vec.x = -1;
+    vec.y = -1;
+    vec.z = -1;
+    return vec;
+}
+
+vector3D Localisation::getOrientation() {
+    vector3D vec;
+    vec.x = -1;
+    vec.y = -1;
+    vec.z = -1;
+    return vec;
+}

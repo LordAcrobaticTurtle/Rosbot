@@ -6,7 +6,7 @@ BluetoothTransceiver::BluetoothTransceiver() {}
 void BluetoothTransceiver::init(HardwareSerial *hwSerial, long int baudrate) {
     m_hwSerial = hwSerial;
     m_hwSerial->begin(baudrate);
-    m_hwSerial->setTimeout(10);
+    m_hwSerial->setTimeout(10); // Set timeout to be 10 ms
 }
 
 int BluetoothTransceiver::isDataReady() {

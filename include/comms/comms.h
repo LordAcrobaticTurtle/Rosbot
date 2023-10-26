@@ -1,17 +1,16 @@
 #pragma once
-#include <comms/packet.h>
-#include <localisation/localisation.h>
-#include <control/control.h>
-#include <interfaces/comms_interface.h>
 #include <memory>
+
+
+#include <comms/packet.h>
+#include <interfaces/comms_interface.h>
+#include <drivers/radio_interface.h>
+#include <Rosbot.h>
+
 
 class Comms {
 public:
-    Comms(
-        std::shared_ptr<Localisation> localisation, 
-        std::shared_ptr<Control> control,
-        std::shared_ptr<CommsInterface> transceiver
-    );
+    Comms(std::shared_ptr<Rosbot> robot, std::shared_ptr<RadioInterface> rx);
 
     int decodeStream(byte* buffer, Packet &packet);
     int handlePacket(Packet packet);
@@ -27,8 +26,11 @@ private:
 
 
 private:
-    std::shared_ptr<Localisation> m_localisation;
-    std::shared_ptr<Control> m_control;
+    // std::shared_ptr<Localisation> m_localisation;
+    // std::shared_ptr<Control> m_control;
+    std::shared_ptr<Rosbot> m_robot;
     std::shared_ptr<CommsInterface> m_transceiver;
+    std::shared_ptr<RadioInterface> m_rx;
+    double m_radioChannels[TX_NUM_CHANNELS];
 };
 
