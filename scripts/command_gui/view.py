@@ -129,20 +129,32 @@ class View(ttk.Frame):
     def createCommandWindow(self, tkRootElement : tk.Tk) -> tk.Frame:
         commandFrameBase = ttk.LabelFrame(tkRootElement, text="Robot commands", width=20)
 
-        commands = ["Estimate bias", "Begin balancing!", "Disable motors", "Enable motors"]
-
+        commands = ["Begin", "Standby" , "Estimate bias", "Disable motors", "Enable motors"]
+        self.commandButtons = [self.beginButtonClicked, self.standbyButtonClicked]
         for counter, c in enumerate(commands):
-            button = ttk.Button(commandFrameBase, text=c, padding=15)
+            button = ttk.Button(commandFrameBase, text=c, padding=15, command=self.commandButtons[counter])
             button.grid(column=0, row=counter, pady=10)
+            self.commandButtons[counter] = button
+    
+            
+
+        
+        
 
         # toggle is WIP
         toggleButton = ToggleButton()
         toggleButton.create(commandFrameBase)
         toggleButton.getFrame().grid(column=0, row=5, pady=10)
-
         return commandFrameBase
 
-        
+    def beginButtonClicked():
+        print("Begin clicked!")
+
+
+    def standbyButtonClicked():
+        print("Standby clicked!")
+
+
     def createTitleBar(self):
         menubar = tk.Menu(self._parent)
         filemenu = tk.Menu(menubar, tearoff=0)
