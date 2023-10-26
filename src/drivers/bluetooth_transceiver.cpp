@@ -1,12 +1,14 @@
 #include <drivers/bluetooth_transceiver.h>
 #include <comms/packet.h>
 
-BluetoothTransceiver::BluetoothTransceiver() {}
-
-void BluetoothTransceiver::init(HardwareSerial *hwSerial, long int baudrate) {
+BluetoothTransceiver::BluetoothTransceiver(HardwareSerial *hwSerial, long int baudrate) {
     m_hwSerial = hwSerial;
     m_hwSerial->begin(baudrate);
     m_hwSerial->setTimeout(10); // Set timeout to be 10 ms
+}
+
+void BluetoothTransceiver::init() {
+    
 }
 
 int BluetoothTransceiver::isDataReady() {

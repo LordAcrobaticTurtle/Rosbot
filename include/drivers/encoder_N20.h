@@ -38,6 +38,9 @@ class EncoderN20 : public EncoderInterface {
         int setup(  void (*c1_callback)(void), void (*c2_callback)(void), 
                     volatile int *count, 
                     uint32_t pinC1, uint32_t pinC2);
+        
+        int setup();
+
         void update();
  
         uint32_t getpinC1() {return m_pinC1;}

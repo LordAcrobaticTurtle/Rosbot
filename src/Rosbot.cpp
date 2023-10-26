@@ -17,17 +17,16 @@ Rosbot::~Rosbot() {}
 
 void Rosbot::setup() 
 {
-    // m_bleComms.init(&Serial4, 9600);
-
+    
+    m_isStandbyOn = true;
     m_status.switchRedOn();
     // m_imu.setup(Master);
     // Drivers need to inherit
     // Then can create drivers here, and pass into respective classes
-    std::shared_ptr<BluetoothTransceiver> transceiver = std::make_shared<BluetoothTransceiver>();
     std::shared_ptr<Mpu6050> imu = std::make_shared<Mpu6050>(Master);
     m_status.switchGreenOn();
-    std::shared_ptr<DRV8876> motorL = std::make_shared<DRV8876>(11, 12, 10, -1, 5);
-    std::shared_ptr<DRV8876> motorR = std::make_shared<DRV8876>(22, 20, 14, -1, 23);
+    std::shared_ptr<DRV8876> motorL = std::make_shared<DRV8876>(12, 11, 10, -1, 5);
+    std::shared_ptr<DRV8876> motorR = std::make_shared<DRV8876>(20, 22, 14, -1, 23);
     std::shared_ptr<EncoderN20> encoderL = std::make_shared<EncoderN20>();
     std::shared_ptr<EncoderN20> encoderR = std::make_shared<EncoderN20>();
 
@@ -38,20 +37,23 @@ void Rosbot::setup()
     m_control = std::make_shared<Control>(
         m_localisation, motorL, motorR
     );
+}
 
-    // m_comms = std::make_shared<Comms>(
-    //     m_localisation, m_control, transceiver
-    // );
+void Rosbot::switchStandbyMode(bool isStandbyOn) {
+    m_isStandbyOn = isStandbyOn;
 }
 
 void Rosbot::run() {
 
     if (m_isStandbyOn) {
+        m_status.mix(255, 163, 0);
         return;
+    } else if (!m_isStandbyOn) {
+        m_status.switchBlueOn();
     }
     
-    m_localisation->run();
-    m_control->run();
+    // m_localisation->run();
+    // m_control->run();
     
 
     // m_tf = millis();

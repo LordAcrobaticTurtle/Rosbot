@@ -27,9 +27,6 @@ void encoder1_c1_callback() {
     // Disable interrupts
     bool isAHigh = digitalReadFast(enc1_c1);
     bool isBHigh = digitalReadFast(enc1_c2);
-
-    // Serial.println("A: " + String(isAHigh) + ", B: " + String(isBHigh));
-    // Anti-clockwise 
     if ((isAHigh && !isBHigh) || (!isAHigh && isBHigh)) {
         enc1Count++;
     }
@@ -37,8 +34,7 @@ void encoder1_c1_callback() {
     else if ((isAHigh && isBHigh) || (!isAHigh && !isBHigh)) {
         enc1Count--;
     }
-
-    
+}
     // if (isAHigh) {
     //     // Set current time in millis 
     //     enc1PrevCount = enc1Count;
@@ -51,11 +47,9 @@ void encoder1_c1_callback() {
     // else {
     //     isBHigh ? enc1Count++ : enc1Count--;
     // }
-}
 
 // B channel on encoder
 void encoder1_c2_callback() {
-    cli();
     bool isAHigh = digitalReadFast(enc1_c1); // A
     bool isBHigh = digitalReadFast(enc1_c2); // B
 
@@ -67,16 +61,7 @@ void encoder1_c2_callback() {
     else if ((isBHigh && !isAHigh) || (!isBHigh && isAHigh)) {
         enc1Count--;
     }
-    // if (isBHigh) {
-    //     // B is high
-    //     isAHigh ? enc1Count++ : enc1Count--;
-    // }
-    // else {
-    //     // B is low
-    //     isAHigh ? enc1Count-- : enc1Count++;
-    // } 
 
-    sei();
 }
 
 void encoder2_c1_callback() {
@@ -97,7 +82,7 @@ void encoder2_c2_callback() {
 }
 
 EncoderN20::EncoderN20() {}
-
+/*
 int EncoderN20::setup(  void (*c1_Callback)(void), void (*c2_Callback)(void), 
                         volatile int *count,
                         uint32_t pinC1, uint32_t pinC2) {
@@ -117,38 +102,23 @@ int EncoderN20::setup(  void (*c1_Callback)(void), void (*c2_Callback)(void),
     m_count = count;
     *m_count = 0;
 }
+*/
+
+
+int EncoderN20::setup() {
+
+
+    // attachInterrupt(enc1_c1, encoder1_c1_callback, CHANGE);
+    // attachInterrupt(enc1_c2, encoder1_c2_callback, CHANGE);
+
+
+    attachInterrupt(enc2_c1, encoder1_c1_callback, CHANGE);
+    // attachInterrupt(enc2_c2, encoder1_c2_callback, RISING);
+}
 
 void EncoderN20::update() {
-    float count;
-    cli();
-    memcpy(&count, (float *)&RPM, sizeof(float));
-    sei();
-
-
-    // Calculate revolutions
-    // Grab previous encoder count
-    // Can be a positive/negative number
-    // Grab current encoder count
-
-    int encoderDiff = enc1Count - enc1PrevCount;
-    // Find difference -> Change in position 
-
-    // Zero prev encoder count
-    enc1PrevCount = enc1Count;
-    // Divide by PPR. Divide by gear ratio
-    double revolutionsPerSecond = (double) encoderDiff / PPR;
-
-    double dt = enc1RiseTime - enc1PrevRiseTime;
     
-    dt /= 1000;
-    revolutionsPerSecond /= GEARING;
-    revolutionsPerSecond /= dt;
-    // Calculate rev/s
-    // Multiply dt by 1000
-    // Divide by dt
-
-    
-    Serial.println("Encoder RPM: " + String(revolutionsPerSecond) + ", " + String(encoderDiff) + ", " + String(dt));
+    Serial.println("Encoder Count: " + String(enc1Count));
     // Do computation for velocity here
 }
 

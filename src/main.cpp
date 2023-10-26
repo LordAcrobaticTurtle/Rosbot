@@ -1,12 +1,14 @@
 
 #include <Rosbot.h>
 #include <comms/comms.h>
-
+#include <drivers/encoder_N20.h>
 #include <i2c_device.h>
 
 std::shared_ptr<Comms> comms;
 std::shared_ptr<Rosbot> robot;
 std::shared_ptr<RadioInterface> rx;
+
+EncoderN20 enc;
 
 void mainloop();
 
@@ -20,10 +22,10 @@ void setup()
     rx = std::make_shared<RadioInterface>(&Serial1);
     comms = std::make_shared<Comms>(robot, rx);
     robot->setup();
+    rx->setup();
+    enc.setup();
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, HIGH);    
-    
-    
 }
  
 void loop()
@@ -33,7 +35,9 @@ void loop()
     // Change state
     // Serial4.println("BEANS");
     // robot.run();
-    
+    comms->run();
+    robot->run();
+    enc.update();
 }
 
 
