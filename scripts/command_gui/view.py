@@ -129,8 +129,8 @@ class View(ttk.Frame):
     def createCommandWindow(self, tkRootElement : tk.Tk) -> tk.Frame:
         commandFrameBase = ttk.LabelFrame(tkRootElement, text="Robot commands", width=20)
 
-        commands = ["Begin", "Standby" , "Estimate bias", "Disable motors", "Enable motors"]
-        self.commandButtons = [self.beginButtonClicked, self.standbyButtonClicked]
+        commands = ["Begin", "Standby"]
+        self.commandButtons = [self.beginButtonClicked, self.standbyButtonClicked, ]
         for counter, c in enumerate(commands):
             button = ttk.Button(commandFrameBase, text=c, padding=15, command=self.commandButtons[counter])
             button.grid(column=0, row=counter, pady=10)

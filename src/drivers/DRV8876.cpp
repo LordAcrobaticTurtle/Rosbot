@@ -31,17 +31,16 @@ void DRV8876::setVoltage(float voltage) {
 
 // Expects values between -255 and 255
 void DRV8876::setThrottle(int throttle) {
-    int throttleSet = throttle;
 
-    throttleSet = constrain(throttleSet, MIN_THROTTLE, MAX_THROTTLE);
+    throttle = constrain(throttle, MIN_THROTTLE, MAX_THROTTLE);
     
-    if (throttleSet < 0) {
+    if (throttle < 0) {
         setDirection(false);
     } else {
         setDirection(true);
     }
 
-    analogWrite(m_pinPWM, abs(throttleSet));
+    analogWrite(m_pinPWM, abs(throttle));
 }
 
 void DRV8876::setDirection(bool isClockwise) {

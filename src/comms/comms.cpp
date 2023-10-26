@@ -1,6 +1,7 @@
 #include <comms/comms.h>
 #include <comms/packet_serializer.h>
 #include <comms/packetID.h>
+#include <drivers/bluetooth_transceiver.h>
 
 #define BUFFER_SIZE 256
 
@@ -10,7 +11,7 @@
 ) : m_robot(robot),
     m_rx(rx)
 {
-    
+    m_transceiver = std::make_shared<BluetoothTransceiver>(&Serial4, 9600);
     memset(m_radioChannels, 0, TX_NUM_CHANNELS*sizeof(double));
     m_rx->setup();
 }
@@ -31,6 +32,8 @@ int Comms::run() {
         handlePacket(packet);
 
     }
+
+    return 0;
 }
 
 

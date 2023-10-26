@@ -11,9 +11,9 @@
  */
 class BluetoothTransceiver : public CommsInterface {
     public:
-        BluetoothTransceiver();
+        BluetoothTransceiver(HardwareSerial* hwSerial, long int baudrate);
         ~BluetoothTransceiver() {};
-        void init(HardwareSerial* hwSerial, long int baudrate);
+        void init();
         void configure();
 
         virtual int isDataReady();
