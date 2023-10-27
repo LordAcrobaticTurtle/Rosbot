@@ -14,11 +14,13 @@ class PacketIDs(IntEnum):
 
 
 class Begin():
+   FORMAT = '<?'
    def  __init__(self):
         self.doBegin = False
         # self.format = 
 
 class Standby():
+    FORMAT = '<?'
     def __init__(self) -> None:
         self.doStandby = True
 

@@ -27,8 +27,8 @@ void Rosbot::setup()
     m_status.switchGreenOn();
     std::shared_ptr<DRV8876> motorL = std::make_shared<DRV8876>(12, 11, 10, -1, 5);
     std::shared_ptr<DRV8876> motorR = std::make_shared<DRV8876>(20, 22, 14, -1, 23);
-    std::shared_ptr<EncoderN20> encoderL = std::make_shared<EncoderN20>();
-    std::shared_ptr<EncoderN20> encoderR = std::make_shared<EncoderN20>();
+    std::shared_ptr<EncoderN20> encoderL = std::make_shared<EncoderN20>(6,7);
+    std::shared_ptr<EncoderN20> encoderR = std::make_shared<EncoderN20>(8,9);
 
     m_localisation = std::make_shared<Localisation>(
         imu, encoderL, encoderR

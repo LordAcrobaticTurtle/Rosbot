@@ -8,7 +8,7 @@ std::shared_ptr<Comms> comms;
 std::shared_ptr<Rosbot> robot;
 std::shared_ptr<RadioInterface> rx;
 
-EncoderN20 enc;
+// EncoderN20 enc(6,7);
 
 void mainloop();
 
@@ -23,7 +23,7 @@ void setup()
     comms = std::make_shared<Comms>(robot, rx);
     robot->setup();
     rx->setup();
-    enc.setup();
+    // enc.setup();
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, HIGH);    
 }
@@ -37,7 +37,7 @@ void loop()
     // robot.run();
     comms->run();
     robot->run();
-    enc.update();
+    // enc.update();
 }
 
 

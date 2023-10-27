@@ -58,7 +58,9 @@ class Controller:
                 self.handlePacket(header, data)
 
                 
-
+    def sendPacket(self, packetID: PacketIDs):
+        if (self.isAppRunning and self._openPort.is_open):
+            
 
     def handlePacket(self, header : PacketHeader, data):
     
