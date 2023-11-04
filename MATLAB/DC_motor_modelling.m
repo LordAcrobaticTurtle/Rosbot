@@ -1,4 +1,5 @@
 %% DC motor modelling 
+% syms J b K R L;
 J = 0.01;
 b = 0.1;
 K = 0.01;
@@ -11,7 +12,7 @@ motor_ss = ss(P_motor);
 
 rP_motor = 0.1/(0.5*s+1);
 
-% linearSystemAnalyzer(P_motor)
+linearSystemAnalyzer(P_motor)
 Kp = 100;
 kd = 10;
 ki = 200;

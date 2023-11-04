@@ -145,11 +145,12 @@ class View(ttk.Frame):
         return commandFrameBase
 
     def beginButtonClicked(self):
-        
+        self.controller.sendPacket(PacketIDs.BEGIN)
         print("Begin clicked!")
 
 
     def standbyButtonClicked(self):
+        self.controller.sendPacket(PacketIDs.STANDBY)
         print("Standby clicked!")
 
 

@@ -4,6 +4,7 @@
 #include <interfaces/encoder_interface.h>
 #include <interfaces/imu_interface.h>
 
+
 class Localisation {
 public:
     Localisation(
@@ -28,4 +29,26 @@ private:
     vector3D m_orientation;
     vector3D m_position;
     vector3D m_gyroRates;
+};
+
+
+
+
+class RobotModel {
+    public:
+        RobotModel();
+        void updateModel();
+    
+
+    
+    private:
+        Matrix dx; // derived state
+        Matrix x;  // State
+        Matrix u;  // input
+        Matrix A;  // System
+        Matrix B;  // oinput
+        Matrix C;  // Output
+        Matrix D;  // Output
+
+    
 };
