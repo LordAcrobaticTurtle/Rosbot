@@ -11,23 +11,16 @@ const int enc2_c2 = 9;
 const int enc1_c1 = 6;
 const int enc1_c2 = 7;
 
-extern volatile int enc1Count;
-extern volatile int enc2Count;
 
-void encoder1_c1_callback();
-void encoder1_c2_callback();
-void encoder2_c1_callback();
-void encoder2_c2_callback();
+enum EncoderReturnOptions {
+    VALID,
+    TIMEOUT
+};
 
-// volatile int prevR = 0;
-// volatile int currR = 0;
-// volatile bool motordirR;
-// volatile float rpmR;
-
-// volatile int prevL = 0;
-// volatile int currL = 0;
-// volatile bool motordirL;
-// volatile float rpmL = 0;
+struct EncoderResult {
+    EncoderReturnOptions option;
+    float RPM;
+};
 
 class EncoderN20 : public EncoderInterface {
 
@@ -35,6 +28,8 @@ class EncoderN20 : public EncoderInterface {
         EncoderN20(int pin1, int pin2);
         ~EncoderN20() {};
         virtual float readRPM();
+
+        EncoderResult readRPMwithStruct();
 
         int setup();
 
@@ -49,6 +44,7 @@ class EncoderN20 : public EncoderInterface {
         long int m_lastCount;
         long int m_lastReadTime;
         
+        int m_pin1, m_pin2;
 
         Encoder m_encoder;
 };
