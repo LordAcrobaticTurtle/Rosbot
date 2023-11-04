@@ -4,6 +4,9 @@
 #include <control/pid_controller.h>
 #include <memory>
 
+
+// state space model of a motor
+
 class Control {
 public:
     Control(
@@ -26,7 +29,4 @@ private:
     std::shared_ptr<Localisation> m_localisation;
     std::shared_ptr<DcMotorInterface> m_motorL;
     std::shared_ptr<DcMotorInterface> m_motorR;
-
-
-
 };

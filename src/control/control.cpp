@@ -29,6 +29,18 @@ int Control::run() {
  * @brief Function used to control the torque output of the motors
 */
 void Control::torqueControl(std::shared_ptr<DcMotorInterface> motor) {
-    
+    // Calculate the change in the system 
+    // 
+    float dx[2];
+    float J = 1;
+    float b = 1;
+    float K = 1;
+    float R = 1;
+    float L = 1;
+
+    // I could pass the xdot[1] from the main state estimation as a command to the motors
+    // to rotor 
+
+    dx[0] = 
 }
 

@@ -4,8 +4,9 @@ import threading
 import math
 import time
 from comms.packetID import PacketIDs
-from comms.packet import PacketHeader
+from comms.packet import PacketHeader, Packet
 from comms.comms_layer import PacketSerializer
+
 
 class Controller:
     def __init__(self, model, view):
@@ -59,7 +60,16 @@ class Controller:
 
                 
     def sendPacket(self, packetID: PacketIDs):
-        if (self.isAppRunning and self._openPort.is_open):
+        if (self._openPort.is_open):
+            packet = Packet()
+            packet.m_header.packetID = packetID
+            buffer = bytearray(PacketSerializer.serialize(packet))
+            print(buffer)
+            
+            # self._openPort.write()
+            print("Packet sent!")
+        else:
+            print("Port is closed")
             
 
     def handlePacket(self, header : PacketHeader, data):

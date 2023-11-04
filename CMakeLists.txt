@@ -14,6 +14,8 @@ add_subdirectory(submodules/googletest)
 set(SRC_FILES
     test/test_packet_serializer.cpp
     src/comms/packet_serializer.cpp
+    test/test_math.cpp
+    src/utility/math.cpp
     test/test_main.cpp
 )
 

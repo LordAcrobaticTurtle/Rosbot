@@ -39,3 +39,7 @@ vector3D Localisation::getOrientation() {
     vec.z = -1;
     return vec;
 }
+
+void RobotModel::updateModel() {
+
+}

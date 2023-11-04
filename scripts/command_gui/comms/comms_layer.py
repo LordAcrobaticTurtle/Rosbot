@@ -12,7 +12,7 @@ class PacketSerializer:
     
     @staticmethod
     def serialize(packet : Packet) -> bytes:
-        buffer = []
+        buffer = bytearray()
         buffer.append(PacketSerializer.identifyingByte)
         
         if (packet.m_header.packetID == PacketIDs.BEGIN):
@@ -32,6 +32,7 @@ class PacketSerializer:
         if (packet.m_header.packetID == PacketIDs.LED_CHANGE):
             pass
 
+        print(buffer)
         return buffer
 
     @staticmethod
