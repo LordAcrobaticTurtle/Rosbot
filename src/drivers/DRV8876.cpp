@@ -55,5 +55,10 @@ double DRV8876::readCurrent() {
     // Convert to voltage
     double currentAsVoltage = floatMap(currentAsInteger, ADC_MIN, ADC_MAX, VOLTAGE_MIN, VOLTAGE_MAX);
     double I_propI = currentAsVoltage / R_IPROPI; // microamps
-    return I_propI / A_IPROPI; // Amps
+    return currentAsInteger; // Amps
+}
+
+
+int DRV8876::readCurrentAnalog() {
+    return analogRead(m_pinCurrSense);
 }

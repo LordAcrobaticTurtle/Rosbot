@@ -38,6 +38,8 @@ class DRV8876 : public DcMotorInterface {
         */ 
         virtual double readCurrent();
 
+        int readCurrentAnalog();
+
     private:
 
 
