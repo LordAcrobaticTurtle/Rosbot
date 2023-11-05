@@ -3,7 +3,7 @@
 #include <utility/utility.h>
 #include <interfaces/encoder_interface.h>
 #include <interfaces/imu_interface.h>
-
+#include <utility/math.h>
 
 class Localisation {
 public:
@@ -38,9 +38,7 @@ class RobotModel {
     public:
         RobotModel();
         void updateModel();
-    
 
-    
     private:
         Matrix dx; // derived state
         Matrix x;  // State
@@ -49,6 +47,7 @@ class RobotModel {
         Matrix B;  // oinput
         Matrix C;  // Output
         Matrix D;  // Output
+
 
     
 };

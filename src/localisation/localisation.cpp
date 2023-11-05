@@ -40,6 +40,22 @@ vector3D Localisation::getOrientation() {
     return vec;
 }
 
-void RobotModel::updateModel() {
+RobotModel::RobotModel(): 
+    dx(4,1),
+    x(4,1),
+    u(4,1),
+    A(4,4),
+    B(4,1),
+    C(1,4),
+    D(0,0)
+{
+    // Setup A, B, C here
 
+    
+
+}
+
+
+void RobotModel::updateModel() {
+    
 }
