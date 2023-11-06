@@ -12,7 +12,7 @@ import matplotlib.animation as animation
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib import style
-
+import math
 # App is the parent widget. The View is the frame that sits on top
 # It should contain minimal logic for displaying data. 
 # It will call functions in the controller layer to retrieve the data 
@@ -22,6 +22,12 @@ class View(ttk.Frame):
         super().__init__(parent)
         self._parent = parent
         self._isControllerSet = False
+        
+
+    def close(self):
+        self.controller.close()
+        self._parent.quit()
+        self._parent.destroy()
 
     def create_window(self): 
         if not self._isControllerSet:
@@ -48,14 +54,18 @@ class View(ttk.Frame):
         commandFrame.grid(column=0,row=0, sticky=(tk.N,tk.S), rowspan=numRows)        
 
         self.collectedPlots = {}
-
+        print("Creating plot windows")
         # Create graphing windows
         self.collectedPlots["Plot1"] = False
         plot1, plotVariables = self.createPlotWindow(self._parent, "Plot1")
         self.collectedPlots["Plot1"] = plotVariables
         plot1.grid(column=1, row=0, sticky=(tk.E), padx=10)
 
-        # print(plotVariables)
+        self.collectedPlots["Plot2"] = False
+        plot2, plotVars2 = self.createPlotWindow(self._parent, "Plot2")
+        self.collectedPlots["Plot2"] = plotVars2
+        plot2.grid(column=2, row=0, stick=(tk.E), padx = 10)
+
         
         # Create app settings panel
         appSettingsFrame = self.createAppSettingsWindow(self._parent)
@@ -64,7 +74,6 @@ class View(ttk.Frame):
         #  Create serial console
         comSettingsFrame = self.createSerialConsoleAndSettings(self._parent)
         comSettingsFrame.grid(column=2, row=1, sticky=(tk.W,tk.E))
-
 
     def createPlotWindow(self, tkRootElement :tk.Tk, plotIndex : str) -> (tk.Frame, dict):
     
@@ -79,20 +88,21 @@ class View(ttk.Frame):
         }
         fig = Figure(figsize=(8,8), dpi=100)
         axis = fig.add_subplot(111)
-        axis.set_title("Plot")
+        axis.set_title(f"{plotIndex}")
         axis.set_xlabel("time (s)")
-        axis.set_ylabel("magnitude of signal")
+        axis.set_ylabel("Signal magnitude")
         axis.set_ylim([-1, 1])
         
         # plotting the graph
         linePlot, = axis.plot([])
 
-
         # creating the Tkinter canvas
         # containing the Matplotlib figure
         canvas = FigureCanvasTkAgg(fig, master = plotBaseFrame)  
-        # ani = animation.FuncAnimation(fig, self.plotAnimate, fargs=(plotIndex,),
-        #                                          interval=50, blit=True, repeat=True)
+        
+        # Set all plots to update using the same function
+        ani = animation.FuncAnimation(fig, self.plotAnimate, interval=50)
+        
         canvas.draw()
         canvas.get_tk_widget().grid()
         
@@ -100,58 +110,77 @@ class View(ttk.Frame):
         plotVariables["axis"] = axis
         plotVariables["lineplot"] = linePlot
         plotVariables["canvas"] = canvas
-        # plotVariables["animation"] = ani
+        plotVariables["animation"] = ani
   
         return plotBaseFrame, plotVariables
     
-    def plotAnimate(self, i, plotIndex : str):
-        (t, xS) = self.controller.generateSineWaveDataPoint(i)
-        # print(self.collectedPlots[plotIndex])
-        if (self.collectedPlots[plotIndex]):
-            self.collectedPlots[plotIndex]["x"].append(xS)
-            print(t, xS)
-            return self.collectedPlots[plotIndex]["lineplot"]
-        return self.linePlot,
-
+    def plotAnimate(self, i):
+        # print(f"PlotAnimate: {i}")
+        # Generate datat 
+        # Append (i, sin(i)) to the data. Kick out the oldest set of data
+        if len(self.collectedPlots.keys()) < 0:
+            return
+    
+        plot1 = self.collectedPlots['Plot1']
+        if (self.collectedPlots['Plot1'] == False):
+            return 
         
+        plot1["axis"].clear()
+        tdata1 = plot1["t"]
+        xdata1 = plot1["x"]
+
+        # Remove oldest entry
+        del tdata1[0] 
+        tdata1.append(i)
+
+        del xdata1[0]
+        xdata1.append(math.sin(i))
+        # x data is in t
+        # vertical data is in x lol
+        plot1["axis"].plot(tdata1, xdata1)
+        # print(self.collectedPlots)
+
+        if (self.collectedPlots["Plot2"] == False):
+            return
+        
+        plot2 = self.collectedPlots["Plot2"]
+        plot2["axis"].clear()
+        tdata2 = plot2["t"]
+        xdata2 = plot2["x"]
+
+        del tdata2[0]
+        tdata2.append(i)
+
+        del xdata2[0]
+        xdata2.append(math.cos(i))
+        plot2["axis"].plot(tdata2, xdata2)
+        
+
     def createAppSettingsWindow(self, tkRootElement : tk.Tk) -> tk.Frame:
         appSettingsFrameBase = ttk.LabelFrame(tkRootElement, text="AppSettingsWindow")
         
-        ttk.Button(appSettingsFrameBase, text="Start recording", padding=10).grid(column=0, row=0, padx=5, pady=5)
-        ttk.Button(appSettingsFrameBase, text="Stop recording", padding=10).grid(column=1, row=0, padx=5, pady=5)
+        ttk.Button(appSettingsFrameBase, text="Start recording", padding=10, command = self.startRecordingClicked).grid(column=0, row=0, padx=5, pady=5)
+        ttk.Button(appSettingsFrameBase, text="Stop recording", padding=10, command = self.stopRecordingClicked).grid(column=1, row=0, padx=5, pady=5)
         ttk.Button(appSettingsFrameBase, text="File path for recording", padding=10).grid(column=0, row=1, padx=5, pady=5)
-        ttk.Button(appSettingsFrameBase, text="Change file path", padding=10).grid(column=1, row=1, padx=5, pady=5)
-        # rowC, colC = tkRootElement.grid_size()
-        # for r in range(rowC):
-        #     for c in range(colC):
-        #         tk.Label(appSettingsFrameBase, text='R%s/C%s'%(r,c),borderwidth=1 ).grid(row=r,column=c)
-
+        ttk.Button(appSettingsFrameBase, text="Change file path", padding=10, command=self.changeFilePathClicked).grid(column=1, row=1, padx=5, pady=5)
+        
         return appSettingsFrameBase
 
     def createCommandWindow(self, tkRootElement : tk.Tk) -> tk.Frame:
         commandFrameBase = ttk.LabelFrame(tkRootElement, text="Robot commands", width=20)
 
-        commands = ["Begin", "Standby" ]
-        self.commandButtons = [self.beginButtonClicked, self.standbyButtonClicked]
+        commands = ["Begin", "Standby", "Calibrate" ]
+        self.commandButtons = [self.beginButtonClicked, self.standbyButtonClicked, self.calibrateButtonClicked]
         for counter, c in enumerate(commands):
             button = ttk.Button(commandFrameBase, text=c, padding=15, command=self.commandButtons[counter])
             button.grid(column=0, row=counter, pady=10)
             self.commandButtons[counter] = button
     
         # toggle is WIP
-        toggleButton = ToggleButton()
-        toggleButton.create(commandFrameBase)
-        toggleButton.getFrame().grid(column=0, row=5, pady=10)
+        # toggleButton = ToggleButton()
+        # toggleButton.create(commandFrameBase)
+        # toggleButton.getFrame().grid(column=0, row=5, pady=10)
         return commandFrameBase
-
-    def beginButtonClicked(self):
-        self.controller.sendPacket(PacketIDs.BEGIN)
-        print("Begin clicked!")
-
-
-    def standbyButtonClicked(self):
-        self.controller.sendPacket(PacketIDs.STANDBY)
-        print("Standby clicked!")
 
 
     def createTitleBar(self):
@@ -165,7 +194,7 @@ class View(ttk.Frame):
 
         filemenu.add_separator()
 
-        filemenu.add_command(label="Exit", command=self._parent.quit)
+        filemenu.add_command(label="Exit", command=self.close)
         menubar.add_cascade(label="File", menu=filemenu)
         editmenu = tk.Menu(menubar, tearoff=0)
         editmenu.add_command(label="Undo", command=self.donothing)
@@ -184,7 +213,7 @@ class View(ttk.Frame):
         helpmenu.add_command(label="About...", command=self.donothing)
         menubar.add_cascade(label="Help", menu=helpmenu)
         menubar.add_separator()
-        menubar.add_command(label = "Quit", command = self._parent.destroy)
+        menubar.add_command(label = "Quit", command = self.close)
 
         self._parent.config(menu=menubar)
 
@@ -329,3 +358,23 @@ class View(ttk.Frame):
         :return:
         """
         self.message_label['text'] = ''
+
+    def beginButtonClicked(self):
+        self.controller.sendPacket(PacketIDs.BEGIN)
+        print("Begin clicked!")
+
+    def standbyButtonClicked(self):
+        self.controller.sendPacket(PacketIDs.STANDBY)
+        print("Standby clicked!")
+
+    def calibrateButtonClicked(self):
+        print("Calibrated clicked!")
+
+    def startRecordingClicked(self):
+        print("Start recording clicked!")
+
+    def stopRecordingClicked(self):
+        print("Stop recording clicked!")
+
+    def changeFilePathClicked(self):
+        print("Change file path clicked!")

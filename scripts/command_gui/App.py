@@ -8,26 +8,30 @@ from controller import Controller
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
-
         self.title('MechMate 🤖')
-
+        print("Application start")
         # create a model
-        model = Model()
+        self.model = Model()
 
         # create a view and place it on the root window
-        view = View(self)
-        view.grid(row=0, column=0, padx=10, pady=10)
+        self.view = View(self)
+        self.protocol("WM_DELETE_WINDOW", self.view.close)
+        self.view.grid(row=0, column=0, padx=10, pady=10)        
         # Make full screen
         self.state('zoomed')
 
         # create a controller
-        controller = Controller(model, view)
+        self.controller = Controller(self.model, self.view)
 
         # set the controller to view
-        view.set_controller(controller)
-        view.create_window()
-
-
+        self.view.set_controller(self.controller)
+        self.view.create_window()
+    
+    def close(self):    
+        self.view.close()
+        self.controller.close()
+        
 if __name__ == '__main__':
     app = App()
     app.mainloop() 
+    

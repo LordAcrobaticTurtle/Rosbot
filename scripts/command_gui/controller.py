@@ -13,6 +13,10 @@ class Controller:
         self.model = model
         self.view = view
         self.isAppRunning = True
+        self._isPortOpen = False
+
+    def close(self):
+        self.isAppRunning = False
 
     def getComPortList(self) -> list:
         ports = serial.tools.list_ports.comports()
@@ -32,14 +36,9 @@ class Controller:
         self._openPort.stopbits = serial.STOPBITS_ONE
         self._openPort.open()
         self._isPortOpen = True
-        self._t1 = threading.Thread(target=self.serialUpdate, args=(), daemon=1)
+        self._t1 = threading.Thread(target=self.serialUpdate, args=())
         self._t1.start()
-
-        # threading.Thread(target=self.handleSerialOpen, args=(), daemon=1)
-
-    # def handleSerialOpen(self, port: str, baudrate: str) -> None:
         
-
     def serialUpdate(self) -> None:
         
         while (self.isAppRunning):
@@ -60,7 +59,7 @@ class Controller:
 
                 
     def sendPacket(self, packetID: PacketIDs):
-        if (self._openPort.is_open):
+        if (self._isPortOpen):
             packet = Packet()
             packet.m_header.packetID = packetID
             buffer = bytearray(PacketSerializer.serialize(packet))
