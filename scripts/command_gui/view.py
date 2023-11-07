@@ -56,14 +56,16 @@ class View(ttk.Frame):
         self.collectedPlots = {}
         print("Creating plot windows")
         # Create graphing windows
-        self.collectedPlots["Plot1"] = False
+        # self.collectedPlots["Plot1"] = False
         plot1, plotVariables = self.createPlotWindow(self._parent, "Plot1")
         self.collectedPlots["Plot1"] = plotVariables
+        self.collectedPlots["Plot1"]["animation"] = animation.FuncAnimation(self.collectedPlots["Plot1"]["figure"], self.plotAnimatePlot1, interval=0, blit = True, repeat=False)
         plot1.grid(column=1, row=0, sticky=(tk.E), padx=10)
 
-        self.collectedPlots["Plot2"] = False
+        # self.collectedPlots["Plot2"] = False
         plot2, plotVars2 = self.createPlotWindow(self._parent, "Plot2")
         self.collectedPlots["Plot2"] = plotVars2
+        self.collectedPlots["Plot2"]["animation"] = animation.FuncAnimation(self.collectedPlots["Plot2"]["figure"], self.plotAnimatePlot2, interval=0, blit = True, repeat=False)
         plot2.grid(column=2, row=0, stick=(tk.E), padx = 10)
 
         
@@ -91,17 +93,17 @@ class View(ttk.Frame):
         axis.set_title(f"{plotIndex}")
         axis.set_xlabel("time (s)")
         axis.set_ylabel("Signal magnitude")
-        axis.set_ylim([-1, 1])
+        axis.set_ylim([-2, 2])
         
         # plotting the graph
-        linePlot, = axis.plot([])
+        linePlot, = axis.plot([], color='b')
 
         # creating the Tkinter canvas
         # containing the Matplotlib figure
         canvas = FigureCanvasTkAgg(fig, master = plotBaseFrame)  
         
         # Set all plots to update using the same function
-        ani = animation.FuncAnimation(fig, self.plotAnimate, interval=50)
+        # ani = animation.FuncAnimation(fig, self.plotAnimate, interval=0, blit = True, repeat=False)
         
         canvas.draw()
         canvas.get_tk_widget().grid()
@@ -110,51 +112,44 @@ class View(ttk.Frame):
         plotVariables["axis"] = axis
         plotVariables["lineplot"] = linePlot
         plotVariables["canvas"] = canvas
-        plotVariables["animation"] = ani
+        # plotVariables["animation"] = ani
   
         return plotBaseFrame, plotVariables
     
-    def plotAnimate(self, i):
-        # print(f"PlotAnimate: {i}")
-        # Generate datat 
-        # Append (i, sin(i)) to the data. Kick out the oldest set of data
-        if len(self.collectedPlots.keys()) < 0:
-            return
-    
+    def plotAnimatePlot1(self, i):
         plot1 = self.collectedPlots['Plot1']
-        if (self.collectedPlots['Plot1'] == False):
-            return 
-        
-        plot1["axis"].clear()
         tdata1 = plot1["t"]
         xdata1 = plot1["x"]
-
+        # set lineplot data to be equal to x and t
         # Remove oldest entry
         del tdata1[0] 
         tdata1.append(i)
 
         del xdata1[0]
-        xdata1.append(math.sin(i))
-        # x data is in t
-        # vertical data is in x lol
-        plot1["axis"].plot(tdata1, xdata1)
-        # print(self.collectedPlots)
+        xdata1.append(math.sin(i/10))
 
-        if (self.collectedPlots["Plot2"] == False):
-            return
+        plot1["lineplot"].set_data(tdata1, xdata1)
+        plot1["axis"].set_xlim(tdata1[0], tdata1[-1])
+
+        return (plot1["lineplot"], )
         
-        plot2 = self.collectedPlots["Plot2"]
-        plot2["axis"].clear()
+    def plotAnimatePlot2(self, i):
+        plot2 = self.collectedPlots['Plot2']
         tdata2 = plot2["t"]
         xdata2 = plot2["x"]
-
-        del tdata2[0]
+        # set lineplot data to be equal to x and t
+        # Remove oldest entry
+        del tdata2[0] 
         tdata2.append(i)
 
         del xdata2[0]
-        xdata2.append(math.cos(i))
-        plot2["axis"].plot(tdata2, xdata2)
-        
+        xdata2.append(math.cos(i/20) + math.sin(i/15))
+
+        plot2["lineplot"].set_data(tdata2, xdata2)
+        plot2["axis"].set_xlim(tdata2[0], tdata2[-1])
+
+        return (plot2["lineplot"], )
+
 
     def createAppSettingsWindow(self, tkRootElement : tk.Tk) -> tk.Frame:
         appSettingsFrameBase = ttk.LabelFrame(tkRootElement, text="AppSettingsWindow")
