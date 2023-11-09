@@ -56,16 +56,14 @@ class Controller:
                 
                 # Now do something with the data
                 self.handlePacket(header, data)
-
                 
     def sendPacket(self, packetID: PacketIDs):
         if (self._isPortOpen):
             packet = Packet()
             packet.m_header.packetID = packetID
             buffer = bytearray(PacketSerializer.serialize(packet))
+            self._openPort.write(buffer)
             print(buffer)
-            
-            # self._openPort.write()
             print("Packet sent!")
         else:
             print("Port is closed")
@@ -89,10 +87,8 @@ class Controller:
     def closeSerialPort(self, port: str):
         self._openPort.close()
 
-
     def decodeSerial(self):
         pass
-
 
     def generateSineWaveDataPoint(self, i):
         x = math.sin(i)

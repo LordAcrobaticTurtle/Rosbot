@@ -43,3 +43,12 @@ class State():
         return currString + velString + eulerString
 
 
+class ModelState():
+    FORMAT = "<FFFF"
+    
+    def __init__(self) -> None:
+        self.x = 0
+        self.dx = 0
+        self.theta = 0
+        self.dtheta = 0
+

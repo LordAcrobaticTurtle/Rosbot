@@ -19,18 +19,13 @@
 
 
 int Comms::run() {
-    
-
-
     byte array[BUFFER_SIZE];
     if (m_transceiver->isDataReady()) {
         // Could face problems with timeouts cutting off incoming packets
         m_transceiver->readBytes(array, BUFFER_SIZE);
         Packet packet;
         PacketSerializer::deserialize(array, BUFFER_SIZE, packet);
-        
         handlePacket(packet);
-
     }
 
     return 0;
@@ -51,12 +46,12 @@ int Comms::handlePacket(Packet packet) {
         
         case (PacketID::BEGIN): {
             // How to 
-            m_robot->switchStandbyMode(false);
+            m_robot->toggleStandbyMode(false);
             break;
         }
 
         case (PacketID::STANDBY): {
-            m_robot->switchStandbyMode(true);
+            m_robot->toggleStandbyMode(true);
             break;
         }
 
@@ -73,12 +68,23 @@ int Comms::handlePacket(Packet packet) {
         }
 
         case (PacketID::ESTIMATE_BIAS): {
+        
             break;
         }
 
         case (PacketID::LED_CHANGE): {
+            
             break;
         }   
+
+        case (PacketID::CALIBRATION_MODE): {
+            // Cast packet data to the right type.
+            commsPacket::CalibrationMode mode;
+
+            memcpy(&mode, packet.m_data, sizeof(mode));
+            m_robot->toggleCalibration(mode.isCalibrationEnabled);
+            break;
+        }
 
         
 

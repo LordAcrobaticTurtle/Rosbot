@@ -10,14 +10,12 @@ I2CMaster& master = Master;
 Rosbot::Rosbot() : 
     m_status(4,3,2,false)
 { 
-
 }
 
 Rosbot::~Rosbot() {}
 
 void Rosbot::setup() 
 {
-    
     m_isStandbyOn = true;
     m_status.switchRedOn();
     // m_imu.setup(Master);
@@ -29,6 +27,7 @@ void Rosbot::setup()
     std::shared_ptr<DRV8876> motorR = std::make_shared<DRV8876>(23, 21, 14, -1, 20);
     std::shared_ptr<EncoderN20> encoderL = std::make_shared<EncoderN20>(6,7);
     std::shared_ptr<EncoderN20> encoderR = std::make_shared<EncoderN20>(8,9);
+    
 
     m_localisation = std::make_shared<Localisation>(
         imu, encoderL, encoderR
@@ -39,11 +38,23 @@ void Rosbot::setup()
     );
 }
 
-void Rosbot::switchStandbyMode(bool isStandbyOn) {
+void Rosbot::toggleStandbyMode(bool isStandbyOn) {
     m_isStandbyOn = isStandbyOn;
 }
 
+void Rosbot::toggleCalibration(bool isCalibrationOn) {
+
+    if (isCalibrationOn) {
+        toggleLocalisation(true);
+        toggleControl(false);
+        
+    } else if (!isCalibrationOn) {
+        toggleStandbyMode(true);
+    }
+}
+
 void Rosbot::run() {
+    // If standby is on, comms must still run
 
     if (m_isStandbyOn) {
         m_status.mix(255, 163, 0);
