@@ -22,6 +22,7 @@ int Comms::run() {
     byte array[BUFFER_SIZE];
     if (m_transceiver->isDataReady()) {
         // Could face problems with timeouts cutting off incoming packets
+        // Or data just not being available. need to incrementally fill the buffer
         m_transceiver->readBytes(array, BUFFER_SIZE);
         Packet packet;
         PacketSerializer::deserialize(array, BUFFER_SIZE, packet);
