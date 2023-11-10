@@ -58,15 +58,16 @@ class Controller:
                 self.handlePacket(header, data)
                 
     def sendPacket(self, packetID: PacketIDs):
-        if (self._isPortOpen):
-            packet = Packet()
-            packet.m_header.packetID = packetID
-            buffer = bytearray(PacketSerializer.serialize(packet))
-            self._openPort.write(buffer)
-            print(buffer)
-            print("Packet sent!")
-        else:
-            print("Port is closed")
+        # if (self._isPortOpen):
+        packet = Packet()
+        packet.m_header.packetID = packetID
+        buffer = PacketSerializer.serialize(packet)
+        # self._openPort.write(buffer.encode('utf-8'))
+        # self._openPort.
+        print(buffer)
+        print("Packet sent!")
+        # else:
+        #     print("Port is closed")
             
 
     def handlePacket(self, header : PacketHeader, data):
@@ -99,3 +100,16 @@ class Controller:
         return (i, x)
 
         
+
+def main():
+    from model import Model
+    from view import View
+    import tkinter as tk
+    view = View(tk.Tk())
+    model = Model()
+    controller = Controller(model, view)
+    controller.sendPacket(PacketIDs.BEGIN)
+    controller.sendPacket(PacketIDs.STANDBY)
+
+if __name__ == "__main__":
+    main()
