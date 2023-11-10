@@ -12,7 +12,7 @@ void BluetoothTransceiver::init() {
 }
 
 int BluetoothTransceiver::isDataReady() {
-    return 0;
+    return m_hwSerial->available();
 }
 
 int BluetoothTransceiver::readBytes(byte * buffer, size_t bufferLength) {
