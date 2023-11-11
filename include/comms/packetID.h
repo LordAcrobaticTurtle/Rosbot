@@ -8,7 +8,8 @@ enum PacketID {
     STATE,           // command program requests, mbed side sends. Or mbed just sends periodically 
     ESTIMATE_BIAS,   // Perform bias estimate
     LED_CHANGE,     // Command program sends, r,g,b values contained in data body
-    CALIBRATION_MODE
+    CALIBRATION_MODE,
+    NUM_PACKET_IDS
 };
 
 
