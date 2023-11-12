@@ -17,6 +17,8 @@ set(SRC_FILES
     test/test_math.cpp
     src/utility/math.cpp
     test/test_main.cpp
+    src/data-structures/circular_queue.cpp
+    test/test_circular_queue.cpp
 )
 
 
