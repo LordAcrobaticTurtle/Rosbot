@@ -19,6 +19,7 @@ set(SRC_FILES
     test/test_main.cpp
     src/data-structures/circular_queue.cpp
     test/test_circular_queue.cpp
+    test/mock-objects/SerialConnection.cpp
 )
 
 

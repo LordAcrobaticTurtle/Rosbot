@@ -6,6 +6,7 @@
 double floatMap(double value, double preMin, double preMax, 
                 double PostMin, double PostMax);
 
+int clamp(int value, int min, int max);
 
 struct Matrix {
     Matrix(int rows, int cols);
@@ -18,3 +19,5 @@ struct Matrix {
     static Matrix add(Matrix a1, Matrix a2);
     static Matrix subtract(Matrix a1, Matrix a2);
 };
+
+

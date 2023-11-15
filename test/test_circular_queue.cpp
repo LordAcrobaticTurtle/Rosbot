@@ -26,8 +26,6 @@ class testCircularQueue : public CircularQueue {
 };
 
 
-
-
 TEST_F(TestCircularQueue, test_insert_element_increments) {
 // Buffer is initially empty, inserting into empty queue should produce a tail at 0
     testCircularQueue buffer;
@@ -69,10 +67,17 @@ TEST_F(TestCircularQueue, test_element_insert_overflows_correctly) {
     // buffer.printQueue();
 }
 
-// TEST_F(TestCircularQueue, test_element_insert_correctly) {
-//     CircularQueue buffer;
-
+/**
+ * @brief Tests that a negative index doesn't crash the code. Expected behaviour is to wrap index.
+ */
+TEST_F(TestCircularQueue, test_negative_index) {
+    testCircularQueue buffer;
+    for (int i = 0; i < MAX_QUEUE_SIZE; i++) {
+        buffer.insert(i);
+    }
+    // buffer.printQueue();
+    EXPECT_EQ(buffer[-10], 10);
     
-// }
+}
 
 

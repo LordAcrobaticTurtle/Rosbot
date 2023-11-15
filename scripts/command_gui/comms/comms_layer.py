@@ -12,15 +12,15 @@ class PacketSerializer:
     
     @staticmethod
     def serialize(packet : Packet) -> bytes:
-        buffer = bytearray()
-        buffer.append(PacketSerializer.identifyingByte)
-        
-        if (packet.m_header.packetID == PacketIDs.BEGIN):
-            buffer.append(struct.pack(Begin.FORMAT, True))
-            
-        if (packet.m_header.packetID == PacketIDs.STANDBY):
-            buffer.append(struct.pack(Standby.FORMAT, True))
+        buffer = bytearray(1)
+        buffer = buffer + PacketSerializer.identifyingByte
 
+        if (packet.m_header.packetID == PacketIDs.BEGIN):
+            buffer += struct.pack(Begin.FORMAT, True)
+            # pass            
+        if (packet.m_header.packetID == PacketIDs.STANDBY):
+            buffer +=  struct.pack(Standby.FORMAT, True)
+            # pass
         if (packet.m_header.packetID == PacketIDs.ESTOP):
             pass
         if (packet.m_header.packetID == PacketIDs.REQUEST):
@@ -32,7 +32,7 @@ class PacketSerializer:
         if (packet.m_header.packetID == PacketIDs.LED_CHANGE):
             pass
 
-        print(buffer)
+        # print(buffer)
         return buffer
 
     @staticmethod

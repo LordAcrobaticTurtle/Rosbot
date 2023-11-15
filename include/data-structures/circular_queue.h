@@ -10,7 +10,7 @@ class CircularQueue {
         ~CircularQueue() {};
 
         /**
-         * @brief Inserts a byte into the circular queue at nextInsertIndex (dataTail + 1)
+         * @brief Inserts a byte into the circular queue at nextInsertIndex (m_dataTail + 1)
          * @param val Value to insert
          */
         void insert(byte val);
@@ -29,9 +29,22 @@ class CircularQueue {
          */
         byte &operator[](int i);
 
+        /**
+         * @brief Gets the value of the element at m_data[m_currValueIndex].
+         * @return byte 
+         */
+        byte getNextValue();
+
+        /**
+         * @brief Set the Value Index object
+         * @param i 
+         */
+        void setCurrValueIndex(int i);
+
     protected:
         byte m_data[MAX_QUEUE_SIZE];
-        int dataTail;
-        int nextInsertPos;
+        int m_dataTail;
+        int m_nextInsertPos;
+        int m_currValueIndex;
 
 };

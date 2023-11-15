@@ -2,8 +2,10 @@
 #include <comms/packet_serializer.h>
 #include <comms/packetID.h>
 #include <drivers/bluetooth_transceiver.h>
+#include <data-structures/circular_queue.h>
 
 #define BUFFER_SIZE 256
+
 
  Comms::Comms(
     std::shared_ptr<Rosbot> robot,
@@ -19,15 +21,25 @@
 
 
 int Comms::run() {
-    byte array[BUFFER_SIZE];
-    if (m_transceiver->isDataReady()) {
-        // Could face problems with timeouts cutting off incoming packets
-        // Or data just not being available. need to incrementally fill the buffer
-        m_transceiver->readBytes(array, BUFFER_SIZE);
-        Packet packet;
-        PacketSerializer::deserialize(array, BUFFER_SIZE, packet);
-        handlePacket(packet);
+    CircularQueue buffer;
+    byte value;
+
+    int numBytesInSerialBuffer = m_transceiver->isDataReady();
+    for (int i = 0; i < numBytesInSerialBuffer; i++) {
+        m_transceiver->readBytes(&value, 1);
+        /* If first zero found - Begin saving into buffer */ 
+        /* If second zero found - Stop saving into buffer and parse for packet */
+        buffer.insert(value);
     }
+
+    // if (m_transceiver->isDataReady()) {
+    //     // Could face problems with timeouts cutting off incoming packets
+    //     // Or data just not being available. need to incrementally fill the buffer
+    //     m_transceiver->readBytes(array, BUFFER_SIZE);
+    //     Packet packet;
+    //     PacketSerializer::deserialize(array, BUFFER_SIZE, packet);
+    //     handlePacket(packet);
+    // }
 
     return 0;
 }

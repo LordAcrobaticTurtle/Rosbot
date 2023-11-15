@@ -8,6 +8,17 @@ double floatMap(
     return (postMax - postMin)/(preMax - preMin) * (value - preMin) + postMin;
 }
 
+int clamp(int value, int min, int max) {
+    if (value > max) {
+        return max;
+    } else if (value < min) {
+        return min;
+    }
+
+    return value;
+
+}
+
 Matrix::Matrix(int rows, int cols) {
     
     if (rows >= MAX_ARRAY_SIZE || cols >= MAX_ARRAY_SIZE) {

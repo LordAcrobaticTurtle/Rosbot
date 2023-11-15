@@ -62,7 +62,7 @@ class Controller:
         packet = Packet()
         packet.m_header.packetID = packetID
         buffer = PacketSerializer.serialize(packet)
-        # self._openPort.write(buffer.encode('utf-8'))
+        self._openPort.write(buffer)
         # self._openPort.
         print(buffer)
         print("Packet sent!")
