@@ -1,18 +1,21 @@
-#include <drivers/BleTransceiver.h>
+#include <drivers/bluetooth_transceiver.h>
 #include <comms/packet.h>
 
-BLETransceiver::BLETransceiver() {}
-
-void BLETransceiver::init(HardwareSerial *hwSerial, long int baudrate) {
+BluetoothTransceiver::BluetoothTransceiver(HardwareSerial *hwSerial, long int baudrate) {
     m_hwSerial = hwSerial;
     m_hwSerial->begin(baudrate);
-    m_hwSerial->setTimeout(10);
+    m_hwSerial->setTimeout(10); // Set timeout to be 10 ms
 }
 
+void BluetoothTransceiver::init() {
+    
+}
 
+int BluetoothTransceiver::isDataReady() {
+    return m_hwSerial->available();
+}
 
-
-int BLETransceiver::readBytes(byte * buffer, uint32_t bufferLength) {
+int BluetoothTransceiver::readBytes(byte * buffer, size_t bufferLength) {
     
     if (m_hwSerial == NULL) {return -1;}
 
@@ -23,7 +26,7 @@ int BLETransceiver::readBytes(byte * buffer, uint32_t bufferLength) {
     return 0;
 }
 
-int BLETransceiver::sendBytes(byte *buffer, uint32_t bufferLength) {
+int BluetoothTransceiver::sendBytes(byte *buffer, size_t bufferLength) {
     if (buffer == NULL) return EARG;
     if (bufferLength <= 0) return EARG;
 
@@ -33,5 +36,5 @@ int BLETransceiver::sendBytes(byte *buffer, uint32_t bufferLength) {
     //     return ENOSPC;
     // }
 
-    return 0;
+    return error;
 }

@@ -14,11 +14,13 @@ class PacketIDs(IntEnum):
 
 
 class Begin():
+   FORMAT = '<?'
    def  __init__(self):
         self.doBegin = False
         # self.format = 
 
 class Standby():
+    FORMAT = '<?'
     def __init__(self) -> None:
         self.doStandby = True
 
@@ -40,4 +42,13 @@ class State():
         eulerString = f"Euler (X,Y,Z): {self.eulerXYZ}\n"
         return currString + velString + eulerString
 
+
+class ModelState():
+    FORMAT = "<FFFF"
+    
+    def __init__(self) -> None:
+        self.x = 0
+        self.dx = 0
+        self.theta = 0
+        self.dtheta = 0
 

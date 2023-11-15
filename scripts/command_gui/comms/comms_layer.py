@@ -2,18 +2,39 @@ if __name__ == '__main__':
     import sys
     sys.path.append('C:/Users/SamHall/Desktop/Personal/TeensyBreakout/Rosbot/scripts/command_gui')
 
-from comms.packet import PacketHeader
-from comms.packetID import PacketIDs, State
+from comms.packet import Packet, PacketHeader
+from comms.packetID import PacketIDs, State, Begin, Standby
 from serial import Serial
 import struct
 # Takes in the header, the buffer and returns a populated data packet
 class PacketSerializer:
     identifyingByte = b'\xFF'
     
+    @staticmethod
+    def serialize(packet : Packet) -> bytes:
+        buffer = bytearray(1)
+        buffer = buffer + PacketSerializer.identifyingByte
 
-    def serialize(self, packet):
-        pass
-    
+        if (packet.m_header.packetID == PacketIDs.BEGIN):
+            buffer += struct.pack(Begin.FORMAT, True)
+            # pass            
+        if (packet.m_header.packetID == PacketIDs.STANDBY):
+            buffer +=  struct.pack(Standby.FORMAT, True)
+            # pass
+        if (packet.m_header.packetID == PacketIDs.ESTOP):
+            pass
+        if (packet.m_header.packetID == PacketIDs.REQUEST):
+            pass
+        if (packet.m_header.packetID == PacketIDs.STATE):
+            pass
+        if (packet.m_header.packetID == PacketIDs.ESTIMATE_BIAS):
+            pass
+        if (packet.m_header.packetID == PacketIDs.LED_CHANGE):
+            pass
+
+        # print(buffer)
+        return buffer
+
     @staticmethod
     def deserialize(buffer : bytes):
         # Read the port, look for the identifying byte
@@ -22,8 +43,7 @@ class PacketSerializer:
         # Find identifying byte
         header = PacketHeader()
         if (header.packetID == PacketIDs.STATE):
-            dataBuffer = port.read(State.SIZE)
-            unpackedData = struct.unpack(State.FORMAT, dataBuffer)
+            unpackedData = struct.unpack(State.FORMAT, buffer)
             stateData = State()
             stateData.eulerXYZ = [unpackedData[0], unpackedData[1], unpackedData[2]]
             stateData.current = [unpackedData[3], unpackedData[4]]

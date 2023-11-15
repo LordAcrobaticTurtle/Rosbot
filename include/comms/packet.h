@@ -10,9 +10,7 @@ public:
     int m_packetID;        // What type of information are we accessing         
     unsigned int m_packetSize;  // How large is the size of the packet (including the header)     
     unsigned int m_timestamp;   // When was it sent?
-    // uint32_t m_numPacketID; 
-    // uint32_t m_numPackets; // Number of packets
- 
+    
     PacketHeader() {};
 };
 

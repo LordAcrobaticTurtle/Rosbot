@@ -16,4 +16,7 @@ class PacketHeader:
         self.packetSize = params[1]
         self.timestamp = params[2]
 
-
+class Packet:
+    def __init__(self) -> None:
+        self.m_header = PacketHeader()
+        self.m_data = []

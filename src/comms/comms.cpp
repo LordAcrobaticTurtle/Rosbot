@@ -1,0 +1,111 @@
+#include <comms/comms.h>
+#include <comms/packet_serializer.h>
+#include <comms/packetID.h>
+#include <drivers/bluetooth_transceiver.h>
+#include <data-structures/circular_queue.h>
+
+#define BUFFER_SIZE 256
+
+
+ Comms::Comms(
+    std::shared_ptr<Rosbot> robot,
+    std::shared_ptr<RadioInterface> rx
+) : m_robot(robot),
+    m_rx(rx)
+{
+    m_transceiver = std::make_shared<BluetoothTransceiver>(&Serial4, 9600);
+    memset(m_radioChannels, 0, TX_NUM_CHANNELS*sizeof(double));
+    m_rx->setup();
+}
+
+
+
+int Comms::run() {
+    CircularQueue buffer;
+    byte value;
+
+    int numBytesInSerialBuffer = m_transceiver->isDataReady();
+    for (int i = 0; i < numBytesInSerialBuffer; i++) {
+        m_transceiver->readBytes(&value, 1);
+        /* If first zero found - Begin saving into buffer */ 
+        /* If second zero found - Stop saving into buffer and parse for packet */
+        buffer.insert(value);
+    }
+
+    // if (m_transceiver->isDataReady()) {
+    //     // Could face problems with timeouts cutting off incoming packets
+    //     // Or data just not being available. need to incrementally fill the buffer
+    //     m_transceiver->readBytes(array, BUFFER_SIZE);
+    //     Packet packet;
+    //     PacketSerializer::deserialize(array, BUFFER_SIZE, packet);
+    //     handlePacket(packet);
+    // }
+
+    return 0;
+}
+
+
+/**
+ * @brief 
+ * 1. On receiving a BEGIN packet. The robot should start running its update functions. In this case, 
+ * that's localisation and control loops
+ * 2. On receiving a standby packet, the robot should cease running its update function and only 
+ * listen for comms requests
+*/
+
+int Comms::handlePacket(Packet packet) {
+
+    switch (packet.m_header.m_packetID) {
+        
+        case (PacketID::BEGIN): {
+            // How to 
+            m_robot->toggleStandbyMode(false);
+            break;
+        }
+
+        case (PacketID::STANDBY): {
+            m_robot->toggleStandbyMode(true);
+            break;
+        }
+
+        case (PacketID::ESTOP): {
+            break;
+        }
+
+        case (PacketID::REQUEST): {
+            break;
+        }
+
+        case (PacketID::STATE): {
+            break;
+        }
+
+        case (PacketID::ESTIMATE_BIAS): {
+        
+            break;
+        }
+
+        case (PacketID::LED_CHANGE): {
+            
+            break;
+        }   
+
+        case (PacketID::CALIBRATION_MODE): {
+            // Cast packet data to the right type.
+            commsPacket::CalibrationMode mode;
+
+            memcpy(&mode, packet.m_data, sizeof(mode));
+            m_robot->toggleCalibration(mode.isCalibrationEnabled);
+            break;
+        }
+
+        
+
+    }
+
+    return 0;
+}
+
+
+
+

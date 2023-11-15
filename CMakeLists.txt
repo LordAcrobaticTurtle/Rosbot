@@ -12,9 +12,14 @@ set(INCLUDE_FILES
 add_subdirectory(submodules/googletest)
 
 set(SRC_FILES
-    test/test_comms.cpp
-    src/comms/comms_layer.cpp
+    test/test_packet_serializer.cpp
+    src/comms/packet_serializer.cpp
+    test/test_math.cpp
+    src/utility/math.cpp
     test/test_main.cpp
+    src/data-structures/circular_queue.cpp
+    test/test_circular_queue.cpp
+    test/mock-objects/SerialConnection.cpp
 )
 
 

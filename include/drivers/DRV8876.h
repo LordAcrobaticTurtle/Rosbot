@@ -1,5 +1,6 @@
 #pragma once
 #include <Arduino.h>
+#include <interfaces/motor_interface.h>
 
 #define MAX_THROTTLE 255
 #define MIN_THROTTLE -255
@@ -18,21 +19,26 @@
 #define PWM_MAX 255
 
 // Requires 3v3 signal sent to the VREF pin
-class DRV8876 {
+class DRV8876 : public DcMotorInterface {
     public:
         DRV8876(int pinEN, int pinPH, int pinCurrSense, 
                 int pinNFault, int pinSleep);
-
+        ~DRV8876() {};
         // Clamp between 0 and 255
-        void setThrottle(int throttle);
-        void setDirection(bool isClockwise);
+        virtual void setVoltage(float voltage);
+        virtual void setThrottle(int throttle);
+        virtual void setDirection(bool isClockwise);
+
         void wakeup(bool setAwake);
+
 
         /** Read current is tricky. Greatly depends on what state the driver is
         * in. Fairly certain it is only useful when actively driving or braking
         * Returns current in Amps
         */ 
-        double readCurrent();
+        virtual double readCurrent();
+
+        int readCurrentAnalog();
 
     private:
 

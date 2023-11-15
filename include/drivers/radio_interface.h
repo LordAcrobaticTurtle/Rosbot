@@ -18,7 +18,7 @@ class RadioInterface {
         RadioInterface(HardwareSerial *p_serialPort);
         ~RadioInterface();
         void setup();
-        void update();
+        void run();
         void getChannels(uint16_t *p_channelValues);
         void getChannelEndpoints(uint16_t *p_minPoints, uint16_t * p_maxPoints);
         int getChannelPercentage(double *p_channelValues, double scaleFactor);
