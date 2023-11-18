@@ -1,7 +1,7 @@
 #pragma once
 #include <utility/data_types.h>
 
-typedef long unsigned int size_t;
+// typedef long unsigned int size_t;
 
 class CommsInterface {
 public:
