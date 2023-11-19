@@ -81,7 +81,7 @@ int PacketSerializer::decodeHeader(
 bool PacketSerializer::isHeaderValid(Packet &packet) {
     int id = packet.m_header.m_packetID;
     
-    if (id < PacketID::BEGIN || PacketID::NUM_PACKET_IDS < id) {
+    if (id < PacketID::PACKET_ID_BEGIN || PacketID::PACKET_ID_NUM_PACKET_IDS < id) {
         return false;
     }
     // From here we know the packet ID is valid and can choose an expected size to compare against

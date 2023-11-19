@@ -4,6 +4,13 @@
 
 #define MAX_QUEUE_SIZE 256
 
+struct NextValue {
+    bool valid;
+    byte value;
+    int index;
+};
+
+
 class CircularQueue {
     public:
         CircularQueue();
@@ -30,10 +37,10 @@ class CircularQueue {
         byte &operator[](int i);
 
         /**
-         * @brief Gets the value of the element at m_data[m_currValueIndex].
-         * @return byte 
+         * @brief Get the next unread value from the buffer.
+         * @return NextValue 
          */
-        byte getNextValue();
+        NextValue getNextValue();
 
         /**
          * @brief Set the Value Index object
@@ -41,8 +48,16 @@ class CircularQueue {
          */
         void setCurrValueIndex(int i);
 
+        /**
+         * @brief Set the Insert Index variable
+         * @param i 
+         */
+        void setInsertIndex(int i);
+
+
     protected:
         byte m_data[MAX_QUEUE_SIZE];
+        bool m_hasDataBeenRead[MAX_QUEUE_SIZE];
         int m_dataTail;
         int m_nextInsertPos;
         int m_currValueIndex;

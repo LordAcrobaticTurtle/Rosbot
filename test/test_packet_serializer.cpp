@@ -79,7 +79,7 @@ TEST_F(CommsTest, test_packet_deserialize_packet) {
     // Test the packet can be deciphered correctly
     Packet packet;
     PacketSerializer::deserialize(encodedHeaderAndDataWithNoise, 45, packet);
-    EXPECT_EQ(packet.m_header.m_packetID, PacketID::STATE);
+    EXPECT_EQ(packet.m_header.m_packetID, PacketID::PACKET_ID_STATE);
     EXPECT_EQ(packet.m_header.m_packetSize, 0x28);
     EXPECT_EQ(packet.m_header.m_timestamp, 0xAD);
 }
@@ -145,7 +145,7 @@ TEST_F(CommsTest, test_decodeHeader_multiple_id_bytes) {
 */
 TEST_F(CommsTest, test_packet_header_serialize) {
     Packet pkt;
-    pkt.m_header.m_packetID = PacketID::BEGIN;
+    pkt.m_header.m_packetID = PacketID::PACKET_ID_BEGIN;
     pkt.m_header.m_packetSize = 0xDE;
     pkt.m_header.m_timestamp = 0xAD;
     memset(pkt.m_data, 0, 128);
@@ -160,7 +160,7 @@ TEST_F(CommsTest, test_packet_header_serialize) {
 
 TEST_F(CommsTest, test_packet_serialize) {
     Packet pkt;
-    pkt.m_header.m_packetID = PacketID::STATE;
+    pkt.m_header.m_packetID = PacketID::PACKET_ID_STATE;
     pkt.m_header.m_packetSize = sizeof(PacketHeader) + sizeof(commsPacket::State);
     pkt.m_header.m_timestamp = 0xAD;
     commsPacket::State state;

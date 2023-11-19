@@ -32,13 +32,19 @@ void setup()
 
 void setupMainloop() {
     robot = std::make_shared<Rosbot>();
-    rx = std::make_shared<RadioInterface>(&Serial1);
-    comms = std::make_shared<Comms>(robot, rx);
     robot->setup();
+    
+    rx = std::make_shared<RadioInterface>(&Serial1);
+    rx->setup();
+    
+    comms = std::make_shared<Comms>(robot, rx);
+    
+    Serial.print("Start");
 }
  
 void loop()
 {
+    // Serial.print("Test");
     mainloop();
     // driver.setThrottle(60);
     // EncoderResult res = enc2.readRPMwithStruct();
@@ -49,9 +55,9 @@ void loop()
 }
 
 
-void mainloop() {
-    
+void mainloop() {    
     comms->run();
+    robot->run();
     // Still has access to rosbot here
     // Can write a scheduling class and affect it
 }

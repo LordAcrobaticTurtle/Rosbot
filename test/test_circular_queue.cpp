@@ -80,4 +80,26 @@ TEST_F(TestCircularQueue, test_negative_index) {
     
 }
 
+TEST_F(TestCircularQueue, test_read_once_valid_return) {
+    testCircularQueue buffer;
+
+    for (int i = 0; i < MAX_QUEUE_SIZE; i++) {
+        buffer.insert(i);
+    }
+
+    for (int i = 0; i < MAX_QUEUE_SIZE; i++) {
+        NextValue value = buffer.getNextValue();
+        EXPECT_EQ(value.valid, true);
+        EXPECT_EQ(value.value, i);
+        EXPECT_EQ(value.index, i);
+    }
+
+    for (int i = 0; i < MAX_QUEUE_SIZE; i++) {
+        NextValue value = buffer.getNextValue();
+        EXPECT_EQ(value.valid, false);
+        EXPECT_EQ(value.value, 0);
+        EXPECT_EQ(value.index, i);
+    }
+}
+
 

@@ -13,8 +13,9 @@ class Rosbot {
         void setup();
         void run();
 
-        void toggleStandbyMode (bool isStandByOn);
-        void toggleCalibration(bool isCalibrationOn);
+        void ActivateStandbyMode();
+        void ActivateCalibration();
+        void ActivateControlMode();
 
     protected:
         void toggleLocalisation (bool isLocalisationOn);
@@ -23,7 +24,9 @@ class Rosbot {
     private:
 
         bool m_isStandbyOn;
-
+        bool m_isLocalisationOn;
+        bool m_isControlOn;
+        
         RGBLED m_status;
         std::shared_ptr<Localisation> m_localisation;
         std::shared_ptr<Control> m_control;
