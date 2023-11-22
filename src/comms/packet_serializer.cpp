@@ -35,7 +35,7 @@ void PacketSerializer::deserialize(byte* buffer, size_t bufferLength, Packet &pa
 int PacketSerializer::findIdentifyingByte(byte* buffer, size_t numbytes, int* identifyingBytes) {
     
     int idBytesCounter = 0;
-    for (int i = 0; i < numbytes; i++) {
+    for (size_t i = 0; i < numbytes; i++) {
         if (buffer[i] == m_identifyingByte) {
             identifyingBytes[idBytesCounter] = i;
             idBytesCounter++;

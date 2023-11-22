@@ -21,7 +21,9 @@ public:
     
     Packet() {
         memset(m_data, 0, sizeof(byte)*PACKET_DATA_SIZE);
-        memset(&m_header, 0, sizeof(PacketHeader));
+        m_header.m_packetID = -1;
+        m_header.m_packetSize = 0;
+        m_header.m_timestamp = 0;
     };
 };
 
