@@ -5,9 +5,6 @@
 #include <data-structures/circular_queue.h>
 
 
-#include <Arduino.h>
-
-
 #define BUFFER_SIZE 256
 
 
@@ -51,17 +48,10 @@ int Comms::run() {
     // Read from transceiver.
     m_transceiver->readBytes(buffer, numBytesInSerialBuffer);
     
-    for (int i = 0; i < numBytesInSerialBuffer; i++) {
-        // Serial.print( String(i) + ". " + buffer[i]);
-        m_commsBuffer.insert(buffer[i]);
-    }
-    // Serial.println();
-
+    m_commsBuffer.insert((const char *) buffer, numBytesInSerialBuffer);
+    
     MessageContents packet;
-    // Set search index to start of queue.
-    // m_commsBuffer.setSearchIndex(0);
-    // findCommandInPacket(m_commsBuffer);
-    // packet.command = m_shell.parseCommand(m_commsBuffer);
+    packet.command = m_shell.searchForCommand(m_commsBuffer);
 
     handlePacket(packet);
     
