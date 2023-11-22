@@ -80,4 +80,57 @@ TEST_F(TestCircularQueue, test_negative_index) {
     
 }
 
+TEST_F(TestCircularQueue, test_read_once_valid_return) {
+    testCircularQueue buffer;
+
+    for (int i = 0; i < MAX_QUEUE_SIZE; i++) {
+        buffer.insert(i);
+    }
+
+    for (int i = 0; i < MAX_QUEUE_SIZE; i++) {
+        NextValue value = buffer.getNextValue();
+        EXPECT_EQ(value.valid, true);
+        EXPECT_EQ(value.value, i);
+        EXPECT_EQ(value.index, i);
+    }
+
+    for (int i = 0; i < MAX_QUEUE_SIZE; i++) {
+        NextValue value = buffer.getNextValue();
+        EXPECT_EQ(value.valid, false);
+        EXPECT_EQ(value.value, 0);
+        EXPECT_EQ(value.index, i);
+    }
+}
+
+TEST_F(TestCircularQueue, test_copy_data) {
+    testCircularQueue queue;
+    const int maxSize = 16;
+    for (int i = 0; i < maxSize; i++) {
+        queue.insert(i);
+    }
+
+    byte buffer[maxSize];
+    queue.copyData(buffer, 0, maxSize-1);
+    // 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+    
+    for (byte i=0; i < maxSize; i++) {
+        EXPECT_EQ(i, buffer[i]);
+    }
+
+    queue.setInsertIndex(240);
+    for (int i = 240; i < 256; i++) {
+        queue.insert(i);
+    }
+
+    queue.copyData(buffer, 240, 255);
+    for (byte i = 0; i < maxSize; i++) {
+        EXPECT_EQ(i+240, buffer[i]);
+    }
+}
+
+// TEST_F(TestFixtureComms, test_circ_queue_reset_insert) {
+    
+// }
+
+
 

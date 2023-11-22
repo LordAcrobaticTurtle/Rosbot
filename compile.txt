@@ -1,0 +1,81 @@
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /mnt/c/Users/SamHall/Desktop/Personal/TeensyBreakout/Rosbot/build_test
+[ 11%] Built target gtest
+[ 22%] Built target gmock
+Scanning dependencies of target ROSBOT_TESTING
+[ 27%] Building CXX object CMakeFiles/ROSBOT_TESTING.dir/test/test_packet_serializer.cpp.o
+[ 33%] Building CXX object CMakeFiles/ROSBOT_TESTING.dir/src/comms/packet_serializer.cpp.o
+[ 38%] Building CXX object CMakeFiles/ROSBOT_TESTING.dir/test/test_comms.cpp.o
+[ 44%] Building CXX object CMakeFiles/ROSBOT_TESTING.dir/src/comms/cli/turtle_shell.cpp.o
+[ 50%] Linking CXX executable ROSBOT_TESTING
+[ 77%] Built target ROSBOT_TESTING
+[ 88%] Built target gmock_main
+[100%] Built target gtest_main
+[==========] Running 25 tests from 4 test suites.
+[----------] Global test environment set-up.
+[----------] 8 tests from CommsTest
+[ RUN      ] CommsTest.test_packet_deserialize_packet
+[       OK ] CommsTest.test_packet_deserialize_packet (0 ms)
+[ RUN      ] CommsTest.test_find_identifying_bytes
+[       OK ] CommsTest.test_find_identifying_bytes (0 ms)
+[ RUN      ] CommsTest.test_findIdentifyingBytes_empty_case
+[       OK ] CommsTest.test_findIdentifyingBytes_empty_case (0 ms)
+[ RUN      ] CommsTest.test_decodeHeader_valid_case
+[       OK ] CommsTest.test_decodeHeader_valid_case (0 ms)
+[ RUN      ] CommsTest.test_decodeHeader_invalid_case
+[       OK ] CommsTest.test_decodeHeader_invalid_case (0 ms)
+[ RUN      ] CommsTest.test_decodeHeader_multiple_id_bytes
+[       OK ] CommsTest.test_decodeHeader_multiple_id_bytes (0 ms)
+[ RUN      ] CommsTest.test_packet_header_serialize
+[       OK ] CommsTest.test_packet_header_serialize (0 ms)
+[ RUN      ] CommsTest.test_packet_serialize
+[       OK ] CommsTest.test_packet_serialize (0 ms)
+[----------] 8 tests from CommsTest (6 ms total)
+
+[----------] 5 tests from TestMath
+[ RUN      ] TestMath.test_matrix_math_correct_dimensions_output
+[       OK ] TestMath.test_matrix_math_correct_dimensions_output (0 ms)
+[ RUN      ] TestMath.test_matrix_multiplication_output_rectangle_matrix
+[       OK ] TestMath.test_matrix_multiplication_output_rectangle_matrix (0 ms)
+[ RUN      ] TestMath.test_matrix_multiplication_output_3x1_x_1x3
+[       OK ] TestMath.test_matrix_multiplication_output_3x1_x_1x3 (0 ms)
+[ RUN      ] TestMath.test_matrix_is_not_valid
+[       OK ] TestMath.test_matrix_is_not_valid (0 ms)
+[ RUN      ] TestMath.test_matrix_addition
+[       OK ] TestMath.test_matrix_addition (0 ms)
+[----------] 5 tests from TestMath (3 ms total)
+
+[----------] 6 tests from TestCircularQueue
+[ RUN      ] TestCircularQueue.test_insert_element_increments
+[       OK ] TestCircularQueue.test_insert_element_increments (0 ms)
+[ RUN      ] TestCircularQueue.test_zeroes_on_construction
+[       OK ] TestCircularQueue.test_zeroes_on_construction (0 ms)
+[ RUN      ] TestCircularQueue.test_element_insert_overflows_correctly
+[       OK ] TestCircularQueue.test_element_insert_overflows_correctly (0 ms)
+[ RUN      ] TestCircularQueue.test_negative_index
+[       OK ] TestCircularQueue.test_negative_index (0 ms)
+[ RUN      ] TestCircularQueue.test_read_once_valid_return
+[       OK ] TestCircularQueue.test_read_once_valid_return (0 ms)
+[ RUN      ] TestCircularQueue.test_copy_data
+[       OK ] TestCircularQueue.test_copy_data (0 ms)
+[----------] 6 tests from TestCircularQueue (4 ms total)
+
+[----------] 6 tests from TestFixtureComms
+[ RUN      ] TestFixtureComms.test_serial_mock_dataReady
+[       OK ] TestFixtureComms.test_serial_mock_dataReady (0 ms)
+[ RUN      ] TestFixtureComms.test_serial_mock_ResponseReady
+[       OK ] TestFixtureComms.test_serial_mock_ResponseReady (0 ms)
+[ RUN      ] TestFixtureComms.test_serial_mock_read_back_string
+[       OK ] TestFixtureComms.test_serial_mock_read_back_string (0 ms)
+[ RUN      ] TestFixtureComms.test_shell_activate_deactivate
+[       OK ] TestFixtureComms.test_shell_activate_deactivate (0 ms)
+[ RUN      ] TestFixtureComms.test_shell_return_commands
+[       OK ] TestFixtureComms.test_shell_return_commands (0 ms)
+[ RUN      ] TestFixtureComms.test_findCommandInPacket
+[       OK ] TestFixtureComms.test_findCommandInPacket (0 ms)
+[----------] 6 tests from TestFixtureComms (4 ms total)
+
+[----------] Global test environment tear-down
+[==========] 25 tests from 4 test suites ran. (22 ms total)
+[  PASSED  ] 25 tests.

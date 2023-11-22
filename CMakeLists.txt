@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(INCLUDE_FILES 
     include/
+    test/include/
 )
 
 add_subdirectory(submodules/googletest)
@@ -19,7 +20,8 @@ set(SRC_FILES
     test/test_main.cpp
     src/data-structures/circular_queue.cpp
     test/test_circular_queue.cpp
-    test/mock-objects/SerialConnection.cpp
+    test/test_comms.cpp
+    src/comms/cli/turtle_shell.cpp
 )
 
 

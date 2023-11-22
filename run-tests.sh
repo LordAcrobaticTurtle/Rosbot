@@ -1,4 +1,5 @@
 cd build_test
-cmake .. && make
+cmake .. -DCMAKE_BUILD_TYPE=DEBUG 
+make
 ./ROSBOT_TESTING
 cd ..

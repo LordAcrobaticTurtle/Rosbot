@@ -41,6 +41,6 @@ void Control::torqueControl(std::shared_ptr<DcMotorInterface> motor) {
     // I could pass the xdot[1] from the main state estimation as a command to the motors
     // to rotor 
 
-    dx[0] = 
+    // dx[0] = 
 }
 

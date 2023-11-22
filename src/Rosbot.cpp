@@ -8,7 +8,10 @@
 I2CMaster& master = Master;
 
 Rosbot::Rosbot() : 
-    m_status(4,3,2,false)
+    m_status(4,3,2,false),
+    m_isStandbyOn(true),
+    m_isControlOn(false),
+    m_isLocalisationOn(false)
 { 
 }
 
@@ -16,7 +19,6 @@ Rosbot::~Rosbot() {}
 
 void Rosbot::setup() 
 {
-    m_isStandbyOn = true;
     m_status.switchRedOn();
     // m_imu.setup(Master);
     // Drivers need to inherit
@@ -28,7 +30,6 @@ void Rosbot::setup()
     std::shared_ptr<EncoderN20> encoderL = std::make_shared<EncoderN20>(6,7);
     std::shared_ptr<EncoderN20> encoderR = std::make_shared<EncoderN20>(8,9);
     
-
     m_localisation = std::make_shared<Localisation>(
         imu, encoderL, encoderR
     );
@@ -38,19 +39,30 @@ void Rosbot::setup()
     );
 }
 
-void Rosbot::toggleStandbyMode(bool isStandbyOn) {
-    m_isStandbyOn = isStandbyOn;
+void Rosbot::ActivateStandbyMode() {
+    m_isStandbyOn = true;
+    toggleControl(false);
+    toggleLocalisation(false);
 }
 
-void Rosbot::toggleCalibration(bool isCalibrationOn) {
+void Rosbot::ActivateCalibration() {
+    m_isStandbyOn = false;
+    toggleLocalisation(true);
+    toggleControl(false);
+}
 
-    if (isCalibrationOn) {
-        toggleLocalisation(true);
-        toggleControl(false);
-        
-    } else if (!isCalibrationOn) {
-        toggleStandbyMode(true);
-    }
+void Rosbot::ActivateControlMode() {
+    m_isStandbyOn = false;
+    toggleLocalisation(true);
+    toggleControl(true);
+}
+
+void Rosbot::toggleControl(bool isControlOn) {
+    m_isControlOn = !m_isControlOn;
+}
+
+void Rosbot::toggleLocalisation(bool isLocalisationOn) {
+    m_isLocalisationOn = !m_isLocalisationOn;
 }
 
 void Rosbot::run() {

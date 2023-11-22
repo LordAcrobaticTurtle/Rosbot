@@ -68,7 +68,11 @@ class Controller:
         print("Packet sent!")
         # else:
         #     print("Port is closed")
-            
+    
+    def sendString(self, string : str):
+        if (self._isPortOpen):
+            self._openPort.write(string.encode())
+            print("String sent!")
 
     def handlePacket(self, header : PacketHeader, data):
     
