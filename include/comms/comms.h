@@ -23,7 +23,6 @@ public:
     int run();
 
 protected: 
-    int findCommandInPacket(CircularQueue queue);
     int handlePacket(MessageContents packet);
     // // Step 1
     // int findIdentifyingByte(byte* buffer, size_t numBytes);
@@ -31,7 +30,6 @@ protected:
     // int decodeHeader(byte* buffer, size_t numBytes, size_t packetStart, Packet &packet);
     // // Step 3
     // int decodePacket(byte* buffer, size_t numBytes, size_t packetStart, Packet &packet);
-
 
 protected:
     std::shared_ptr<Rosbot> m_robot;

@@ -19,11 +19,13 @@ class TestableTurtleShell : public TurtleShell {
         bool getShellActive() {
             return m_isShellActive;
         }
+
+        void testToggleShell() {
+            toggleShell();
+        }
 };
 
 MockSerialConnection hwTransceiver;
-
-
 
 TEST_F(TestFixtureComms, test_serial_mock_dataReady) {
     hwTransceiver.sendString("Hello");
@@ -49,20 +51,47 @@ TEST_F(TestFixtureComms, test_serial_mock_read_back_string) {
 
 TEST_F(TestFixtureComms, test_shell_activate_deactivate) {
     TestableTurtleShell shell;
-    char buffer[] = "cli";
+    CircularQueue queue;
+    const char buffer[] = "cli ";
+    queue.insert(buffer, strlen(buffer));
 
-    shell.parseCommand(buffer, strlen(buffer));
+    shell.searchForCommand(queue);
     EXPECT_EQ(shell.getShellActive(), true);
-
-    shell.parseCommand(buffer, strlen(buffer));
+    
+    // queue.setSearchIndex(0);
+    // queue.setInsertIndex(0);
+    shell.searchForCommand(queue);
     EXPECT_EQ(shell.getShellActive(), false);
 }
 
-TEST_F(TestFixtureComms, test_shell_return_commands) {
-    TestableTurtleShell shell;
+TEST_F (TestFixtureComms, test_shell_finds_correct_command) {
+    CircularQueue queue;
+    TurtleShell shell;
+    queue.insert('c');
+    queue.insert('l');
+    queue.insert('i');
+    queue.insert(' ');
     
-    for (int i = 0; i < CliCommandIndex::CLI_NUM_COMMANDS; i++) {
-        EXPECT_EQ(shell.parseCommand(cliCommands[i], 64), i);
+    EXPECT_EQ(shell.searchForCommand(queue), CliCommandIndex::CLI_CLI);
+
+    queue.setInsertIndex(0);
+    // std::string begin = "Begin ";
+    const char buffer[64] = "Begin ";
+    queue.insert(buffer, strlen(buffer));
+    
+    EXPECT_EQ(shell.searchForCommand(queue), CliCommandIndex::CLI_BEGIN);
+}
+
+TEST_F (TestFixtureComms, test_shell_returns_every_correct_command) {
+    CircularQueue queue;
+    TurtleShell shell;
+
+    for (int i = 0; i < CLI_NUM_COMMANDS; i++) {
+        queue.reset();
+        queue.insert(cliCommands[i], strlen(cliCommands[i]));
+        queue.insert(' ');
+        EXPECT_EQ(shell.searchForCommand(queue), (CliCommandIndex) i);
     }
 }
+
 

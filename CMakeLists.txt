@@ -21,6 +21,7 @@ set(SRC_FILES
     src/data-structures/circular_queue.cpp
     test/test_circular_queue.cpp
     test/test_comms.cpp
+    src/comms/cli/turtle_shell.cpp
 )
 
 

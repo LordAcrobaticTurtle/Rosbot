@@ -5,7 +5,7 @@
  */
 
 #include <string.h>
-
+#include "data-structures/circular_queue.h"
 
 
 enum CliCommandIndex {
@@ -34,29 +34,33 @@ class TurtleShell {
         ~TurtleShell() {};
 
         /**
+         * @brief Look for a command in a circular queue. If a command is successfully found the queue must be wiped
+         * @param queue 
+         * @return CliCommandIndex 
+         */
+        CliCommandIndex searchForCommand(CircularQueue &queue);
+
+        
+    protected:
+
+        /**
+         * @brief Finds first instance of ' ' character and copies the data from the start up to
+         * that delimiter into buffer. The final character is replaced with a null terminator.
+         * @param queue 
+         * @param buffer 
+         * @return CliCommandIndex 
+         */
+        int findCommandInPacket(CircularQueue &queue, byte* buffer);
+        
+        /**
          * @brief Parses buffer and returns the command type
          * @param buffer Assumes buffer contains the command and nothing else. Should be a null terminated string
          * @param bufferLength 
          * @return CliCommandIndex 
          */
-        CliCommandIndex parseCommand(const char *buffer, unsigned int bufferLength) {
-            
-            // Test if buffer is equal to cli
-            if (strcmp(buffer, cliCommands[CLI_CLI]) == 0) { toggleShell(); }
+        CliCommandIndex parseCommand(const char *buffer, unsigned int bufferLength);
 
-            if (!m_isShellActive) {
-                return CLI_NUM_COMMANDS;
-            }
 
-            for (int command = 0; command < CliCommandIndex::CLI_NUM_COMMANDS; command++) { 
-                if (strcmp(buffer, cliCommands[command]) == 0) {
-                    return (CliCommandIndex) command;
-                }
-            }
-
-            return CLI_NUM_COMMANDS;
-        }
-    
         void toggleShell() {
             m_isShellActive = !m_isShellActive;
         }

@@ -23,11 +23,19 @@
 
 
 
+// Expected behaviour.
+// Copy bytes from serial port into byte buffer.
+// Insert bytes into m_commsBuffer circular queue. 
+// Commands will be delimited by ' ' chars
+// Once a command is FOUND, queue will be reset
+// How to find a command? 
+    // Get pointer to first element. Get pointer to first delimiter
+    // Copy bytes between into a char buffer, and give it to shell.parseCommand(). Ensure buffer is null terminated.
 int Comms::run() {
     byte buffer[BUFFER_SIZE];
+    
     const int time = millis();
     static int lastTime = 0;    
-
     if (time - lastTime >= 1000) {
         Serial.println("Comms");
         lastTime = time;
@@ -44,50 +52,21 @@ int Comms::run() {
     m_transceiver->readBytes(buffer, numBytesInSerialBuffer);
     
     for (int i = 0; i < numBytesInSerialBuffer; i++) {
-        Serial.print( String(i) + ". " + buffer[i]);
+        // Serial.print( String(i) + ". " + buffer[i]);
+        m_commsBuffer.insert(buffer[i]);
     }
-    Serial.println();
+    // Serial.println();
 
     MessageContents packet;
-    packet.command = m_shell.parseCommand( (char *) buffer, numBytesInSerialBuffer);
-
-    if (packet.command == CliCommandIndex::CLI_NUM_COMMANDS) { return 0; }
-
+    // Set search index to start of queue.
+    // m_commsBuffer.setSearchIndex(0);
+    // findCommandInPacket(m_commsBuffer);
+    // packet.command = m_shell.parseCommand(m_commsBuffer);
 
     handlePacket(packet);
     
 
     return 0;
-}
-
-// When a command is found inside a packet. The queue index for get next value is set to 0.
-// The insert index must also be reset to 0.
-int Comms::findCommandInPacket(CircularQueue queue) {
-    // Start at index 0 because that's where the start of the message will be. After each message is found
-    // Loop over queue looking for matching strings
-    // Get a pointer to the first ' ' character
-    // Send that string to the m_shell.parseCommand() function
-    // m_shell.parseCommand();
-    const char delimiter[2] = "-";
-    
-    bool isDelimiterFound = false;
-    int counter = 0;
-    // Where is the index starting.
-    
-    // Start at the 
-    NextValue initialValues = queue.getNextValue();
-    
-    while (!isDelimiterFound) {
-        
-
-    }
-    
-
-
-
-
-
-
 }
 
 int Comms::handlePacket(MessageContents packet) {
