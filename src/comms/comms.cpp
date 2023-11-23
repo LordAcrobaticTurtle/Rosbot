@@ -64,31 +64,43 @@ int Comms::handlePacket(MessageContents packet) {
     switch (packet.command) {
         case (CliCommandIndex::CLI_BEGIN): {
             m_robot->ActivateControlMode();
-            Serial.println("Begin");
+            // sendResponse("Begin - OK");
+            byte buffer[] = "Begin - OK";
+            m_transceiver->sendBytes(buffer, strlen((const char *) buffer));
             break;
         }
 
         case (CliCommandIndex::CLI_STANDBY): {
             m_robot->ActivateStandbyMode();
+            byte buffer[] = "Standby - OK";
+            m_transceiver->sendBytes(buffer, strlen((const char *) buffer));
             Serial.println("Standby");
             break;
         }
 
         case (CliCommandIndex::CLI_CALIBRATE): {
             m_robot->ActivateCalibration();
+            byte buffer[] = "Calibration - OK";
+            m_transceiver->sendBytes(buffer, strlen((const char *) buffer));
             Serial.println("Calibrate");
             break;
         }
 
         case (CliCommandIndex::CLI_MOTOR): {
             // Send velocity commands to motor
+            byte buffer[] = "Motor - OK";
+            m_transceiver->sendBytes(buffer, strlen((const char *) buffer));
             Serial.println("Motor command");
             break;
         }
 
         case (CliCommandIndex::CLI_HELP): {
             // Collect all commands and return them to the user
-            Serial.println("HELP");
+            // byte buffer[] = "Help: ";
+            // m_transceiver->sendBytes(buffer, strlen((const char *) buffer));
+
+            // Serial.println("HELP");
+            sendHelp();
             break;
         }
 
@@ -101,6 +113,21 @@ int Comms::handlePacket(MessageContents packet) {
     return 0;
 }
 
+void Comms::sendResponse(byte *buffer) {
+    m_transceiver->sendBytes(buffer, strlen((const char*) buffer));
+    Serial.println((char *) buffer);
+}
 
+void Comms::sendHelp() {
+    Serial.println("HELP");
+
+    byte buffer[] = "Help: ";
+    m_transceiver->sendBytes(buffer, strlen((const char *) buffer));
+
+    for (int i = 0; i < CLI_NUM_COMMANDS; i++) {
+        m_transceiver->sendBytes( (byte *) cliCommands[i], strlen(cliCommands[i]));
+        m_transceiver->sendBytes( (byte *) "\n", 1);
+    }
+}
 
 

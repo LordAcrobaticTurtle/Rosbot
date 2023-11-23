@@ -24,6 +24,10 @@ public:
 
 protected: 
     int handlePacket(MessageContents packet);
+
+    void sendResponse(byte* buffer);
+
+    void sendHelp();
     // // Step 1
     // int findIdentifyingByte(byte* buffer, size_t numBytes);
     // // Step 2
