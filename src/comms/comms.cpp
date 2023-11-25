@@ -9,13 +9,13 @@
 
 
  Comms::Comms(
-    std::shared_ptr<Rosbot> robot,
-    std::shared_ptr<RadioInterface> rx
+    std::shared_ptr<Rosbot> robot
+    // std::shared_ptr<RadioInterface> rx
 ) : m_robot(robot),
-    m_rx(rx)
+    // m_rx(rx)
 {
     m_transceiver = std::make_shared<BluetoothTransceiver>(&Serial4, 9600);
-    memset(m_radioChannels, 0, TX_NUM_CHANNELS*sizeof(double));
+    // memset(m_radioChannels, 0, TX_NUM_CHANNELS*sizeof(double));
 }
 
 
