@@ -300,7 +300,10 @@ class View(ttk.Frame):
 
 
     def serial_input_keypress_enter(self, event):
-        self.controller.sendString(self._serialInputString.get())
+        if ' ' in self._serialInputString.get():
+            self.controller.sendString(self._serialInputString.get())
+        else:
+            self.controller.sendString(self._serialInputString.get() + ' ')
         self._serialInputString.set("")
 
     def clear_listBox(self):
