@@ -29,30 +29,12 @@ DON'T STREAM DATA UNLESS A CONNECTION IS MADE
 - Introduce control software to rosbot for actual balancing
 
 
-## Comms
-1. ~~Use packet writing logic and write a byte string to a file. ~~
-   1. It worked!!! I can implement a comms layer to send bytes off through the UART interface
-   2. Abstracting it away.
-      1. Create a module that receives a byte stream and the maximum size length of the stream. 
-      2. Starting at index 0, look for a packet header, then decode the packet appropriately. There's a huge number of edge/failure cases that I need to take into account AND CAN TEST FOR
-         1. Assume header is at index 0 for now.
-      3. Preferrably should return an array of found packets
-2. Read file in Python treat as a byte string and decode appropriately. 
-
-
-## Comms Questions 
-1. When does the OS get notified about the bytes received by a com port?
-
-## Command GUI
-- Getting live plotting working per graph. 
-- Select between types of things to graph to make control tuning easier. 
-
 ### Control
 - Torque constant -> According to website https://www.aliexpress.com/item/1005004999529855.html?spm=a2g0o.order_list.order_list_main.5.2d5218023v7Bh6
 - 12V motor reductino ratio of 100 with 300rpm 
   - Max torque = 1.6kgcm 
   - Stall current = 0.9A
-  - Therefore 
+  - Therefore motor constant is approximately 1.78 kgcm/A
 
 ### Encoder software
 - Need a way to zero encoders when not moving
