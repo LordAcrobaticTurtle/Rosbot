@@ -73,7 +73,7 @@ EncoderResult EncoderN20::readRPMwithStruct() {
     const int countDifference = count - m_lastCount; // Number of pulses in one period
 
 
-    float dtInSeconds = dt / 100000.0; // s
+    // float dtInSeconds = dt / 100000.0; // s
 
     float RPS = countDifference / (7.0*100.0); 
 

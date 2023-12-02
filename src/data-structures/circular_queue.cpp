@@ -23,7 +23,7 @@ void CircularQueue::insert(byte val) {
 }
 
 void CircularQueue::insert(const char* buffer, size_t bufferLength) {
-    for (int i = 0; i < bufferLength; i++) {
+    for (size_t i = 0; i < bufferLength; i++) {
         insert(buffer[i]);
     }
 }
