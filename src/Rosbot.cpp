@@ -72,7 +72,7 @@ void Rosbot::run() {
         m_status.mix(255, 163, 0);
         return;
     } else if (!m_isStandbyOn) {
-        m_status.switchBlueOn();
+        m_status.mix(0, 0, 255);
     }
     
     // m_localisation->run();
