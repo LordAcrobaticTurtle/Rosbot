@@ -35,6 +35,9 @@ int Comms::run() {
     static int lastTime = 0;    
     if (time - lastTime >= 1000) {
         Serial.println("Comms");
+        for (int i = 0; i < m_commsBuffer.getTailPos() + 1; i++) {
+            Serial.print(String(m_commsBuffer[i]) + " ");
+        }
         lastTime = time;
     }
 
@@ -45,6 +48,9 @@ int Comms::run() {
         return 0;
     }
 
+    for (int i = 0; i < m_commsBuffer.getTailPos(); i++) {
+        Serial.print(String(m_commsBuffer[i]) + " ");
+    }
     // Read from transceiver.
     m_transceiver->readBytes(buffer, numBytesInSerialBuffer);
     
@@ -52,6 +58,10 @@ int Comms::run() {
     
     MessageContents packet;
     packet.command = m_shell.searchForCommand(m_commsBuffer);
+    
+    if (packet.command != CLI_NUM_COMMANDS) {
+        m_commsBuffer.reset();
+    }
 
     handlePacket(packet);
     
