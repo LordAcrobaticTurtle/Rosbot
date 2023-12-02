@@ -100,9 +100,9 @@ void PacketSerializer::decodeData(byte* buffer, size_t bufferLength, size_t pack
     
     // m_data is a pointer to an array
     // Confirm size of data is less than or equal to size of array
-    int dataStart = packetStart + 1 + sizeof(PacketHeader);
+    size_t dataStart = packetStart + 1 + sizeof(PacketHeader);
     // How many bytes in datasize
-    const int numDataBytes = packet.m_header.m_packetSize - sizeof(PacketHeader);
+    const size_t numDataBytes = packet.m_header.m_packetSize - sizeof(PacketHeader);
     
     if (dataStart + numDataBytes >= bufferLength) {
         // Something went wrong
@@ -114,7 +114,7 @@ void PacketSerializer::decodeData(byte* buffer, size_t bufferLength, size_t pack
 }
 
 void PacketSerializer::debugPrintByteStream(byte* buffer, size_t bufferLength) {
-    for (int i = 0; i < bufferLength; i++) {
+    for (size_t i = 0; i < bufferLength; i++) {
         printf("0x");
         printf("%x", buffer[i]);
         printf(" ");
