@@ -17,6 +17,8 @@ class Rosbot {
         void ActivateCalibration();
         void ActivateControlMode();
 
+        void resetImu();
+
     protected:
         void toggleLocalisation (bool isLocalisationOn);
         void toggleControl (bool isControlOn);

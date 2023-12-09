@@ -13,6 +13,12 @@ int Mpu6050::readGyroRates(vector3D &rates) {
     return -1;
 }
 
+int Mpu6050::readOrientation(vector3D &orientation) {
+    orientation.x = m_eulerXYZ[0];
+    orientation.y = m_eulerXYZ[1];
+    orientation.z = m_eulerXYZ[2];
+}
+
 int Mpu6050::readAccel(vector3D &accel) {
     return -1;
 }
@@ -63,7 +69,7 @@ bool Mpu6050::init(I2CMaster &interface) {
     return result1 && result2 && result3; 
 }
 
-void Mpu6050::update(float dt) {
+int Mpu6050::update(float dt) {
     m_dt = dt;
     getRawSensorRegisters();
     parseRawData();

@@ -65,6 +65,10 @@ void Rosbot::toggleLocalisation(bool isLocalisationOn) {
     m_isLocalisationOn = !m_isLocalisationOn;
 }
 
+void Rosbot::resetImu() {
+    m_localisation->resetImu();
+}
+
 void Rosbot::run() {
     // If standby is on, comms must still run
 
@@ -75,8 +79,8 @@ void Rosbot::run() {
         m_status.mix(0, 0, 255);
     }
     
-    // m_localisation->run();
-    // m_control->run();
+    m_localisation->run();
+    m_control->run();
     
 
     // m_tf = millis();

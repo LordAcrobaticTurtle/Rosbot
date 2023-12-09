@@ -13,6 +13,7 @@ enum CliCommandIndex {
     CLI_BEGIN,
     CLI_STANDBY,
     CLI_CALIBRATE,
+    CLI_RESET_IMU,
     CLI_MOTOR,
     CLI_HELP,
     CLI_NUM_COMMANDS
@@ -23,6 +24,7 @@ const char cliCommands[CLI_NUM_COMMANDS+1][64] = {
     "Begin",
     "Standby",
     "Calibrate",
+    "Reset IMU", 
     "Motor",
     "Help",
     "None"

@@ -1,5 +1,6 @@
 #include <control/control.h>
 
+#include <Arduino.h>
 
 Control::Control (
     std::shared_ptr<Localisation> localisation,
@@ -15,7 +16,10 @@ Control::Control (
 
 int Control::run() {
     // Get params
-    // vector3D orientation = m_localisation->getOrientation();
+    vector3D orientation = m_localisation->getOrientation();
+    char buffer[64];
+    orientation.toString(buffer);
+    Serial.println(buffer);
     // vector3D position = m_localisation->getPosition();
     // // Left is v1, v2 is right
     // vector2D wheelVelocities = m_localisation->getWheelVelocity();

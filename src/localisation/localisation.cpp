@@ -1,4 +1,5 @@
 #include <localisation/localisation.h>
+#include <Arduino.h>
 
 Localisation::Localisation(
     std::shared_ptr<ImuInterface> imu,
@@ -13,7 +14,18 @@ Localisation::Localisation(
 
 
 void Localisation::run() {
+    static float lastDt = 0;
     // Localisation updates
+    // Time since last update
+    float dt = millis() / 1000.0;
+    m_imu->update(dt - lastDt);
+    m_imu->readOrientation(m_orientation);
+    
+    lastDt = dt;
+}
+
+void Localisation::resetImu() {
+    
 }
 
 vector2D Localisation::getWheelVelocity() {
@@ -22,7 +34,6 @@ vector2D Localisation::getWheelVelocity() {
     vec.v2 = -1;
     return vec;
 }
-
 
 vector3D Localisation::getPosition() {
     vector3D vec;
@@ -33,11 +44,7 @@ vector3D Localisation::getPosition() {
 }
 
 vector3D Localisation::getOrientation() {
-    vector3D vec;
-    vec.x = -1;
-    vec.y = -1;
-    vec.z = -1;
-    return vec;
+    return m_orientation;
 }
 
 RobotModel::RobotModel(): 

@@ -96,6 +96,14 @@ int Comms::handlePacket(MessageContents packet) {
             break;
         }
 
+        case (CliCommandIndex::CLI_RESET_IMU): {
+            m_robot->resetImu();
+            byte buffer[] = "Reset IMU - OK";
+            m_transceiver->sendBytes(buffer, strlen((const char *) buffer));
+            Serial.println("Reset IMU - OK");
+            break;
+        }
+
         case (CliCommandIndex::CLI_MOTOR): {
             // Send velocity commands to motor
             byte buffer[] = "Motor - OK";
