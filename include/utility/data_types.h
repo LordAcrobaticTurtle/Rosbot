@@ -1,10 +1,16 @@
 #pragma once
 #include "utility/math.h"
+#include <stdio.h>
+
 typedef unsigned char byte;
 
 
 struct vector3D {
     float x, y, z;
+
+    void toString(char *buffer) {
+        sprintf(buffer, "x: %f, y: %f, z: %f", x, y, z);
+    }
 };
 
 struct vector2D {

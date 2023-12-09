@@ -32,18 +32,19 @@ class Rosbot {
 
         LocalisationResponse getLocalisationResponse();
         ControlResponse getControlResponse();
+        void resetImu();
 
     protected:
         void toggleLocalisation (bool isLocalisationOn);
         void toggleControl (bool isControlOn);
 
     private:
+        RGBLED m_status;
+        std::shared_ptr<Localisation> m_localisation;
+        std::shared_ptr<Control> m_control;
 
         bool m_isStandbyOn;
         bool m_isLocalisationOn;
         bool m_isControlOn;
         
-        RGBLED m_status;
-        std::shared_ptr<Localisation> m_localisation;
-        std::shared_ptr<Control> m_control;
 };

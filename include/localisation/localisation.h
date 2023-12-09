@@ -13,10 +13,12 @@ public:
         std::shared_ptr<EncoderInterface> encoderR
     );
 
+    void resetImu();
+
     vector3D getOrientation();
     vector3D getAngularRates();
     vector2D getWheelVelocity();
-    vector3D getPosition();
+    vector3D getPosition(); 
     void run();
     
 protected:

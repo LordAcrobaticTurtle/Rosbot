@@ -33,19 +33,14 @@ CliCommandIndex TurtleShell::parseCommand(const char *buffer, unsigned int buffe
 
 // When a command is found inside a packet. The queue index for get next value is set to 0.
 // The insert index must also be reset to 0.
+// Can speed this function up by getting strlen
 int TurtleShell::findCommandInPacket(CircularQueue &queue, byte* buffer) {
     // Start at index 0 because that's where the start of the message will be. After each message is found
     // Loop over queue looking for matching strings
     // Get a pointer to the first ' ' character
     // Send that string to the m_shell.parseCommand() function
     // m_shell.parseCommand();    
-    bool isDelimiterFound = false;
     int finalIndex = 0;
-    int validCounter = 0;
-    // Where is the index starting.
-    
-    // Start at the 
-    NextValue initialValues = queue.getNextValue();
     
     for (int i = 0; i < MAX_QUEUE_SIZE; i++) {
         if (queue[i] == ' ') {
@@ -56,4 +51,6 @@ int TurtleShell::findCommandInPacket(CircularQueue &queue, byte* buffer) {
     // printf("findCommandInPacket: delimiter @ %d\n", finalIndex);
     // Copy data out of queue into buffer
     queue.copyData(buffer, 0, finalIndex);
+
+    return 0;
 }

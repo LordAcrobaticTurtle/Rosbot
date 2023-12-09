@@ -48,6 +48,8 @@ int RadioInterface::getChannelPercentage(double *p_channelValues, double scaleFa
     for (int ch = 0; ch < TX_NUM_CHANNELS; ch++) {
         p_channelValues[ch] = (double) m_channelValues[ch]/1000.0 * scaleFactor;
     }
+
+    return 0;
 }
 
 // Called publicly.
@@ -103,6 +105,7 @@ int RadioInterface::readSBUS()
         return -1;
     }
 
+    return 0;
 }
 
 
