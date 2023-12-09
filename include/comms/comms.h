@@ -15,6 +15,13 @@ struct MessageContents {
     CliCommandIndex command;
 };
 
+enum StreamMode {
+    STREAM_MODE_NONE,
+    STREAM_MODE_LOCALISATION_CALIBRATION,
+    STREAM_MODE_CONTROL,
+    STREAM_MODE_NUM_MODES
+};
+
 class Comms {
 public:
     Comms(std::shared_ptr<Rosbot> robot, std::shared_ptr<RadioInterface> rx);
@@ -28,6 +35,12 @@ protected:
     void sendResponse(byte* buffer);
 
     void sendHelp();
+
+    void returnStreamResponse();
+
+    void sendControlResponse();
+
+    void sendLocalisationResponse();
     // // Step 1
     // int findIdentifyingByte(byte* buffer, size_t numBytes);
     // // Step 2
@@ -41,7 +54,8 @@ protected:
     std::shared_ptr<RadioInterface> m_rx;
     CircularQueue m_commsBuffer;
     TurtleShell m_shell;
-    
+
+    StreamMode m_streamMode;    
     double m_radioChannels[TX_NUM_CHANNELS];
 };
 

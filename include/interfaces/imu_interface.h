@@ -9,5 +9,6 @@ public:
     virtual int readAccel(vector3D &accel) = 0;
     virtual int readTemperature(float *temp) = 0;
     virtual int readMagnetField(vector3D &field) = 0;
+    virtual int readOrientation(vector3D &orientation) = 0;
 };
 

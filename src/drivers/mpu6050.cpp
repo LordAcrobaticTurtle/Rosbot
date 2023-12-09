@@ -25,6 +25,12 @@ int Mpu6050::readMagnetField(vector3D &field) {
     return -1;
 }
 
+int Mpu6050::readOrientation(vector3D &field) {
+    field.x = m_gyroAngle[0];
+    field.y = m_gyroAngle[1];
+    field.z = m_gyroAngle[2];
+}
+
 void Mpu6050::setup() {
     
     // Compute bias of gyroscope at rest
@@ -69,7 +75,7 @@ void Mpu6050::update(float dt) {
     parseRawData();
     calculateEulerAngles();
 }
- 
+
 void Mpu6050::getRawSensorRegisters() {
     byte value = registerMap::ACCEL_XOUT_H;
     

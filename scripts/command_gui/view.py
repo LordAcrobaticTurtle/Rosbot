@@ -298,7 +298,6 @@ class View(ttk.Frame):
         button = tk.Button(filewin, text="Quit", command = filewin.destroy)
         button.pack()
 
-
     def serial_input_keypress_enter(self, event):
         self.controller.sendString(self._serialInputString.get())
         self._serialInputString.set("")

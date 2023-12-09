@@ -5,6 +5,7 @@ enum PacketID {
     PACKET_ID_STANDBY,         // Command program sends, robot exits mainloop and awaits further instruction.
     PACKET_ID_ESTOP,           // Command program sends from button. True or false is encoded in data body. The drive disable pin on motor controller must be on.
     PACKET_ID_REQUEST,         // Contains the requested packet encoded into its data
+    PACKET_ID_STREAM,
     PACKET_ID_STATE,           // command program requests, mbed side sends. Or mbed just sends periodically 
     PACKET_ID_ESTIMATE_BIAS,   // Perform bias estimate
     PACKET_ID_LED_CHANGE,     // Command program sends, r,g,b values contained in data body

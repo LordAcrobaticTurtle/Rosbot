@@ -17,7 +17,7 @@ class Mpu6050 : public ImuInterface {
         virtual int readAccel(vector3D &accel);
         virtual int readTemperature(float *temp);
         virtual int readMagnetField(vector3D &field);
-    
+        virtual int readOrientation(vector3D &orientation);
         // Updates all data objects
         void update(float ts);
 

@@ -10,6 +10,7 @@ typedef struct PIDParams {
     float prevError;
     float errorSum;
     float dt;
+    float bounds[2];
 } PIDParams;
 
 

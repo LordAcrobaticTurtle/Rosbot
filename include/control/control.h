@@ -20,10 +20,10 @@ public:
     PIDParams getParams();
     void setParams(PIDParams params);
 
-private:
+protected:
     void torqueControl(std::shared_ptr<DcMotorInterface> motor);
 
-private:
+protected:
 
     PIDParams m_pidParams;
     std::shared_ptr<Localisation> m_localisation;

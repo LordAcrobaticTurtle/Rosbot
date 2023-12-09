@@ -22,6 +22,8 @@ interpreted as the start bit
 DON'T STREAM DATA UNLESS A CONNECTION IS MADE
 
 
+
+
 ### LOCALISATION
 - Kalman filter: Use accel measurements as orientation measurements and rates as partials / predicted 
   - Hopefully will eliminate gyro drift
@@ -81,4 +83,4 @@ DON'T STREAM DATA UNLESS A CONNECTION IS MADE
   - Print new wheels 
 
 
-  
+

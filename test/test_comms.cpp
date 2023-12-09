@@ -93,6 +93,6 @@ TEST_F (TestFixtureComms, test_shell_returns_every_correct_command) {
     }
 }
 
-TEST_F (TestFixtureComms, test_)
+// TEST_F (TestFixtureComms, test_)
 
 

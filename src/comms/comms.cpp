@@ -12,7 +12,8 @@
     std::shared_ptr<Rosbot> robot,
     std::shared_ptr<RadioInterface> rx
 ) : m_robot(robot),
-    m_rx(rx)
+    m_rx(rx),
+    m_streamMode(STREAM_MODE_NONE)
 {
     m_transceiver = std::make_shared<BluetoothTransceiver>(&Serial4, 9600);
     memset(m_radioChannels, 0, TX_NUM_CHANNELS*sizeof(double));
@@ -55,6 +56,7 @@ int Comms::run() {
 
     handlePacket(packet);
     
+    returnStreamResponse();
 
     return 0;
 }
@@ -64,6 +66,7 @@ int Comms::handlePacket(MessageContents packet) {
     switch (packet.command) {
         case (CliCommandIndex::CLI_BEGIN): {
             m_robot->ActivateControlMode();
+            m_streamMode = STREAM_MODE_CONTROL; // Send control information over the pipe. 
             // sendResponse("Begin - OK");
             byte buffer[] = "Begin - OK";
             m_transceiver->sendBytes(buffer, strlen((const char *) buffer));
@@ -75,11 +78,13 @@ int Comms::handlePacket(MessageContents packet) {
             byte buffer[] = "Standby - OK";
             m_transceiver->sendBytes(buffer, strlen((const char *) buffer));
             Serial.println("Standby");
+            m_streamMode = STREAM_MODE_NONE;
             break;
         }
 
         case (CliCommandIndex::CLI_CALIBRATE): {
             m_robot->ActivateCalibration();
+            m_streamMode = STREAM_MODE_LOCALISATION_CALIBRATION;
             byte buffer[] = "Calibration - OK";
             m_transceiver->sendBytes(buffer, strlen((const char *) buffer));
             Serial.println("Calibrate");
@@ -106,10 +111,10 @@ int Comms::handlePacket(MessageContents packet) {
 
         default:
             // Do nothing
-            Serial.println("Do nothing");
+            byte buffer[] = "Unknown command - Type \"Help \" for help";
+            
             break;
     }
-    
     return 0;
 }
 
@@ -130,4 +135,35 @@ void Comms::sendHelp() {
     }
 }
 
+void Comms::returnStreamResponse() {
+    // Check what type of mode is being used. 
+    // Generate a response and send it to the transceiver interface. 
 
+    // Is this where I'll pack it into a json object or nah. Yes but inside another function
+    switch (m_streamMode) {
+        case STREAM_MODE_CONTROL: {
+            sendControlResponse();
+            break;
+        }
+
+        case STREAM_MODE_LOCALISATION_CALIBRATION: {
+            // Pre-calculate number of bytes required for 11 floats, but as a string 
+            sendLocalisationResponse();
+            break;
+        }
+
+        default: 
+            break;
+    }
+}
+
+void Comms::sendControlResponse() {
+    ControlResponse res = m_robot->getControlResponse();
+    // Pack response into a string and send that shit off. 
+    
+}
+
+void Comms::sendLocalisationResponse() {
+    LocalisationResponse res = m_robot->getLocalisationResponse();
+    
+}

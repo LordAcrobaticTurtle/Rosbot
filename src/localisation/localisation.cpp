@@ -34,9 +34,7 @@ vector3D Localisation::getPosition() {
 
 vector3D Localisation::getOrientation() {
     vector3D vec;
-    vec.x = -1;
-    vec.y = -1;
-    vec.z = -1;
+    m_imu->readOrientation(vec);
     return vec;
 }
 
@@ -50,8 +48,6 @@ RobotModel::RobotModel():
     D(0,0)
 {
     // Setup A, B, C here
-
-    
 
 }
 

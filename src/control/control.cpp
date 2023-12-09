@@ -9,7 +9,7 @@ Control::Control (
     m_motorL(motorL),
     m_motorR(motorR)
 {
-
+    m_pidParams.bounds = [-1, 1];
 }
 
 
@@ -21,8 +21,15 @@ int Control::run() {
     vector2D wheelVelocities = m_localisation->getWheelVelocity();
 
     // For proof of concept. Angular first
-    PIDParams params;
+    m_pidParams.currValue = orientation.x;
     
+    // Perform PID control of angle
+    float response = PIDController::computeResponse(m_pidParams);
+    
+    // Response should be limited between 0 and 1.
+    // m_motorL->setVoltage();
+    
+
 }
 
 /**
