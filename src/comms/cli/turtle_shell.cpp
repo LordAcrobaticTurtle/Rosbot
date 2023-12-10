@@ -26,7 +26,13 @@ CliCommandIndex TurtleShell::searchForCommand(CircularQueue &queue, int &argc, c
         argc++;
     }
 
-    return parseCommand(argv[0], strlen(argv[0]));
+    auto command = parseCommand(argv[0], strlen(argv[0]));
+
+    if (command == CLI_NUM_COMMANDS) {
+        queue.reset();
+    }
+
+    return command;
 }
 
 CliCommandIndex TurtleShell::parseCommand(const char *buffer, unsigned int bufferLength) {
