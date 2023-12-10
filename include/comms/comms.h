@@ -10,8 +10,9 @@
 
 
 struct MessageContents {
+    MessageContents() : argc(0) {}
     int argc;
-    char **argv;
+    char argv[CLI_MAX_NUM_ARGUMENTS][CLI_MAX_ARGUMENT_LENGTH];
     CliCommandIndex command;
 };
 

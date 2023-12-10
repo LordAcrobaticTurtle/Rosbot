@@ -50,11 +50,7 @@ int Comms::run() {
     m_commsBuffer.insert((const char *) buffer, numBytesInSerialBuffer);
     
     MessageContents packet;
-    packet.command = m_shell.searchForCommand(m_commsBuffer);
-    
-    if (packet.command != CLI_NUM_COMMANDS) {
-        m_commsBuffer.reset();
-    }
+    packet.command = m_shell.searchForCommand(m_commsBuffer, packet.argc, packet.argv);
 
     handlePacket(packet);
     
