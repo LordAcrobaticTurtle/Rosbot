@@ -36,7 +36,6 @@ int main(int argc, char** argv) {
 
         if (command != CLI_NUM_COMMANDS) {
             printf("Command found! %d\n", command);
-            queue.reset();
         }
     }
 
