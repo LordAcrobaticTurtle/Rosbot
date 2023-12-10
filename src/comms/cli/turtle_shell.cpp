@@ -8,11 +8,11 @@ CliCommandIndex TurtleShell::searchForCommand(CircularQueue &queue, int &argc, c
     // Search for a newline
     // If none exists, return early. 
     // If one does exist, look for parse for commands and arguments
-    if (isNewlinePresent(queue) == 0) {
+    if (isNewlinePresent(queue) == -1) {
         return CLI_NUM_COMMANDS;
     }
     // Replace the newline with a null terminator character. Assume newline is at end of queue.
-    // queue.replace('\0', queue.getTailPos());
+    queue.replace('\0', queue.getTailPos());
     // Split string into substrings delimited by space character
     // Chop up the command into segments or maximum of CLI_MAX_NUM_ARGUMENTS
     char delimiterBuffer[64];
