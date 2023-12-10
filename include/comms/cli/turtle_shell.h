@@ -7,6 +7,8 @@
 #include <string.h>
 #include "data-structures/circular_queue.h"
 
+#define CLI_MAX_NUM_ARGUMENTS 5
+#define CLI_MAX_ARGUMENT_LENGTH 16
 
 enum CliCommandIndex {
     CLI_CLI,
@@ -24,15 +26,20 @@ const char cliCommands[CLI_NUM_COMMANDS+1][64] = {
     "Begin",
     "Standby",
     "Calibrate",
-    "Reset IMU", 
+    "Reset-IMU", 
     "Motor",
     "Help",
     "None"
 };
 
+/**
+ * @brief Can only handle 5 arguments in a single command as per the macro CLI_MAX_NUMBER_ARGUMENTS at time of writing.
+ * Shell starts active
+ * 
+ */
 class TurtleShell {
     public:
-        TurtleShell() : m_isShellActive(false) {};
+        TurtleShell() : m_isShellActive(true) {};
         ~TurtleShell() {};
 
         /**
@@ -40,9 +47,8 @@ class TurtleShell {
          * @param queue 
          * @return CliCommandIndex 
          */
-        CliCommandIndex searchForCommand(CircularQueue &queue);
+        CliCommandIndex searchForCommand(CircularQueue &queue, int &argc, char argv[][CLI_MAX_ARGUMENT_LENGTH]);
 
-        
     protected:
 
         /**
@@ -62,6 +68,12 @@ class TurtleShell {
          */
         CliCommandIndex parseCommand(const char *buffer, unsigned int bufferLength);
 
+        /**
+         * @brief Checks the queue for a newline character
+         * @return true 
+         * @return false 
+         */
+        bool isNewlinePresent(CircularQueue &queue);
 
         void toggleShell() {
             m_isShellActive = !m_isShellActive;
