@@ -43,7 +43,7 @@ class TurtleShell {
         ~TurtleShell() {};
 
         /**
-         * @brief Look for a command in a circular queue. If a command is successfully found the queue must be wiped
+         * @brief Look for a command in a circular queue. After detecting a newline character the function resets the queue.
          * @param queue 
          * @return CliCommandIndex 
          */

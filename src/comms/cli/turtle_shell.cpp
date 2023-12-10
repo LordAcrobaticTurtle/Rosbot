@@ -27,11 +27,8 @@ CliCommandIndex TurtleShell::searchForCommand(CircularQueue &queue, int &argc, c
     }
 
     auto command = parseCommand(argv[0], strlen(argv[0]));
-
-    if (command == CLI_NUM_COMMANDS) {
-        queue.reset();
-    }
-
+    queue.reset();
+    
     return command;
 }
 
