@@ -78,3 +78,18 @@ void CircularQueue::reset() {
     memset(m_hasDataBeenRead, 0, sizeof(bool)*MAX_QUEUE_SIZE);
     m_dataTail = 0;
 }
+
+int CircularQueue::searchForCharacter(char ch) {
+    for (int i=0; i<getTailPos() + 1; i++) {
+        if (m_data[i] == ch) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+void CircularQueue::replace(byte value, int index) {
+    setInsertIndex(index);
+    insert(value);
+}

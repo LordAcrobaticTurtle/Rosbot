@@ -31,7 +31,7 @@ class CircularQueue {
         void insert(const char* buffer, size_t bufferLength);
 
         /**
-         * @brief Get the index of the end of the m_data
+         * @brief Get the index of the end of the m_data. The length of the queue is tailPos + 1
          * @return int Index of end of m_data.
          */
         int getTailPos();
@@ -76,6 +76,21 @@ class CircularQueue {
          * dataTail is set to the first element. Next insert and search index are set to the first element
          */
         void reset();
+
+        /**
+         * @brief Looks for a character in the queue.
+         * @param ch - A valid character from the ascii table. 
+         * @return int - The index position of the element. -1 Indicates it is not in the list
+         */
+        int searchForCharacter(char ch);
+
+        /**
+         * @brief Replaces (or inserts) "value" at "index"
+         * @param value 
+         * @param index 
+         */
+        void replace(byte value, int index);
+
     protected:
         byte m_data[MAX_QUEUE_SIZE];
         bool m_hasDataBeenRead[MAX_QUEUE_SIZE];
