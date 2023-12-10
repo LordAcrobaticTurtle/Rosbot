@@ -41,6 +41,8 @@ protected:
     void sendControlResponse();
 
     void sendLocalisationResponse();
+
+    void serialHeartbeat();
     // // Step 1
     // int findIdentifyingByte(byte* buffer, size_t numBytes);
     // // Step 2

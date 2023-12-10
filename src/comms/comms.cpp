@@ -30,17 +30,8 @@
     // Get pointer to first element. Get pointer to first delimiter
     // Copy bytes between into a char buffer, and give it to shell.parseCommand(). Ensure buffer is null terminated.
 int Comms::run() {
-    byte buffer[BUFFER_SIZE];
     
-    const int time = millis();
-    static int lastTime = 0;    
-    if (time - lastTime >= 1000) {
-        Serial.println("Comms");
-        for (int i = 0; i < m_commsBuffer.getTailPos() + 1; i++) {
-            Serial.print(String(m_commsBuffer[i]) + " ");
-        }
-        lastTime = time;
-    }
+    serialHeartbeat();
 
     int numBytesInSerialBuffer = m_transceiver->isDataReady();
     
@@ -49,9 +40,10 @@ int Comms::run() {
         return 0;
     }
 
-    for (int i = 0; i < m_commsBuffer.getTailPos(); i++) {
-        Serial.print(String(m_commsBuffer[i]) + " ");
-    }
+    byte buffer[BUFFER_SIZE];
+    // for (int i = 0; i < m_commsBuffer.getTailPos(); i++) {
+    //     Serial.print(String(m_commsBuffer[i]) + " ");
+    // }
     // Read from transceiver.
     m_transceiver->readBytes(buffer, numBytesInSerialBuffer);
     
@@ -172,6 +164,19 @@ void Comms::returnStreamResponse() {
 
         default: 
             break;
+    }
+}
+
+void Comms::serialHeartbeat() {
+    const int time = millis();
+    static int lastTime = 0;    
+    
+    if (time - lastTime >= 1000) {
+        Serial.println("Comms");
+        for (int i = 0; i < m_commsBuffer.getTailPos() + 1; i++) {
+            Serial.print(String(m_commsBuffer[i]) + " ");
+        }
+        lastTime = time;
     }
 }
 
