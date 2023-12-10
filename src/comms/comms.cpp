@@ -125,15 +125,20 @@ void Comms::sendResponse(byte *buffer) {
 }
 
 void Comms::sendHelp() {
-    Serial.println("HELP");
+    // Serial.println("HELP");
 
-    byte buffer[] = "Help: ";
-    m_transceiver->sendBytes(buffer, strlen((const char *) buffer));
-
+    byte buffer[1024] = {0};
+    byte *ptr = buffer;
+    
     for (int i = 0; i < CLI_NUM_COMMANDS; i++) {
-        m_transceiver->sendBytes( (byte *) cliCommands[i], strlen(cliCommands[i]));
-        m_transceiver->sendBytes( (byte *) "\n", 1);
+        strcpy( (char *) ptr, cliCommands[i]);    
+        ptr += strlen(cliCommands[i]);
+        *ptr = '\n';
+        ptr += 1;
     }
+
+    m_transceiver->sendBytes(buffer, strlen( (char *) buffer));
+
 }
 
 void Comms::returnStreamResponse() {
