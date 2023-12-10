@@ -43,6 +43,10 @@ int Control::run() {
 
 }
 
+PIDParams Control::getParams() {
+    return m_pidParams;
+}
+
 /**
  * @brief Function used to control the torque output of the motors
 */

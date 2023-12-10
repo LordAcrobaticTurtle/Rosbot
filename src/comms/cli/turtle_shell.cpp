@@ -1,5 +1,6 @@
 #include "comms/cli/turtle_shell.h"
 #include <unistd.h>
+#include <Arduino.h>
 
 CliCommandIndex TurtleShell::searchForCommand(CircularQueue &queue, int &argc, char argv[][CLI_MAX_ARGUMENT_LENGTH]) {
     
@@ -7,11 +8,11 @@ CliCommandIndex TurtleShell::searchForCommand(CircularQueue &queue, int &argc, c
     // Search for a newline
     // If none exists, return early. 
     // If one does exist, look for parse for commands and arguments
-    if (!isNewlinePresent(queue)) {
+    if (isNewlinePresent(queue) == 0) {
         return CLI_NUM_COMMANDS;
     }
     // Replace the newline with a null terminator character. Assume newline is at end of queue.
-    queue.replace('\0', queue.getTailPos());
+    // queue.replace('\0', queue.getTailPos());
     // Split string into substrings delimited by space character
     // Chop up the command into segments or maximum of CLI_MAX_NUM_ARGUMENTS
     char delimiterBuffer[64];
@@ -27,6 +28,8 @@ CliCommandIndex TurtleShell::searchForCommand(CircularQueue &queue, int &argc, c
     }
 
     auto command = parseCommand(argv[0], strlen(argv[0]));
+    Serial.println(String(argv[0]));
+    Serial.println("RESETTING BUFFER");
     queue.reset();
     
     return command;
@@ -73,8 +76,7 @@ int TurtleShell::findCommandInPacket(CircularQueue &queue, byte* buffer) {
 }
 
 
-bool TurtleShell::isNewlinePresent(CircularQueue &queue) {
-
+int TurtleShell::isNewlinePresent(CircularQueue &queue) {
     return queue.searchForCharacter('\n');
 }
 

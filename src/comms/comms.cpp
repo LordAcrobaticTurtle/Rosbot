@@ -20,7 +20,6 @@
 }
 
 
-
 // Expected behaviour.
 // Copy bytes from serial port into byte buffer.
 // Insert bytes into m_commsBuffer circular queue. 
@@ -36,19 +35,17 @@ int Comms::run() {
     int numBytesInSerialBuffer = m_transceiver->isDataReady();
     
     // Return to start of loop if no data available
-    if (numBytesInSerialBuffer == 0) {
-        return 0;
+    if (numBytesInSerialBuffer > 0) {    
+        byte buffer[BUFFER_SIZE];
+        m_transceiver->readBytes(buffer, numBytesInSerialBuffer);
+        m_commsBuffer.insert((const char *) buffer, numBytesInSerialBuffer);
+    
+        for (int i = 0; i < m_commsBuffer.getTailPos() + 2; i++) {
+            Serial.println(m_commsBuffer[i]);
+        }
     }
 
-    byte buffer[BUFFER_SIZE];
-    // for (int i = 0; i < m_commsBuffer.getTailPos(); i++) {
-    //     Serial.print(String(m_commsBuffer[i]) + " ");
-    // }
-    // Read from transceiver.
-    m_transceiver->readBytes(buffer, numBytesInSerialBuffer);
-    
-    m_commsBuffer.insert((const char *) buffer, numBytesInSerialBuffer);
-    
+
     MessageContents packet;
     packet.command = m_shell.searchForCommand(m_commsBuffer, packet.argc, packet.argv);
 
@@ -65,9 +62,9 @@ int Comms::handlePacket(MessageContents packet) {
         case (CliCommandIndex::CLI_BEGIN): {
             m_robot->ActivateControlMode();
             m_streamMode = STREAM_MODE_CONTROL; // Send control information over the pipe. 
-            // sendResponse("Begin - OK");
             byte buffer[] = "Begin - OK";
             m_transceiver->sendBytes(buffer, strlen((const char *) buffer));
+            Serial.println(String((char*)buffer));
             break;
         }
 
@@ -117,8 +114,6 @@ int Comms::handlePacket(MessageContents packet) {
 
         default:
             // Do nothing
-            byte buffer[] = "Unknown command - Type \"Help \" for help";
-            
             break;
     }
     return 0;

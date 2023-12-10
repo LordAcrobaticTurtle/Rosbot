@@ -69,11 +69,11 @@ class TurtleShell {
         CliCommandIndex parseCommand(const char *buffer, unsigned int bufferLength);
 
         /**
-         * @brief Checks the queue for a newline character
-         * @return true 
-         * @return false 
+         * @brief Checks for a newline character in the buffer
+         * @param queue 
+         * @return int - Index of position
          */
-        bool isNewlinePresent(CircularQueue &queue);
+        int isNewlinePresent(CircularQueue &queue);
 
         void toggleShell() {
             m_isShellActive = !m_isShellActive;
