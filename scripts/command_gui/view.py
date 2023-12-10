@@ -300,7 +300,7 @@ class View(ttk.Frame):
 
 
     def serial_input_keypress_enter(self, event):
-        self.controller.sendString(self._serialInputString.get())
+        self.controller.sendString(self._serialInputString.get() + "\n")
         self._serialInputString.set("")
 
     def clear_listBox(self):
@@ -356,11 +356,11 @@ class View(ttk.Frame):
         self.message_label['text'] = ''
 
     def beginButtonClicked(self):
-        self.controller.sendPacket(PacketIDs.BEGIN)
+        self.controller.sendString("Begin\n")
         print("Begin clicked!")
 
     def standbyButtonClicked(self):
-        self.controller.sendPacket(PacketIDs.STANDBY)
+        self.controller.sendString("Standby\n")
         print("Standby clicked!")
 
     def calibrateButtonClicked(self):

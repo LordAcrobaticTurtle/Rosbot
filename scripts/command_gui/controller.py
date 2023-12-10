@@ -46,16 +46,18 @@ class Controller:
             if (self._openPort.in_waiting > 0):
                 # Read in all the available bytes
                 buffer = self._openPort.read(self._openPort.in_waiting)
-
-                # Find the first instance of a packet in the byte stream. Discard all other packets
-                # What I would prefer is to find all packets in a byte stream 
-                # Incomplete frames in the buffer will be dropped
-                startpos = PacketSerializer.findIdentifyingByte(buffer)
-                header = PacketSerializer.decodeHeader(buffer, startpos)
-                data = PacketSerializer.decodeData(buffer, header, startpos)
+                decodedBuffer = buffer.decode('utf-8')
+                self.view.updateSerialConsole(decodedBuffer)
+                print(decodedBuffer)
+                # # Find the first instance of a packet in the byte stream. Discard all other packets
+                # # What I would prefer is to find all packets in a byte stream 
+                # # Incomplete frames in the buffer will be dropped
+                # startpos = PacketSerializer.findIdentifyingByte(buffer)
+                # header = PacketSerializer.decodeHeader(buffer, startpos)
+                # data = PacketSerializer.decodeData(buffer, header, startpos)
                 
-                # Now do something with the data
-                self.handlePacket(header, data)
+                # # Now do something with the data
+                # self.handlePacket(header, data)
                 
     def sendPacket(self, packetID: PacketIDs):
         # if (self._isPortOpen):
@@ -72,7 +74,8 @@ class Controller:
     def sendString(self, string : str):
         if (self._isPortOpen):
             self._openPort.write(string.encode())
-            print("String sent!")
+            print(string)
+            # print("String sent!")
 
     def handlePacket(self, header : PacketHeader, data):
     
