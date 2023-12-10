@@ -84,7 +84,6 @@ TEST_F (TestFixtureComms, test_shell_returns_every_correct_command) {
         char argv[CLI_MAX_NUM_ARGUMENTS][CLI_MAX_ARGUMENT_LENGTH];
         EXPECT_EQ(shell.searchForCommand(queue, argc, argv), (CliCommandIndex) i);
         EXPECT_STREQ(argv[0], cliCommands[i]);
-        // EXPECT_EQ(true, false);
     }
 }
 
