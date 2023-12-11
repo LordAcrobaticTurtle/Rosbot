@@ -57,17 +57,17 @@ class Controller:
                 # Now do something with the data
                 self.handlePacket(header, data)
                 
-    def sendPacket(self, packetID: PacketIDs):
-        # if (self._isPortOpen):
-        packet = Packet()
-        packet.m_header.packetID = packetID
-        buffer = PacketSerializer.serialize(packet)
-        self._openPort.write(buffer)
-        # self._openPort.
-        print(buffer)
-        print("Packet sent!")
-        # else:
-        #     print("Port is closed")
+                
+    # def sendPacket(self, packetID: PacketIDs):
+    #     # if (self._isPortOpen):
+    #     packet = Packet()
+    #     packet.m_header.packetID = packetID
+    #     buffer = PacketSerializer.serialize(packet)
+    #     self._openPort.write(buffer)
+    #     print(buffer)
+    #     print("Packet sent!")
+    #     # else:
+    #     #     print("Port is closed")
     
     def sendString(self, string : str):
         if (self._isPortOpen):
@@ -112,8 +112,8 @@ def main():
     view = View(tk.Tk())
     model = Model()
     controller = Controller(model, view)
-    controller.sendPacket(PacketIDs.BEGIN)
-    controller.sendPacket(PacketIDs.STANDBY)
+    # controller.sendPacket(PacketIDs.BEGIN)
+    # controller.sendPacket(PacketIDs.STANDBY)
 
 if __name__ == "__main__":
     main()

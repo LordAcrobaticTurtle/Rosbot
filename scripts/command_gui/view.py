@@ -164,8 +164,8 @@ class View(ttk.Frame):
     def createCommandWindow(self, tkRootElement : tk.Tk) -> tk.Frame:
         commandFrameBase = ttk.LabelFrame(tkRootElement, text="Robot commands", width=20)
 
-        commands = ["Begin", "Standby", "Calibrate" ]
-        self.commandButtons = [self.beginButtonClicked, self.standbyButtonClicked, self.calibrateButtonClicked]
+        commands = ["Begin", "Standby", "Calibrate", "Reset-IMU" ]
+        self.commandButtons = [self.beginButtonClicked, self.standbyButtonClicked, self.calibrateButtonClicked, self.resetImuClicked]
         for counter, c in enumerate(commands):
             button = ttk.Button(commandFrameBase, text=c, padding=15, command=self.commandButtons[counter])
             button.grid(column=0, row=counter, pady=10)
@@ -355,15 +355,20 @@ class View(ttk.Frame):
         self.message_label['text'] = ''
 
     def beginButtonClicked(self):
-        self.controller.sendPacket(PacketIDs.BEGIN)
+        self.controller.sendString("Begin")
         print("Begin clicked!")
 
     def standbyButtonClicked(self):
-        self.controller.sendPacket(PacketIDs.STANDBY)
+        self.controller.sendString("Standby")
         print("Standby clicked!")
 
     def calibrateButtonClicked(self):
+        self.controller.sendString("Calibrate")
         print("Calibrated clicked!")
+
+    def resetImuClicked(self):
+        self.controller.sendString("Reset-IMU")
+        print("Reset-IMU clicked!")
 
     def startRecordingClicked(self):
         print("Start recording clicked!")

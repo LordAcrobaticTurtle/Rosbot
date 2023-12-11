@@ -34,7 +34,7 @@ const char cliCommands[CLI_NUM_COMMANDS+1][64] = {
 
 /**
  * @brief Can only handle 5 arguments in a single command as per the macro CLI_MAX_NUMBER_ARGUMENTS at time of writing.
- * Shell starts active
+ * Shell starts active. Currently nothing can switch it off. 
  * 
  */
 class TurtleShell {

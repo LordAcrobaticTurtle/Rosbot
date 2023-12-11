@@ -61,6 +61,7 @@ int Comms::handlePacket(MessageContents packet) {
     switch (packet.command) {
         case (CliCommandIndex::CLI_BEGIN): {
             m_robot->ActivateControlMode();
+
             m_streamMode = STREAM_MODE_CONTROL; // Send control information over the pipe. 
             byte buffer[] = "Begin - OK";
             m_transceiver->sendBytes(buffer, strlen((const char *) buffer));
@@ -117,6 +118,10 @@ int Comms::handlePacket(MessageContents packet) {
             break;
     }
     return 0;
+}
+
+void Comms::acitvateControlMode() {
+    
 }
 
 void Comms::sendResponse(byte *buffer) {
