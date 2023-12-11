@@ -71,8 +71,9 @@ class Controller:
     
     def sendString(self, string : str):
         if (self._isPortOpen):
-            self._openPort.write(string.encode())
+            self._openPort.write((string + '\n').encode())
             print("String sent!")
+            print(string)
 
     def handlePacket(self, header : PacketHeader, data):
     
