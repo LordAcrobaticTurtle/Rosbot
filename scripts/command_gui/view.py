@@ -81,6 +81,9 @@ class View(ttk.Frame):
     
         plotBaseFrame = tk.Frame(tkRootElement)
 
+        dataGraph = tk.StringVar()
+        plotType = ttk.OptionMenu(plotBaseFrame, dataGraph, "Select data to graph", "Control", "Localisation")
+        plotType.grid()
         style.use('ggplot')
 
         plotVariables = {
@@ -112,6 +115,7 @@ class View(ttk.Frame):
         plotVariables["axis"] = axis
         plotVariables["lineplot"] = linePlot
         plotVariables["canvas"] = canvas
+        plotVariables["dataGraph"] = dataGraph
         # plotVariables["animation"] = ani
   
         return plotBaseFrame, plotVariables
@@ -127,10 +131,9 @@ class View(ttk.Frame):
 
         del xdata1[0]
         xdata1.append(math.sin(i/10))
-
         plot1["lineplot"].set_data(tdata1, xdata1)
         plot1["axis"].set_xlim(tdata1[0], tdata1[-1])
-
+        
         return (plot1["lineplot"], )
         
     def plotAnimatePlot2(self, i):

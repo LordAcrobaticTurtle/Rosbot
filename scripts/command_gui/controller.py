@@ -6,7 +6,7 @@ import time
 from comms.packetID import PacketIDs
 from comms.packet import PacketHeader, Packet
 from comms.comms_layer import PacketSerializer
-
+from time import sleep
 
 class Controller:
     def __init__(self, model, view):
@@ -40,7 +40,9 @@ class Controller:
         self._t1.start()
         
     def serialUpdate(self) -> None:
-        
+        counter = 0
+        # Append items to a buffer. Once a terminating character appears, then I can process and reset the buffer
+        # How to handle sending data to the right place? 
         while (self.isAppRunning):
             
             if (self._openPort.in_waiting > 0):
@@ -48,16 +50,17 @@ class Controller:
                 buffer = self._openPort.read(self._openPort.in_waiting)
                 decodedBuffer = buffer.decode('utf-8')
                 self.view.updateSerialConsole(decodedBuffer)
-                print(decodedBuffer)
-                # # Find the first instance of a packet in the byte stream. Discard all other packets
-                # # What I would prefer is to find all packets in a byte stream 
-                # # Incomplete frames in the buffer will be dropped
-                # startpos = PacketSerializer.findIdentifyingByte(buffer)
-                # header = PacketSerializer.decodeHeader(buffer, startpos)
-                # data = PacketSerializer.decodeData(buffer, header, startpos)
+                counter += 1
                 
-                # # Now do something with the data
-                # self.handlePacket(header, data)
+                print(f"{counter} - {buffer}")        
+                # Cases to handle
+                # Multiple data lines in the buffer. 
+                # Single line
+                # Incomplete line 
+                
+
+            sleep(0.005)
+            
                 
                 
     # def sendPacket(self, packetID: PacketIDs):
@@ -73,7 +76,7 @@ class Controller:
     
     def sendString(self, string : str):
         if (self._isPortOpen):
-            self._openPort.write((string + '\n').encode())
+            self._openPort.write((string).encode())
             print("String sent!")
             print(string)
 
