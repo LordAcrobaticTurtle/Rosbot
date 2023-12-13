@@ -25,6 +25,11 @@ class Controller:
         return comPortList
         
     def openSerialPort(self, port: str, baudrate: str) -> None:
+        
+        if (self._isPortOpen):
+            print("There is already one active connection")
+            return
+        
         self.view.updateSerialConsole(f"Opening {port} @ {baudrate}")
         self._openPort = serial.Serial()
         self._openPort.baudrate = baudrate
@@ -34,25 +39,28 @@ class Controller:
         self._openPort.bytesize = serial.EIGHTBITS
         self._openPort.parity = serial.PARITY_NONE
         self._openPort.stopbits = serial.STOPBITS_ONE
-        self._openPort.open()
-        self._isPortOpen = True
-        self._t1 = threading.Thread(target=self.serialUpdate, args=())
-        self._t1.start()
+        
+        try:
+            self._openPort.open()
+            self._isPortOpen = True
+            self._t1 = threading.Thread(target=self.serialUpdate, args=())
+            self._t1.start()
+        except serial.SerialException as e:
+            self._isPortOpen = False
+            print(f"Warning: Port is not accessible - {e}")
         
     def serialUpdate(self) -> None:
-        counter = 0
         # Append items to a buffer. Once a terminating character appears, then I can process and reset the buffer
         # How to handle sending data to the right place? 
-        while (self.isAppRunning):
+        while (self._isPortOpen):
             
             if (self._openPort.in_waiting > 0):
                 # Read in all the available bytes
                 buffer = self._openPort.read(self._openPort.in_waiting)
                 decodedBuffer = buffer.decode('utf-8')
-                self.view.updateSerialConsole(decodedBuffer)
-                counter += 1
-                
-                print(f"{counter} - {buffer}")        
+                self.view.updateSerialConsole(decodedBuffer)            
+                print(f"{buffer}")        
+                # What terminates a line in Python? xx
                 # Cases to handle
                 # Multiple data lines in the buffer. 
                 # Single line
@@ -60,43 +68,21 @@ class Controller:
                 
 
             sleep(0.005)
-            
-                
-                
-    # def sendPacket(self, packetID: PacketIDs):
-    #     # if (self._isPortOpen):
-    #     packet = Packet()
-    #     packet.m_header.packetID = packetID
-    #     buffer = PacketSerializer.serialize(packet)
-    #     self._openPort.write(buffer)
-    #     print(buffer)
-    #     print("Packet sent!")
-    #     # else:
-    #     #     print("Port is closed")
-    
+                            
     def sendString(self, string : str):
         if (self._isPortOpen):
             self._openPort.write((string).encode())
             print("String sent!")
             print(string)
 
-    def handlePacket(self, header : PacketHeader, data):
-    
-        if header.packetID == PacketIDs.BEGIN:
-            pass
-        elif header.packetID == PacketIDs.STANDBY:
-            pass
-        elif header.packetID == PacketIDs.ESTOP:
-            pass
-        elif header.packetID == PacketIDs.REQUEST:
-            pass
-        elif header.packetID == PacketIDs.STATE:
-            # Store into the model and update view
-            pass
-        
-
     def closeSerialPort(self, port: str):
-        self._openPort.close()
+        # Must close serial port and the thread
+        if (self._isPortOpen):
+            self._openPort.close()
+            self._isPortOpen = False
+            self._t1.join()
+        else:
+            print(f"Port {port} is already closed")
 
     def decodeSerial(self):
         pass
