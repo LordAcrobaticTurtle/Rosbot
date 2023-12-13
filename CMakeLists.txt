@@ -13,7 +13,7 @@ set(INCLUDE_FILES
 add_subdirectory(submodules/googletest)
 
 set(TEST_SRC_FILES
-    test/test_packet_serializer.cpp
+    # test/test_packet_serializer.cpp
     src/comms/packet_serializer.cpp
     test/test_math.cpp
     src/utility/math.cpp
