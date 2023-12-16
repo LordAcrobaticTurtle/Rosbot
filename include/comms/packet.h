@@ -10,7 +10,6 @@
  * 
  */
 #include <cstring>
-#include <comms/ArduinoJson-v6.21.3.h>
 
 #define PACKET_DATA_SIZE 128
 
