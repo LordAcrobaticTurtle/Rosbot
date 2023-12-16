@@ -2,12 +2,14 @@
 #include <memory>
 
 
-#include <comms/packet.h>
+// #include <comms/packet.h>
 #include <comms/cli/turtle_shell.h>
 #include <interfaces/comms_interface.h>
 #include <drivers/radio_interface.h>
 #include <Rosbot.h>
 
+#define FRAMING_START 0x2
+#define FRAMING_END 0x3
 
 struct MessageContents {
     MessageContents() : argc(0) {}
@@ -44,6 +46,8 @@ protected:
     void sendLocalisationResponse();
 
     void serialHeartbeat();
+
+    // void sendStringWithTerminatingCharacter(byte* buffer, size_t bufferLength);
     // // Step 1
     // int findIdentifyingByte(byte* buffer, size_t numBytes);
     // // Step 2

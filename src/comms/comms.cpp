@@ -45,7 +45,6 @@ int Comms::run() {
         }
     }
 
-
     MessageContents packet;
     packet.command = m_shell.searchForCommand(m_commsBuffer, packet.argc, packet.argv);
 
@@ -64,7 +63,7 @@ int Comms::handlePacket(MessageContents packet) {
 
             m_streamMode = STREAM_MODE_CONTROL; // Send control information over the pipe. 
             byte buffer[] = "Begin - OK";
-            m_transceiver->sendBytes(buffer, strlen((const char *) buffer));
+            sendResponse(buffer);
             Serial.println(String((char*)buffer));
             break;
         }
@@ -72,7 +71,7 @@ int Comms::handlePacket(MessageContents packet) {
         case (CliCommandIndex::CLI_STANDBY): {
             m_robot->ActivateStandbyMode();
             byte buffer[] = "Standby - OK";
-            m_transceiver->sendBytes(buffer, strlen((const char *) buffer));
+            sendResponse(buffer);
             Serial.println("Standby");
             m_streamMode = STREAM_MODE_NONE;
             break;
@@ -82,7 +81,7 @@ int Comms::handlePacket(MessageContents packet) {
             m_robot->ActivateCalibration();
             m_streamMode = STREAM_MODE_LOCALISATION_CALIBRATION;
             byte buffer[] = "Calibration - OK";
-            m_transceiver->sendBytes(buffer, strlen((const char *) buffer));
+            sendResponse(buffer);
             Serial.println("Calibrate");
             break;
         }
@@ -90,7 +89,7 @@ int Comms::handlePacket(MessageContents packet) {
         case (CliCommandIndex::CLI_RESET_IMU): {
             m_robot->resetImu();
             byte buffer[] = "Reset IMU - OK";
-            m_transceiver->sendBytes(buffer, strlen((const char *) buffer));
+            sendResponse(buffer);
             Serial.println("Reset IMU - OK");
             break;
         }
@@ -98,16 +97,13 @@ int Comms::handlePacket(MessageContents packet) {
         case (CliCommandIndex::CLI_MOTOR): {
             // Send velocity commands to motor
             byte buffer[] = "Motor - OK";
-            m_transceiver->sendBytes(buffer, strlen((const char *) buffer));
+            sendResponse(buffer);
             Serial.println("Motor command");
             break;
         }
 
         case (CliCommandIndex::CLI_HELP): {
             // Collect all commands and return them to the user
-            // byte buffer[] = "Help";
-            // m_transceiver->sendBytes(buffer, strlen((const char *) buffer));
-
             sendHelp();
             break;
         }
@@ -119,17 +115,18 @@ int Comms::handlePacket(MessageContents packet) {
     return 0;
 }
 
-// void Comms::acitvateControlMode() {
-    
-// }
-
 void Comms::sendResponse(byte *buffer) {
-    m_transceiver->sendBytes(buffer, strlen((const char*) buffer));
-    Serial.println((char *) buffer);
+    // Frame data with null bytes
+    byte bufferToSend[256];
+    sprintf((char*) bufferToSend, "%d%s%d", FRAMING_START, buffer, FRAMING_END);
+    m_transceiver->sendBytes(bufferToSend, strlen((const char*) bufferToSend));
+    Serial.println((char *) bufferToSend);
 }
 
 void Comms::sendHelp() {
-    byte buffer[1024] = {0};
+    // Serial.println("HELP");
+
+    byte buffer[256] = {0};
     byte *ptr = buffer;
     auto time = millis();
     char timeBuffer[64] = {0};
@@ -144,8 +141,9 @@ void Comms::sendHelp() {
         *ptr = '\n';
         ptr += 1;
     }
+    
+    sendResponse(buffer);
 
-    m_transceiver->sendBytes(buffer, strlen( (char *) buffer));
 }
 
 void Comms::returnStreamResponse() {

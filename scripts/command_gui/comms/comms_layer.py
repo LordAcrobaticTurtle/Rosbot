@@ -10,8 +10,8 @@ import struct
 class PacketSerializer:
     identifyingByte = b'\xFF'
     
-    @staticmethod
-    def serialize(packet : Packet) -> bytes:
+    # @staticmethod
+    # def serialize(packet : Packet) -> bytes:
        # buffer = bytearray(1)
         # buffer = buffer + PacketSerializer.identifyingByte
 
