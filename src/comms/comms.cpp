@@ -40,7 +40,7 @@ int Comms::run() {
         m_transceiver->readBytes(buffer, numBytesInSerialBuffer);
         m_commsBuffer.insert((const char *) buffer, numBytesInSerialBuffer);
     
-        for (int i = 0; i < m_commsBuffer.getTailPos() + 2; i++) {
+        for (int i = 0; i < m_commsBuffer.getTailPos() + 1; i++) {
             Serial.println(m_commsBuffer[i]);
         }
     }
@@ -105,10 +105,9 @@ int Comms::handlePacket(MessageContents packet) {
 
         case (CliCommandIndex::CLI_HELP): {
             // Collect all commands and return them to the user
-            // byte buffer[] = "Help: ";
+            // byte buffer[] = "Help";
             // m_transceiver->sendBytes(buffer, strlen((const char *) buffer));
 
-            // Serial.println("HELP");
             sendHelp();
             break;
         }
@@ -120,9 +119,9 @@ int Comms::handlePacket(MessageContents packet) {
     return 0;
 }
 
-void Comms::acitvateControlMode() {
+// void Comms::acitvateControlMode() {
     
-}
+// }
 
 void Comms::sendResponse(byte *buffer) {
     m_transceiver->sendBytes(buffer, strlen((const char*) buffer));
@@ -130,11 +129,15 @@ void Comms::sendResponse(byte *buffer) {
 }
 
 void Comms::sendHelp() {
-    // Serial.println("HELP");
-
     byte buffer[1024] = {0};
     byte *ptr = buffer;
-    
+    auto time = millis();
+    char timeBuffer[64] = {0};
+    sprintf( timeBuffer, "%d", time);
+    strcpy( (char*) ptr, timeBuffer);
+    ptr += strlen(timeBuffer);
+    *ptr = '\n';
+    ptr += 1;
     for (int i = 0; i < CLI_NUM_COMMANDS; i++) {
         strcpy( (char *) ptr, cliCommands[i]);    
         ptr += strlen(cliCommands[i]);
@@ -143,7 +146,6 @@ void Comms::sendHelp() {
     }
 
     m_transceiver->sendBytes(buffer, strlen( (char *) buffer));
-
 }
 
 void Comms::returnStreamResponse() {
@@ -174,9 +176,9 @@ void Comms::serialHeartbeat() {
     
     if (time - lastTime >= 1000) {
         Serial.println("Comms");
-        for (int i = 0; i < m_commsBuffer.getTailPos() + 1; i++) {
-            Serial.print(String(m_commsBuffer[i]) + " ");
-        }
+        // for (int i = 0; i < m_commsBuffer.getTailPos() + 1; i++) {
+        //     Serial.print(String(m_commsBuffer[i]) + " ");
+        // }
         lastTime = time;
     }
 }
