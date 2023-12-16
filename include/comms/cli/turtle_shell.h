@@ -18,6 +18,8 @@ enum CliCommandIndex {
     CLI_RESET_IMU,
     CLI_MOTOR,
     CLI_HELP,
+    CLI_CONTROL_PACKET,
+    CLI_LOCALISATION_PACKET,
     CLI_NUM_COMMANDS
 };
 
@@ -29,6 +31,8 @@ const char cliCommands[CLI_NUM_COMMANDS+1][64] = {
     "Reset-IMU", 
     "Motor",
     "Help",
+    "ControlPacket",
+    "LocalisationPacket",
     "None"
 };
 

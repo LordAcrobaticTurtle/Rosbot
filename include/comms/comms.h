@@ -29,13 +29,13 @@ class Comms {
 public:
     Comms(std::shared_ptr<Rosbot> robot, std::shared_ptr<RadioInterface> rx);
 
-    int decodeStream(byte* buffer, Packet &packet);
+    // int decodeStream(byte* buffer, Packet &packet);
     int run();
 
 protected: 
     int handlePacket(MessageContents packet);
 
-    void sendResponse(byte* buffer);
+    void sendResponse(byte* buffer, CliCommandIndex commandIndex);
 
     void sendHelp();
 

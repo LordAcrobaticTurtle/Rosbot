@@ -1,6 +1,5 @@
 #include <comms/comms.h>
 #include <comms/packet_serializer.h>
-#include <comms/packetID.h>
 #include <drivers/bluetooth_transceiver.h>
 #include <data-structures/circular_queue.h>
 
@@ -62,16 +61,16 @@ int Comms::handlePacket(MessageContents packet) {
             m_robot->ActivateControlMode();
 
             m_streamMode = STREAM_MODE_CONTROL; // Send control information over the pipe. 
-            byte buffer[] = "Begin - OK";
-            sendResponse(buffer);
+            byte buffer[] = "Begin-OK";
+            sendResponse(buffer, CliCommandIndex::CLI_BEGIN);
             Serial.println(String((char*)buffer));
             break;
         }
 
         case (CliCommandIndex::CLI_STANDBY): {
             m_robot->ActivateStandbyMode();
-            byte buffer[] = "Standby - OK";
-            sendResponse(buffer);
+            byte buffer[] = "Standby-OK";
+            sendResponse(buffer, CliCommandIndex::CLI_STANDBY);
             Serial.println("Standby");
             m_streamMode = STREAM_MODE_NONE;
             break;
@@ -80,24 +79,24 @@ int Comms::handlePacket(MessageContents packet) {
         case (CliCommandIndex::CLI_CALIBRATE): {
             m_robot->ActivateCalibration();
             m_streamMode = STREAM_MODE_LOCALISATION_CALIBRATION;
-            byte buffer[] = "Calibration - OK";
-            sendResponse(buffer);
+            byte buffer[] = "Calibration-OK";
+            sendResponse(buffer, CliCommandIndex::CLI_CALIBRATE);
             Serial.println("Calibrate");
             break;
         }
 
         case (CliCommandIndex::CLI_RESET_IMU): {
             m_robot->resetImu();
-            byte buffer[] = "Reset IMU - OK";
-            sendResponse(buffer);
-            Serial.println("Reset IMU - OK");
+            byte buffer[] = "Reset IMU-OK";
+            sendResponse(buffer, CliCommandIndex::CLI_RESET_IMU);
+            Serial.println("Reset IMU-OK");
             break;
         }
 
         case (CliCommandIndex::CLI_MOTOR): {
             // Send velocity commands to motor
-            byte buffer[] = "Motor - OK";
-            sendResponse(buffer);
+            byte buffer[] = "Motor-OK";
+            sendResponse(buffer, CliCommandIndex::CLI_MOTOR);
             Serial.println("Motor command");
             break;
         }
@@ -115,26 +114,18 @@ int Comms::handlePacket(MessageContents packet) {
     return 0;
 }
 
-void Comms::sendResponse(byte *buffer) {
+void Comms::sendResponse(byte *buffer, CliCommandIndex packetID) {
     // Frame data with null bytes
     byte bufferToSend[256];
-    sprintf((char*) bufferToSend, "%d%s%d", FRAMING_START, buffer, FRAMING_END);
+    auto time = millis();
+    sprintf((char*) bufferToSend, "0x%x %d %ld %s 0x%x", FRAMING_START, packetID, time, buffer, FRAMING_END);
     m_transceiver->sendBytes(bufferToSend, strlen((const char*) bufferToSend));
     Serial.println((char *) bufferToSend);
 }
 
 void Comms::sendHelp() {
-    // Serial.println("HELP");
-
     byte buffer[256] = {0};
     byte *ptr = buffer;
-    auto time = millis();
-    char timeBuffer[64] = {0};
-    sprintf( timeBuffer, "%d", time);
-    strcpy( (char*) ptr, timeBuffer);
-    ptr += strlen(timeBuffer);
-    *ptr = '\n';
-    ptr += 1;
     for (int i = 0; i < CLI_NUM_COMMANDS; i++) {
         strcpy( (char *) ptr, cliCommands[i]);    
         ptr += strlen(cliCommands[i]);
@@ -142,7 +133,7 @@ void Comms::sendHelp() {
         ptr += 1;
     }
     
-    sendResponse(buffer);
+    sendResponse(buffer, CliCommandIndex::CLI_HELP);
 
 }
 
@@ -182,12 +173,12 @@ void Comms::serialHeartbeat() {
 }
 
 void Comms::sendControlResponse() {
-    ControlResponse res = m_robot->getControlResponse();
+    // ControlResponse res = m_robot->getControlResponse();
     // Pack response into a string and send that shit off. 
     
 }
 
 void Comms::sendLocalisationResponse() {
-    LocalisationResponse res = m_robot->getLocalisationResponse();
-    
+    // LocalisationResponse res = m_robot->getLocalisationResponse();
+     
 }
