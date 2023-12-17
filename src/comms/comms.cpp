@@ -87,7 +87,7 @@ int Comms::handlePacket(MessageContents packet) {
 
         case (CliCommandIndex::CLI_RESET_IMU): {
             m_robot->resetImu();
-            byte buffer[] = "Reset IMU-OK";
+            byte buffer[] = "Reset_IMU-OK";
             sendResponse(buffer, CliCommandIndex::CLI_RESET_IMU);
             Serial.println("Reset IMU-OK");
             break;
@@ -142,21 +142,27 @@ void Comms::returnStreamResponse() {
     // Generate a response and send it to the transceiver interface. 
 
     // Is this where I'll pack it into a json object or nah. Yes but inside another function
+    const long int time = millis();
+    static long int timeElapsed = 0;
+
     switch (m_streamMode) {
         case STREAM_MODE_CONTROL: {
             sendControlResponse();
+            Serial.println("Control response");
             break;
         }
 
         case STREAM_MODE_LOCALISATION_CALIBRATION: {
             // Pre-calculate number of bytes required for 11 floats, but as a string 
             sendLocalisationResponse();
+            Serial.println("Localisation response");
             break;
         }
 
         default: 
             break;
     }
+    
 }
 
 void Comms::serialHeartbeat() {
@@ -173,12 +179,33 @@ void Comms::serialHeartbeat() {
 }
 
 void Comms::sendControlResponse() {
-    // ControlResponse res = m_robot->getControlResponse();
-    // Pack response into a string and send that shit off. 
+    ControlResponse res = m_robot->getControlResponse();
     
+    char buffer[1028] = {0};
+    char paramBuffer[256] = {0};
+    res.params.toString(paramBuffer);
+    sprintf(buffer, "%s", paramBuffer);
+    sendResponse((byte*) buffer, CLI_CONTROL_PACKET);
 }
 
 void Comms::sendLocalisationResponse() {
-    // LocalisationResponse res = m_robot->getLocalisationResponse();
+    LocalisationResponse res = m_robot->getLocalisationResponse();
+    byte buffer[1028];
+    
+    char accelBuffer[128] = {0};
+    res.accelReadings.toString(accelBuffer);
+
+    char gyroBuffer[128] = {0};
+    res.gyroRates.toString(gyroBuffer);
+
+    char angleBuffer[128] = {0};
+    res.orientation.toString(angleBuffer);
+
+    char vwheelBuffer[128] = {0};
+    res.encoderVelocities.toString(vwheelBuffer);
+
+    sprintf((char *) buffer, "%s,%s,%s,%s", accelBuffer, gyroBuffer, angleBuffer, vwheelBuffer);
+    // Serial.println(buffer);
+    sendResponse(buffer, CliCommandIndex::CLI_LOCALISATION_PACKET);
      
 }

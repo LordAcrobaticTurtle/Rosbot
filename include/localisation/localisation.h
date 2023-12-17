@@ -15,6 +15,7 @@ public:
 
     void resetImu();
 
+    vector3D getAccel();
     vector3D getOrientation();
     vector3D getAngularRates();
     vector2D getWheelVelocity();
