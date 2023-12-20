@@ -15,30 +15,59 @@ class Controller:
         self.view = view
         self.isAppRunning = True
         self._isPortOpen = False
-        self.initCliCommandFunctions()
-        
-    def initCliCommandFunctions(self):
-        self.cliCommandFunctions = {}
-        self.cliCommandFunctions["Begin"] = self.cliCommandBeginActivation
-        self.cliCommandFunctions["Standby"] = self.cliCommandStandbyActivation
-        self.cliCommandFunctions["Calibrate"] = self.cliCommandCalibrateActivation
+        self._isMockPortOpen = False
 
     def close(self):
         self.isAppRunning = False
         self.closeSerialPort()
+        self.closeMockSerialPort()
 
     def getComPortList(self) -> list:
         ports = serial.tools.list_ports.comports()
         comPortList = [com[0] for com in ports]
         comPortList.insert(0, "Select an option")
+        comPortList.insert(len(comPortList), "Mock Connection")
         return comPortList
         
+    def openMockSerialPort(self, port : str, baudrate : str) -> None:
+        if (self._isPortOpen):
+            print("There is already one active connection")
+            return
+        self.view.updateSerialConsole(f"Opening {port} @ {baudrate}")
+        self._isMockPortOpen = True
+        self._t1 = threading.Thread(target=self.updateMockSerialPort, args=())
+        self._t1.start()
+        
+    def closeMockSerialPort(self) -> None:
+        if (self._isMockPortOpen):
+            # Close it
+            self._isMockPortOpen = False
+            self._t1.join()
+            self.view.updateSerialConsole(f"Mock port has been closed")
+        
+    def updateMockSerialPort(self) -> None:
+        print("Mock Start")
+        timestamp = 0.0
+        timestep = 0.1
+        while (self._isMockPortOpen):
+            # print("Mock update")
+            timestamp += timestep
+            packet = commands.LocalisationPacket()
+            sinX = self.generateSineWaveDataPoint(timestamp)
+            cosX = self.generateCosWaveDataPoint(timestamp)
+            buffer = f"({sinX[1]},{cosX[1]},{sinX[1] + cosX[1]}),({sinX[1]},{cosX[1]},{sinX[1] + cosX[1]}),({sinX[1]},{cosX[1]},{sinX[1] + cosX[1]}),(9.1,8.9)"
+            # print(buffer)
+            packet.fromString(buffer)
+            self.model.insertCalibrationPacket(packet, timestamp)
+            time.sleep(timestep)
+
+
     def openSerialPort(self, port: str, baudrate: str) -> None:
         
         if (self._isPortOpen):
             print("There is already one active connection")
             return
-        
+            
         self.view.updateSerialConsole(f"Opening {port} @ {baudrate}")
         self._openPort = serial.Serial()
         self._openPort.baudrate = baudrate
@@ -66,39 +95,66 @@ class Controller:
     def serialUpdate(self) -> None:
         # Append items to a buffer. Once a terminating character appears, then I can process and reset the buffer
         # How to handle sending data to the right place? 
-        buffer = []
+        buffer = str()
         while (self._isPortOpen):
-            
             while (self._openPort.in_waiting > 0):
                 character = self._openPort.read(1)
-                buffer.append(character)
-
-            # Find first instance of FRAMING_START
+                buffer += character.decode()
             
+            # Unpack frame from 0x2 0x3 delimiters
+            unpackedBuffer = self.unpackFrame(buffer)
 
-
-            # Read in all the available bytes
-            # buffer = self._openPort.read(self._openPort.in_waiting)
+            if (unpackedBuffer is not None):
+                self.processFrame(unpackedBuffer)
+                # Reset buffer
+                buffer = str()
             
-            decodedBuffer = buffer.decode('utf-8')
-            self.view.updateSerialConsole(decodedBuffer)            
-            print(f"{buffer}")
-                
-                # For now assume we get one line per msg
-
-                # Check for mode activation 
-                #   - Mode activation consists of a command followed by the "OK" string
-
-
-                # What terminates a line in Python? xx
-                # Cases to handle
-                # Multiple data lines in the buffer. 
-                # Single line
-                # Incomplete line 
-    def unpackFrame(self, buffer : bytearray) -> str:
+    def unpackFrame(self, buffer : str) -> str:
         # Find first instance of FRAMING_START, and first instance of FRAMING_END
-        buffer.find(commands.FRAMING_START.to_bytes, )
+        
+        frameStart = buffer.find(commands.FRAMING_START)
+        if (frameStart == -1):
+            # print("No frame start")
+            return None
+        
+        frameEnd = buffer.find(commands.FRAMING_END, frameStart, len(buffer))
 
+        if (frameEnd == -1):
+            # print("No frame end")
+            return None
+        
+        unpackedBuffer = buffer[frameStart+len(commands.FRAMING_START)+1:frameEnd]
+        return unpackedBuffer
+        # Print data in between for now
+
+    def processFrame(self, unpackedBuffer : str): 
+        # print(unpackedBuffer)
+        # There is a frame to process. 
+        # Decipher and print arguments
+        # print(unpackedBuffer.split(' '))
+        splitBuffer = unpackedBuffer.split(' ')
+        commandIndexFromBuffer = int(splitBuffer[0])
+        timestamp = int(splitBuffer[1])
+        data = splitBuffer[2]
+        print(f"CommandIndex: {commandIndexFromBuffer}, t: {timestamp}, d: {data}")
+
+        # What to do with different information
+        # Begin, standby, Calibrate, reset-IMU, Motor, Help -> Send response to terminal
+        if (commandIndexFromBuffer >= commands.CliCommandIndex.CLI_BEGIN and 
+            commandIndexFromBuffer <= commands.CliCommandIndex.CLI_HELP):
+            # Update
+            # parse for newlines and updates serial console appropriately
+            # Create objects to retrieve the data from
+            pass
+        elif (commandIndexFromBuffer == commands.CliCommandIndex.CLI_CONTROL_PACKET):
+            
+            # Parse and store in control packet location
+            pass
+        elif (commandIndexFromBuffer == commands.CliCommandIndex.CLI_LOCALISATION_PACKET):
+            # Parse and store in localisation packet location
+            packet = commands.LocalisationPacket()
+            packet.fromString(data)
+        
 
     def checkForModeActivation(self, buffer : bytearray) -> None:
         # Easiest to process with a decoded array
@@ -133,12 +189,6 @@ class Controller:
                 # "Help" will do nothing. (Unlikely to be handled by this function)
                 pass
 
-    def handleCommand():
-        pass
-
-    # Process the buffer and display it on the terminal. I.e, break up string based on newlines
-    def displayInTerminal(buffer : bytearray):
-        pass
 
     def sendString(self, string : str):
         if (self._isPortOpen):
@@ -146,35 +196,26 @@ class Controller:
             print("String sent!")
             print(string)
 
-    def closeSerialPort(self, port: str):
+    def closeSerialPort(self):
         # Must close serial port and the thread
-        if (self._isPortOpen):
+        if (self._isPortOpen == True):
             self._openPort.close()
             self._isPortOpen = False
             self._t1.join()
-        else:
-            print(f"Port {port} is already closed")
+            print(f"Port has been closed")
 
-    def cliCommandBeginActivation(self):
-        pass
-
-    def cliCommandStandbyActivation(self):
-        pass
-
-    def cliCommandCalibrateActivation(self):
-        pass
-
-
-
+    # Returns a tuple for x AND y data
     def generateSineWaveDataPoint(self, i):
         x = math.sin(i)
         return (i, x)
     
+    # Returns a tuple for x AND y data
     def generateCosWaveDataPoint(self, i):
         x = math.cos(i)
         return (i, x)
 
-        
+    def getCalibrationPackets(self) -> list:
+        return self.model.getCalibrationPackets()
 
 def main():
     from model import Model
