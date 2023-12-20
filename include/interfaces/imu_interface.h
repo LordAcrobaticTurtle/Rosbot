@@ -3,8 +3,6 @@
 
 class ImuInterface {
 public:
-    // ImuInterface() {};
-    // virtual ~ImuInterface() {};
     virtual int readGyroRates(vector3D &rates) = 0;
     virtual int readOrientation(vector3D &orientation) = 0;
     virtual int readAccel(vector3D &accel) = 0;

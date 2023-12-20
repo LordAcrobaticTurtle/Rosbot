@@ -48,37 +48,28 @@ TEST_F(TestFixtureComms, test_serial_mock_read_back_string) {
 }
 
 
-TEST_F(TestFixtureComms, test_shell_activate_deactivate) {
+TEST_F(TestFixtureComms, test_shell_activate) {
     TestableTurtleShell shell;
     CircularQueue queue;
-    const char buffer[] = "cli ";
-    queue.insert(buffer, strlen(buffer));
-
-    shell.searchForCommand(queue);
+    // const char buffer[] = "cli\n";
+    // queue.insert(buffer, strlen(buffer));
     EXPECT_EQ(shell.getShellActive(), true);
-    
-    // queue.setSearchIndex(0);
-    // queue.setInsertIndex(0);
-    shell.searchForCommand(queue);
-    EXPECT_EQ(shell.getShellActive(), false);
 }
 
 TEST_F (TestFixtureComms, test_shell_finds_correct_command) {
     CircularQueue queue;
     TurtleShell shell;
-    queue.insert('c');
-    queue.insert('l');
-    queue.insert('i');
-    queue.insert(' ');
-    
-    EXPECT_EQ(shell.searchForCommand(queue), CliCommandIndex::CLI_CLI);
 
-    queue.setInsertIndex(0);
-    // std::string begin = "Begin ";
-    const char buffer[64] = "Begin ";
+    const char buffer[64] = "Begin\n";
     queue.insert(buffer, strlen(buffer));
     
-    EXPECT_EQ(shell.searchForCommand(queue), CliCommandIndex::CLI_BEGIN);
+    int argc = 0;
+    char argv[CLI_MAX_NUM_ARGUMENTS][CLI_MAX_ARGUMENT_LENGTH];
+    
+    memset(argv, 0, sizeof(char) * CLI_MAX_NUM_ARGUMENTS * CLI_MAX_ARGUMENT_LENGTH);
+
+    EXPECT_EQ(shell.searchForCommand(queue, argc, argv), CliCommandIndex::CLI_BEGIN);
+    EXPECT_STREQ(argv[0], "Begin");
 }
 
 TEST_F (TestFixtureComms, test_shell_returns_every_correct_command) {
@@ -88,11 +79,16 @@ TEST_F (TestFixtureComms, test_shell_returns_every_correct_command) {
     for (int i = 0; i < CLI_NUM_COMMANDS; i++) {
         queue.reset();
         queue.insert(cliCommands[i], strlen(cliCommands[i]));
-        queue.insert(' ');
-        EXPECT_EQ(shell.searchForCommand(queue), (CliCommandIndex) i);
+        queue.insert('\n');
+        int argc = 0;
+        char argv[CLI_MAX_NUM_ARGUMENTS][CLI_MAX_ARGUMENT_LENGTH];
+        EXPECT_EQ(shell.searchForCommand(queue, argc, argv), (CliCommandIndex) i);
+        EXPECT_STREQ(argv[0], cliCommands[i]);
     }
 }
 
-TEST_F (TestFixtureComms, test_)
+// TEST_F(TestFixtureComms, test_shell_returns)
+
+// TEST_F (TestFixtureComms, test_)
 
 

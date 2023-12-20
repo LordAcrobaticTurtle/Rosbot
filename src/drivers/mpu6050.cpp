@@ -48,9 +48,9 @@ void Mpu6050::setup() {
     Serial.print("GyroOffsets: ");
     for (int i = 0; i < 3; i++) {
         m_gyroRateOffset[i] = gyroSamples[i] / numSamples;
-        Serial.print(String(m_gyroRateOffset[i]) + ", ");
+        // Serial.print(String(m_gyroRateOffset[i]) + ", ");
     }
-    Serial.println();
+    // Serial.println();
 
     m_gyroAngle[0] = -atan2(m_accelDataF[2], m_accelDataF[1]); // Initiate setup for absolute angles 
     
@@ -74,8 +74,9 @@ int Mpu6050::update(float dt) {
     getRawSensorRegisters();
     parseRawData();
     calculateEulerAngles();
+    return 0;
 }
- 
+
 void Mpu6050::getRawSensorRegisters() {
     byte value = registerMap::ACCEL_XOUT_H;
     

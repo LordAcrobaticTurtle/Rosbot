@@ -5,6 +5,19 @@
 #include <drivers/RGB_LED.h>
 
 
+struct ControlResponse {
+    size_t controlIDPlaceholder;
+    PIDParams params;
+    double controlResponse;
+};
+
+struct LocalisationResponse {
+    vector3D orientation;
+    vector3D gyroRates;
+    vector3D accelReadings;
+    vector2D encoderVelocities;
+};
+
 class Rosbot {
     public:
         Rosbot();
@@ -17,6 +30,8 @@ class Rosbot {
         void ActivateCalibration();
         void ActivateControlMode();
 
+        LocalisationResponse getLocalisationResponse();
+        ControlResponse getControlResponse();
         void resetImu();
 
     protected:

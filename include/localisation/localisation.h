@@ -15,13 +15,14 @@ public:
 
     void resetImu();
 
+    vector3D getAccel();
     vector3D getOrientation();
     vector3D getAngularRates();
     vector2D getWheelVelocity();
     vector3D getPosition(); 
     void run();
     
-private:
+protected:
 
     std::shared_ptr<ImuInterface> m_imu;
     std::shared_ptr<EncoderInterface> m_encoderL;
@@ -31,6 +32,7 @@ private:
     vector3D m_orientation;
     vector3D m_position;
     vector3D m_gyroRates;
+    vector3D m_accelReadings;
 };
 
 

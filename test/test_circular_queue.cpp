@@ -14,7 +14,7 @@ class TestCircularQueue : public ::testing::Test {
     }
 };
 
-class testCircularQueue : public CircularQueue {
+class TestableCircularQueue : public CircularQueue {
     public:
         void printQueue() {
             printf("[ ");
@@ -28,7 +28,7 @@ class testCircularQueue : public CircularQueue {
 
 TEST_F(TestCircularQueue, test_insert_element_increments) {
 // Buffer is initially empty, inserting into empty queue should produce a tail at 0
-    testCircularQueue buffer;
+    TestableCircularQueue buffer;
     int tailBeforeInsert = buffer.getTailPos();
     byte value = 0xFF;
     buffer.insert(value);
@@ -41,7 +41,7 @@ TEST_F(TestCircularQueue, test_insert_element_increments) {
 }
 
 TEST_F(TestCircularQueue, test_zeroes_on_construction) {
-    testCircularQueue buffer;
+    TestableCircularQueue buffer;
 
     EXPECT_EQ(buffer.getTailPos(), 0);
 
@@ -51,7 +51,7 @@ TEST_F(TestCircularQueue, test_zeroes_on_construction) {
 }
 
 TEST_F(TestCircularQueue, test_element_insert_overflows_correctly) {
-    testCircularQueue buffer;
+    TestableCircularQueue buffer;
 
     for (int i = 0; i < MAX_QUEUE_SIZE; i++) {
         buffer.insert(0xFF);    
@@ -71,7 +71,7 @@ TEST_F(TestCircularQueue, test_element_insert_overflows_correctly) {
  * @brief Tests that a negative index doesn't crash the code. Expected behaviour is to wrap index.
  */
 TEST_F(TestCircularQueue, test_negative_index) {
-    testCircularQueue buffer;
+    TestableCircularQueue buffer;
     for (int i = 0; i < MAX_QUEUE_SIZE; i++) {
         buffer.insert(i);
     }
@@ -81,7 +81,7 @@ TEST_F(TestCircularQueue, test_negative_index) {
 }
 
 TEST_F(TestCircularQueue, test_read_once_valid_return) {
-    testCircularQueue buffer;
+    TestableCircularQueue buffer;
 
     for (int i = 0; i < MAX_QUEUE_SIZE; i++) {
         buffer.insert(i);
@@ -103,7 +103,7 @@ TEST_F(TestCircularQueue, test_read_once_valid_return) {
 }
 
 TEST_F(TestCircularQueue, test_copy_data) {
-    testCircularQueue queue;
+    TestableCircularQueue queue;
     const int maxSize = 16;
     for (int i = 0; i < maxSize; i++) {
         queue.insert(i);
@@ -128,9 +128,58 @@ TEST_F(TestCircularQueue, test_copy_data) {
     }
 }
 
-// TEST_F(TestFixtureComms, test_circ_queue_reset_insert) {
+TEST_F(TestCircularQueue, test_circ_queue_search_element_present_final_position) {
+    TestableCircularQueue queue;
+
+    char buffer[] = "Begin\n";
+    queue.insert(buffer, strlen(buffer));
+    EXPECT_EQ(queue.searchForCharacter('\n'), 5);
+}
+
+TEST_F(TestCircularQueue, test_circ_queue_search_element_present_mid_position) {
+    TestableCircularQueue queue;
+
+    char buffer[] = "Be\ngin";
+    queue.insert(buffer, strlen(buffer));
+    EXPECT_EQ(queue.searchForCharacter('\n'), 2);
+}
+
+TEST_F(TestCircularQueue, test_circ_queue_search_element_present_first_position) {
+    TestableCircularQueue queue;
+
+    char buffer[] = "\nBegin";
+    queue.insert(buffer, strlen(buffer));
+    EXPECT_EQ(queue.searchForCharacter('\n'), 0);
+}
+
+TEST_F(TestCircularQueue, test_circ_queue_search_element_evaporated) {
+    TestableCircularQueue queue;
+
+    char buffer[] = "Begin";
+    queue.insert(buffer, strlen(buffer));
+    EXPECT_EQ(queue.searchForCharacter('\n'), -1);
+}
+
+TEST_F(TestCircularQueue, test_replace_last_element) {
+    TestableCircularQueue queue;
+    char buffer[] = "Begin\n";
+    queue.insert(buffer, strlen(buffer));
+    queue.replace('0', queue.getTailPos());
+
+    EXPECT_EQ(queue[queue.getTailPos()], '0');
     
-// }
+}
+
+TEST_F(TestCircularQueue, test_replace_first_element) {
+    TestableCircularQueue queue;
+    char buffer[] = "Begin\n";
+    queue.insert(buffer, strlen(buffer));
+    queue.replace('0', 0);
+    
+    EXPECT_EQ(queue[0], '0');
+}
+
+
 
 
 

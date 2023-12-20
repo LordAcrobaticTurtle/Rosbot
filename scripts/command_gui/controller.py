@@ -6,7 +6,8 @@ import time
 from comms.packetID import PacketIDs
 from comms.packet import PacketHeader, Packet
 from comms.comms_layer import PacketSerializer
-
+from time import sleep
+import commands 
 
 class Controller:
     def __init__(self, model, view):
@@ -14,17 +15,59 @@ class Controller:
         self.view = view
         self.isAppRunning = True
         self._isPortOpen = False
+        self._isMockPortOpen = False
 
     def close(self):
         self.isAppRunning = False
+        self.closeSerialPort()
+        self.closeMockSerialPort()
 
     def getComPortList(self) -> list:
         ports = serial.tools.list_ports.comports()
         comPortList = [com[0] for com in ports]
         comPortList.insert(0, "Select an option")
+        comPortList.insert(len(comPortList), "Mock Connection")
         return comPortList
         
+    def openMockSerialPort(self, port : str, baudrate : str) -> None:
+        if (self._isPortOpen):
+            print("There is already one active connection")
+            return
+        self.view.updateSerialConsole(f"Opening {port} @ {baudrate}")
+        self._isMockPortOpen = True
+        self._t1 = threading.Thread(target=self.updateMockSerialPort, args=())
+        self._t1.start()
+        
+    def closeMockSerialPort(self) -> None:
+        if (self._isMockPortOpen):
+            # Close it
+            self._isMockPortOpen = False
+            self._t1.join()
+            self.view.updateSerialConsole(f"Mock port has been closed")
+        
+    def updateMockSerialPort(self) -> None:
+        print("Mock Start")
+        timestamp = 0.0
+        timestep = 0.1
+        while (self._isMockPortOpen):
+            # print("Mock update")
+            timestamp += timestep
+            packet = commands.LocalisationPacket()
+            sinX = self.generateSineWaveDataPoint(timestamp)
+            cosX = self.generateCosWaveDataPoint(timestamp)
+            buffer = f"({sinX[1]},{cosX[1]},{sinX[1] + cosX[1]}),({sinX[1]},{cosX[1]},{sinX[1] + cosX[1]}),({sinX[1]},{cosX[1]},{sinX[1] + cosX[1]}),(9.1,8.9)"
+            # print(buffer)
+            packet.fromString(buffer)
+            self.model.insertCalibrationPacket(packet, timestamp)
+            time.sleep(timestep)
+
+
     def openSerialPort(self, port: str, baudrate: str) -> None:
+        
+        if (self._isPortOpen):
+            print("There is already one active connection")
+            return
+            
         self.view.updateSerialConsole(f"Opening {port} @ {baudrate}")
         self._openPort = serial.Serial()
         self._openPort.baudrate = baudrate
@@ -34,79 +77,145 @@ class Controller:
         self._openPort.bytesize = serial.EIGHTBITS
         self._openPort.parity = serial.PARITY_NONE
         self._openPort.stopbits = serial.STOPBITS_ONE
-        self._openPort.open()
-        self._isPortOpen = True
-        self._t1 = threading.Thread(target=self.serialUpdate, args=())
-        self._t1.start()
+        
+        try:
+            self._openPort.open()
+            self._isPortOpen = True
+            self._t1 = threading.Thread(target=self.serialUpdate, args=())
+            self._t1.start()
+            successStr = f"{port} is now open"
+            print(successStr)
+            self.view.updateSerialConsole(successStr)
+        except serial.SerialException as e:
+            self._isPortOpen = False
+            errorStr = f"Warning: {port} is not accessible - {e}"
+            print(errorStr)
+            self.view.updateSerialConsole(errorStr)
         
     def serialUpdate(self) -> None:
-        
-        while (self.isAppRunning):
+        # Append items to a buffer. Once a terminating character appears, then I can process and reset the buffer
+        # How to handle sending data to the right place? 
+        buffer = str()
+        while (self._isPortOpen):
+            while (self._openPort.in_waiting > 0):
+                character = self._openPort.read(1)
+                buffer += character.decode()
             
-            if (self._openPort.in_waiting > 0):
-                # Read in all the available bytes
-                buffer = self._openPort.read(self._openPort.in_waiting)
-                decodedBuffer = buffer.decode('utf-8')
-                self.view.updateSerialConsole(decodedBuffer)
-                print(decodedBuffer)
-                # # Find the first instance of a packet in the byte stream. Discard all other packets
-                # # What I would prefer is to find all packets in a byte stream 
-                # # Incomplete frames in the buffer will be dropped
-                # startpos = PacketSerializer.findIdentifyingByte(buffer)
-                # header = PacketSerializer.decodeHeader(buffer, startpos)
-                # data = PacketSerializer.decodeData(buffer, header, startpos)
-                
-                # # Now do something with the data
-                # self.handlePacket(header, data)
-                
-    def sendPacket(self, packetID: PacketIDs):
-        # if (self._isPortOpen):
-        packet = Packet()
-        packet.m_header.packetID = packetID
-        buffer = PacketSerializer.serialize(packet)
-        self._openPort.write(buffer)
-        # self._openPort.
-        print(buffer)
-        print("Packet sent!")
-        # else:
-        #     print("Port is closed")
-    
+            # Unpack frame from 0x2 0x3 delimiters
+            unpackedBuffer = self.unpackFrame(buffer)
+
+            if (unpackedBuffer is not None):
+                self.processFrame(unpackedBuffer)
+                # Reset buffer
+                buffer = str()
+            
+    def unpackFrame(self, buffer : str) -> str:
+        # Find first instance of FRAMING_START, and first instance of FRAMING_END
+        
+        frameStart = buffer.find(commands.FRAMING_START)
+        if (frameStart == -1):
+            # print("No frame start")
+            return None
+        
+        frameEnd = buffer.find(commands.FRAMING_END, frameStart, len(buffer))
+
+        if (frameEnd == -1):
+            # print("No frame end")
+            return None
+        
+        unpackedBuffer = buffer[frameStart+len(commands.FRAMING_START)+1:frameEnd]
+        return unpackedBuffer
+        # Print data in between for now
+
+    def processFrame(self, unpackedBuffer : str): 
+        # print(unpackedBuffer)
+        # There is a frame to process. 
+        # Decipher and print arguments
+        # print(unpackedBuffer.split(' '))
+        splitBuffer = unpackedBuffer.split(' ')
+        commandIndexFromBuffer = int(splitBuffer[0])
+        timestamp = int(splitBuffer[1])
+        data = splitBuffer[2]
+        print(f"CommandIndex: {commandIndexFromBuffer}, t: {timestamp}, d: {data}")
+
+        # What to do with different information
+        # Begin, standby, Calibrate, reset-IMU, Motor, Help -> Send response to terminal
+        if (commandIndexFromBuffer >= commands.CliCommandIndex.CLI_BEGIN and 
+            commandIndexFromBuffer <= commands.CliCommandIndex.CLI_HELP):
+            # Update
+            # parse for newlines and updates serial console appropriately
+            # Create objects to retrieve the data from
+            pass
+        elif (commandIndexFromBuffer == commands.CliCommandIndex.CLI_CONTROL_PACKET):
+            
+            # Parse and store in control packet location
+            pass
+        elif (commandIndexFromBuffer == commands.CliCommandIndex.CLI_LOCALISATION_PACKET):
+            # Parse and store in localisation packet location
+            packet = commands.LocalisationPacket()
+            packet.fromString(data)
+        
+
+    def checkForModeActivation(self, buffer : bytearray) -> None:
+        # Easiest to process with a decoded array
+        decodedBuffer = buffer.decode()
+        
+        # Find substring ok. Return if not OK
+        isStringOk = decodedBuffer.find('OK')
+        if (isStringOk == -1):
+            return
+        
+        # Find command between first index and first space. 
+        firstSpaceIndex = decodedBuffer.find(' ')
+        if (firstSpaceIndex == -1):
+            print("Malformed command")
+            return
+        
+        # Check command matches the pre-defined commands
+        cliCommandSubstring = decodedBuffer[0:firstSpaceIndex]
+        for command in commands.commands:
+            if command == cliCommandSubstring:
+                self.cliCommandFunctions[command]()
+                # Do something
+                # Call the respective activation function
+                # E.g. 
+                # "cli - OK" will never be sent. 
+                # "Begin - OK" will change a switch such that all streamed data will now go to the 
+                # same place. 
+                # "Standby - OK" will switch off the data stream
+                # "Calibration - OK" will stream data to calibration part of the model
+                # "Reset-IMU - OK" will do nothing
+                # "Motor - OK" Will probably do nothing. But I could send motor data across the comm
+                # "Help" will do nothing. (Unlikely to be handled by this function)
+                pass
+
+
     def sendString(self, string : str):
         if (self._isPortOpen):
-            self._openPort.write(string.encode())
+            self._openPort.write((string).encode())
+            print("String sent!")
             print(string)
-            # print("String sent!")
 
-    def handlePacket(self, header : PacketHeader, data):
-    
-        if header.packetID == PacketIDs.BEGIN:
-            pass
-        elif header.packetID == PacketIDs.STANDBY:
-            pass
-        elif header.packetID == PacketIDs.ESTOP:
-            pass
-        elif header.packetID == PacketIDs.REQUEST:
-            pass
-        elif header.packetID == PacketIDs.STATE:
-            # Store into the model and update view
-            pass
-        
+    def closeSerialPort(self):
+        # Must close serial port and the thread
+        if (self._isPortOpen == True):
+            self._openPort.close()
+            self._isPortOpen = False
+            self._t1.join()
+            print(f"Port has been closed")
 
-    def closeSerialPort(self, port: str):
-        self._openPort.close()
-
-    def decodeSerial(self):
-        pass
-
+    # Returns a tuple for x AND y data
     def generateSineWaveDataPoint(self, i):
         x = math.sin(i)
         return (i, x)
     
+    # Returns a tuple for x AND y data
     def generateCosWaveDataPoint(self, i):
         x = math.cos(i)
         return (i, x)
 
-        
+    def getCalibrationPackets(self) -> list:
+        return self.model.getCalibrationPackets()
 
 def main():
     from model import Model
@@ -115,8 +224,8 @@ def main():
     view = View(tk.Tk())
     model = Model()
     controller = Controller(model, view)
-    controller.sendPacket(PacketIDs.BEGIN)
-    controller.sendPacket(PacketIDs.STANDBY)
+    # controller.sendPacket(PacketIDs.BEGIN)
+    # controller.sendPacket(PacketIDs.STANDBY)
 
 if __name__ == "__main__":
     main()

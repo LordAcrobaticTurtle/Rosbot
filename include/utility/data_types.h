@@ -9,12 +9,16 @@ struct vector3D {
     float x, y, z;
 
     void toString(char *buffer) {
-        sprintf(buffer, "x: %f, y: %f, z: %f", x, y, z);
+        sprintf(buffer, "(%f,%f,%f)", x, y, z);
     }
 };
 
 struct vector2D {
     float v1, v2;
+
+    void toString(char *buffer) {
+        sprintf(buffer, "(%f,%f)", v1, v2);
+    }
 };
 
 

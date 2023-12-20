@@ -10,30 +10,30 @@ import struct
 class PacketSerializer:
     identifyingByte = b'\xFF'
     
-    @staticmethod
-    def serialize(packet : Packet) -> bytes:
-        buffer = bytearray(1)
-        buffer = buffer + PacketSerializer.identifyingByte
+    # @staticmethod
+    # def serialize(packet : Packet) -> bytes:
+       # buffer = bytearray(1)
+        # buffer = buffer + PacketSerializer.identifyingByte
 
-        if (packet.m_header.packetID == PacketIDs.BEGIN):
-            buffer += struct.pack(Begin.FORMAT, True)
-            # pass            
-        if (packet.m_header.packetID == PacketIDs.STANDBY):
-            buffer +=  struct.pack(Standby.FORMAT, True)
-            # pass
-        if (packet.m_header.packetID == PacketIDs.ESTOP):
-            pass
-        if (packet.m_header.packetID == PacketIDs.REQUEST):
-            pass
-        if (packet.m_header.packetID == PacketIDs.STATE):
-            pass
-        if (packet.m_header.packetID == PacketIDs.ESTIMATE_BIAS):
-            pass
-        if (packet.m_header.packetID == PacketIDs.LED_CHANGE):
-            pass
+        # if (packet.m_header.packetID == PacketIDs.BEGIN):
+        #     buffer += struct.pack(Begin.FORMAT, True)
+        #     # pass            
+        # if (packet.m_header.packetID == PacketIDs.STANDBY):
+        #     buffer +=  struct.pack(Standby.FORMAT, True)
+        #     # pass
+        # if (packet.m_header.packetID == PacketIDs.ESTOP):
+        #     pass
+        # if (packet.m_header.packetID == PacketIDs.REQUEST):
+        #     pass
+        # if (packet.m_header.packetID == PacketIDs.STATE):
+        #     pass
+        # if (packet.m_header.packetID == PacketIDs.ESTIMATE_BIAS):
+        #     pass
+        # if (packet.m_header.packetID == PacketIDs.LED_CHANGE):
+        #     pass
 
-        # print(buffer)
-        return buffer
+        # # print(buffer)
+        # return buffer
 
     @staticmethod
     def deserialize(buffer : bytes):

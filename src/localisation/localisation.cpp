@@ -20,7 +20,7 @@ void Localisation::run() {
     float dt = millis() / 1000.0;
     m_imu->update(dt - lastDt);
     m_imu->readOrientation(m_orientation);
-    
+    m_imu->readGyroRates(m_gyroRates);
     lastDt = dt;
 }
 
@@ -47,6 +47,14 @@ vector3D Localisation::getOrientation() {
     return m_orientation;
 }
 
+vector3D Localisation::getAccel() {
+    return m_accelReadings;
+}
+
+vector3D Localisation::getAngularRates() {
+    return m_gyroRates;
+}
+
 RobotModel::RobotModel(): 
     dx(4,1),
     x(4,1),
@@ -57,8 +65,6 @@ RobotModel::RobotModel():
     D(0,0)
 {
     // Setup A, B, C here
-
-    
 
 }
 

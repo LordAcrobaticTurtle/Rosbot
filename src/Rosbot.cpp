@@ -69,6 +69,23 @@ void Rosbot::resetImu() {
     m_localisation->resetImu();
 }
 
+ControlResponse Rosbot::getControlResponse() {
+    ControlResponse res;
+    res.params = m_control->getParams();    
+    res.controlIDPlaceholder = 0;
+    res.controlResponse = 0;
+    return res;
+}
+
+LocalisationResponse Rosbot::getLocalisationResponse() {
+    LocalisationResponse res;
+    res.accelReadings = m_localisation->getAccel();
+    res.encoderVelocities = m_localisation->getWheelVelocity();
+    res.gyroRates = m_localisation->getAngularRates();
+    res.orientation = m_localisation->getOrientation();
+    return res;
+}
+
 void Rosbot::run() {
     // If standby is on, comms must still run
 

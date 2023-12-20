@@ -7,6 +7,8 @@
 #include <string.h>
 #include "data-structures/circular_queue.h"
 
+#define CLI_MAX_NUM_ARGUMENTS 5
+#define CLI_MAX_ARGUMENT_LENGTH 16
 
 enum CliCommandIndex {
     CLI_CLI,
@@ -16,6 +18,8 @@ enum CliCommandIndex {
     CLI_RESET_IMU,
     CLI_MOTOR,
     CLI_HELP,
+    CLI_CONTROL_PACKET,
+    CLI_LOCALISATION_PACKET,
     CLI_NUM_COMMANDS
 };
 
@@ -24,25 +28,31 @@ const char cliCommands[CLI_NUM_COMMANDS+1][64] = {
     "Begin",
     "Standby",
     "Calibrate",
-    "Reset IMU", 
+    "Reset-IMU", 
     "Motor",
     "Help",
+    "ControlPacket",
+    "LocalisationPacket",
     "None"
 };
 
+/**
+ * @brief Can only handle 5 arguments in a single command as per the macro CLI_MAX_NUMBER_ARGUMENTS at time of writing.
+ * Shell starts active. Currently nothing can switch it off. 
+ * 
+ */
 class TurtleShell {
     public:
-        TurtleShell() : m_isShellActive(false) {};
+        TurtleShell() : m_isShellActive(true) {};
         ~TurtleShell() {};
 
         /**
-         * @brief Look for a command in a circular queue. If a command is successfully found the queue must be wiped
+         * @brief Look for a command in a circular queue. After detecting a newline character the function resets the queue.
          * @param queue 
          * @return CliCommandIndex 
          */
-        CliCommandIndex searchForCommand(CircularQueue &queue);
+        CliCommandIndex searchForCommand(CircularQueue &queue, int &argc, char argv[][CLI_MAX_ARGUMENT_LENGTH]);
 
-        
     protected:
 
         /**
@@ -62,6 +72,12 @@ class TurtleShell {
          */
         CliCommandIndex parseCommand(const char *buffer, unsigned int bufferLength);
 
+        /**
+         * @brief Checks for a newline character in the buffer
+         * @param queue 
+         * @return int - Index of position
+         */
+        int isNewlinePresent(CircularQueue &queue);
 
         void toggleShell() {
             m_isShellActive = !m_isShellActive;

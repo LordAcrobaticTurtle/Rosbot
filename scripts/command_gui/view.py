@@ -3,8 +3,8 @@ from tkinter import ttk
 from custom_errors import GUIError
 from controller import Controller
 from toggle_button import ToggleButton
-
 from comms.packetID import PacketIDs
+import commands
 
 # Import dependenues for LIVE plotting
 from matplotlib import style
@@ -67,7 +67,6 @@ class View(ttk.Frame):
         self.collectedPlots["Plot2"] = plotVars2
         self.collectedPlots["Plot2"]["animation"] = animation.FuncAnimation(self.collectedPlots["Plot2"]["figure"], self.plotAnimatePlot2, interval=0, blit = True, repeat=False)
         plot2.grid(column=2, row=0, stick=(tk.E), padx = 10)
-
         
         # Create app settings panel
         appSettingsFrame = self.createAppSettingsWindow(self._parent)
@@ -81,6 +80,9 @@ class View(ttk.Frame):
     
         plotBaseFrame = tk.Frame(tkRootElement)
 
+        dataGraph = tk.StringVar()
+        plotType = ttk.OptionMenu(plotBaseFrame, dataGraph, "Select data to graph", "Control", "Localisation")
+        plotType.grid()
         style.use('ggplot')
 
         plotVariables = {
@@ -112,6 +114,7 @@ class View(ttk.Frame):
         plotVariables["axis"] = axis
         plotVariables["lineplot"] = linePlot
         plotVariables["canvas"] = canvas
+        plotVariables["dataGraph"] = dataGraph
         # plotVariables["animation"] = ani
   
         return plotBaseFrame, plotVariables
@@ -127,10 +130,9 @@ class View(ttk.Frame):
 
         del xdata1[0]
         xdata1.append(math.sin(i/10))
-
         plot1["lineplot"].set_data(tdata1, xdata1)
         plot1["axis"].set_xlim(tdata1[0], tdata1[-1])
-
+        
         return (plot1["lineplot"], )
         
     def plotAnimatePlot2(self, i):
@@ -164,8 +166,8 @@ class View(ttk.Frame):
     def createCommandWindow(self, tkRootElement : tk.Tk) -> tk.Frame:
         commandFrameBase = ttk.LabelFrame(tkRootElement, text="Robot commands", width=20)
 
-        commands = ["Begin", "Standby", "Calibrate" ]
-        self.commandButtons = [self.beginButtonClicked, self.standbyButtonClicked, self.calibrateButtonClicked]
+        commands = ["Begin", "Standby", "Calibrate", "Reset-IMU" ]
+        self.commandButtons = [self.beginButtonClicked, self.standbyButtonClicked, self.calibrateButtonClicked, self.resetImuClicked]
         for counter, c in enumerate(commands):
             button = ttk.Button(commandFrameBase, text=c, padding=15, command=self.commandButtons[counter])
             button.grid(column=0, row=counter, pady=10)
@@ -269,12 +271,15 @@ class View(ttk.Frame):
 
         return comFrameBase
 
-
     def openComPort(self):
-        self.controller.openSerialPort(self._chosen_com_port.get(), self._chosen_baud_rate.get())
+        if (self._chosen_com_port.get() == "Mock Connection"):
+            self.controller.openMockSerialPort(self._chosen_com_port.get(), self._chosen_baud_rate.get())
+        else:
+            self.controller.openSerialPort(self._chosen_com_port.get(), self._chosen_baud_rate.get())
 
     def updateSerialConsole(self, buffer : str):
         self._serialConsole.insert("end", buffer)
+        # Why the magic numbers?
         self._serialConsole.select_clear(self._serialConsole.size() - 2)
         self._serialConsole.select_set("end")
         self._serialConsole.yview("end")
@@ -283,7 +288,9 @@ class View(ttk.Frame):
         pass
 
     def closeComPort(self):
-        self.controller.closeSerialPort(self._chosen_com_port.get())
+        
+        self.controller.closeMockSerialPort()
+        self.controller.closeSerialPort()
 
     def clearListbox(self):
         pass
@@ -297,7 +304,6 @@ class View(ttk.Frame):
         filewin = tk.Toplevel(self._parent)
         button = tk.Button(filewin, text="Quit", command = filewin.destroy)
         button.pack()
-
 
     def serial_input_keypress_enter(self, event):
         self.controller.sendString(self._serialInputString.get() + "\n")
@@ -356,15 +362,20 @@ class View(ttk.Frame):
         self.message_label['text'] = ''
 
     def beginButtonClicked(self):
-        self.controller.sendString("Begin\n")
+        self.controller.sendString("Begin")
         print("Begin clicked!")
 
     def standbyButtonClicked(self):
-        self.controller.sendString("Standby\n")
+        self.controller.sendString("Standby")
         print("Standby clicked!")
 
     def calibrateButtonClicked(self):
+        self.controller.sendString("Calibrate")
         print("Calibrated clicked!")
+
+    def resetImuClicked(self):
+        self.controller.sendString("Reset-IMU")
+        print("Reset-IMU clicked!")
 
     def startRecordingClicked(self):
         print("Start recording clicked!")

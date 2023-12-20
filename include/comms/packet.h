@@ -1,9 +1,20 @@
 #pragma once
+/**
+ * @file packet.h
+ * @author Sam Hall (you@domain.com)
+ * @brief Contains the packet base class
+ * @version 0.1
+ * @date 2023-11-29
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
 #include <cstring>
 
 #define PACKET_DATA_SIZE 128
 
 typedef unsigned char byte;
+
 
 class PacketHeader {
 public:
