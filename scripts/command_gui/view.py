@@ -13,6 +13,7 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib import style
 import math
+from tkinter import filedialog
 # App is the parent widget. The View is the frame that sits on top
 # It should contain minimal logic for displaying data. 
 # It will call functions in the controller layer to retrieve the data 
@@ -23,7 +24,6 @@ class View(ttk.Frame):
         self._parent = parent
         self._isControllerSet = False
         
-
     def close(self):
         self.controller.close()
         self._parent.quit()
@@ -158,7 +158,10 @@ class View(ttk.Frame):
         
         ttk.Button(appSettingsFrameBase, text="Start recording", padding=10, command = self.startRecordingClicked).grid(column=0, row=0, padx=5, pady=5)
         ttk.Button(appSettingsFrameBase, text="Stop recording", padding=10, command = self.stopRecordingClicked).grid(column=1, row=0, padx=5, pady=5)
-        ttk.Button(appSettingsFrameBase, text="File path for recording", padding=10).grid(column=0, row=1, padx=5, pady=5)
+        # ttk.Button(appSettingsFrameBase, text="File path for recording", padding=10).grid(column=0, row=1, padx=5, pady=5)
+        self._recordingPath = tk.StringVar()
+        ttk.Entry(appSettingsFrameBase, textvariable=self._recordingPath, state="readonly").grid(column=0, row=1, padx=5, pady=5)
+        
         ttk.Button(appSettingsFrameBase, text="Change file path", padding=10, command=self.changeFilePathClicked).grid(column=1, row=1, padx=5, pady=5)
         
         return appSettingsFrameBase
@@ -362,26 +365,30 @@ class View(ttk.Frame):
         self.message_label['text'] = ''
 
     def beginButtonClicked(self):
-        self.controller.sendString("Begin")
+        self.controller.sendString("Begin\n")
         print("Begin clicked!")
 
     def standbyButtonClicked(self):
-        self.controller.sendString("Standby")
+        self.controller.sendString("Standby\n")
         print("Standby clicked!")
 
     def calibrateButtonClicked(self):
-        self.controller.sendString("Calibrate")
+        self.controller.sendString("Calibrate\n")
         print("Calibrated clicked!")
 
     def resetImuClicked(self):
-        self.controller.sendString("Reset-IMU")
+        self.controller.sendString("Reset-IMU\n")
         print("Reset-IMU clicked!")
 
     def startRecordingClicked(self):
         print("Start recording clicked!")
+        self.controller.activateRecording(self._recordingPath.get())
 
     def stopRecordingClicked(self):
+        self.controller.deactivateRecording()
         print("Stop recording clicked!")
 
     def changeFilePathClicked(self):
+        print(self._recordingPath.get())
+        self._recordingPath.set(filedialog.askdirectory())
         print("Change file path clicked!")

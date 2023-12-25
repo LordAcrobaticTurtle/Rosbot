@@ -16,6 +16,7 @@ class Controller:
         self.isAppRunning = True
         self._isPortOpen = False
         self._isMockPortOpen = False
+        self._isRecordingActive = False
 
     def close(self):
         self.isAppRunning = False
@@ -56,7 +57,6 @@ class Controller:
             sinX = self.generateSineWaveDataPoint(timestamp)
             cosX = self.generateCosWaveDataPoint(timestamp)
             buffer = f"({sinX[1]},{cosX[1]},{sinX[1] + cosX[1]}),({sinX[1]},{cosX[1]},{sinX[1] + cosX[1]}),({sinX[1]},{cosX[1]},{sinX[1] + cosX[1]}),(9.1,8.9)"
-            # print(buffer)
             packet.fromString(buffer)
             self.model.insertCalibrationPacket(packet, timestamp)
             time.sleep(timestep)
@@ -136,7 +136,7 @@ class Controller:
         commandIndexFromBuffer = int(splitBuffer[0])
         timestamp = int(splitBuffer[1])
         data = splitBuffer[2]
-        print(f"CommandIndex: {commandIndexFromBuffer}, t: {timestamp}, d: {data}")
+        # print(f"CommandIndex: {commandIndexFromBuffer}, t: {timestamp}, d: {data}")
 
         # What to do with different information
         # Begin, standby, Calibrate, reset-IMU, Motor, Help -> Send response to terminal
@@ -154,6 +154,7 @@ class Controller:
             # Parse and store in localisation packet location
             packet = commands.LocalisationPacket()
             packet.fromString(data)
+            self.model.insertCalibrationPacket(packet, timestamp)
         
 
     def checkForModeActivation(self, buffer : bytearray) -> None:
@@ -204,7 +205,43 @@ class Controller:
             self._t1.join()
             print(f"Port has been closed")
 
-    # Returns a tuple for x AND y data
+    def activateRecording(self, directoryPath : str):
+        self._isRecordingActive = True
+        # Open the file specified by the filepath in the main window
+        self.openCalibrationFile(directoryPath)
+        # Register callback function
+        funcAndId = {
+            "id":"PacketRecording",
+            "func" : self.newCalibPacketCb
+        }
+        self.model.registerCalibrationCallbackFunction(funcAndId)
+
+    def openCalibrationFile(self, directoryPath : str):
+
+        if directoryPath == None:
+            directoryPath = "C:/Users/SamHall/Desktop"
+        self._calibrationFile = open(directoryPath + "/test.csv", "w")
+        self._calibrationFile.write("timestamp, a_x, a_y, a_z, gr_x, gr_y, gr_z, ga_x, ga_y, ga_z, vel L, vel R, pendAngle\n")
+
+    def deactivateRecording(self):
+        self._isRecordingActive = False
+        self.model.deregisterCalibrationCallbackFunction("PacketRecording")
+        self._calibrationFile.close()
+        
+    def newCalibPacketCb(self, timestamp : float, data : commands.LocalisationPacket):
+        if (self._isRecordingActive == False):
+            return
+        buffer = ""
+        buffer += f"{timestamp}, "
+        buffer += f"{data.accel.x}, {data.accel.y}, {data.accel.z}, "
+        buffer += f"{data.gyroRates.x}, {data.gyroRates.y}, {data.gyroRates.z}, "
+        buffer += f"{data.orientation.x}, {data.orientation.y}, {data.orientation.z}, "
+        buffer += f"{data.vwheel.v1}, {data.vwheel.v2}, {data.pendulumAngle}\n"
+        self._calibrationFile.write(buffer)
+        print("Cb: " + buffer)
+        
+        
+
     def generateSineWaveDataPoint(self, i):
         x = math.sin(i)
         return (i, x)

@@ -2,7 +2,7 @@ from enum import IntEnum
 from enum import auto
 
 class CliCommandIndex(IntEnum):
-    CLI_CLI = 1
+    CLI_CLI = 0
     CLI_BEGIN = auto()
     CLI_STANDBY = auto()
     CLI_CALIBRATE = auto()
@@ -80,7 +80,7 @@ class LocalisationPacket:
         self.gyroRates.fromString(splitBuffer[1])
         self.orientation.fromString(splitBuffer[2])
         self.vwheel.fromString(splitBuffer[3])
-        # self.pendulumAngle = float(splitBuffer[4])
+        self.pendulumAngle = float(splitBuffer[4])
 
     def __str__(self) -> str:
         string = f"{self.accel}\n{self.gyroRates}\n{self.orientation}\n{self.vwheel}\n{self.pendulumAngle}"
@@ -95,10 +95,11 @@ class ControlPacket:
 
 def main():
     print("Program start")
-    buffer = "(0.5,0.6,0.7),(0.8,0.9,1.0),(1.1,1.2,1.3),(2.5,2.6)"
-    packet = LocalisationPacket()
-    packet.fromString(buffer)
-    print(packet)
+    # buffer = "(0.5,0.6,0.7),(0.8,0.9,1.0),(1.1,1.2,1.3),(2.5,2.6)"
+    # packet = LocalisationPacket()
+    # packet.fromString(buffer)
+    # print(packet)
+    print(CliCommandIndex.CLI_LOCALISATION_PACKET)
 
 if __name__ == "__main__":
     main()
