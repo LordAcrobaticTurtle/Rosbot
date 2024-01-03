@@ -35,6 +35,9 @@
         "cinttypes": "cpp",
         "utility": "cpp",
         "typeinfo": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "atomic": "cpp",
+        "csignal": "cpp",
+        "iostream": "cpp"
     }
 }
