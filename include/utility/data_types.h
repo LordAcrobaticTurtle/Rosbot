@@ -8,6 +8,10 @@ typedef unsigned char byte;
 struct vector3D {
     float x, y, z;
 
+    /**
+     * @brief Stores the vector3D contents into a string. Expects a buffer size of at least 64 bytes
+     * @param buffer 
+     */
     void toString(char *buffer) {
         sprintf(buffer, "(%f,%f,%f)", x, y, z);
     }

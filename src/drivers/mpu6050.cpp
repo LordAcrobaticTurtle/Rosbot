@@ -10,7 +10,10 @@ Mpu6050::Mpu6050(I2CMaster &interface)
 }
 
 int Mpu6050::readGyroRates(vector3D &rates) {
-    return -1;
+    rates.x = m_gyroDataF[0];
+    rates.y = m_gyroDataF[1];
+    rates.z = m_gyroDataF[2];
+    return 0;
 }
 
 int Mpu6050::readOrientation(vector3D &orientation) {
@@ -20,7 +23,10 @@ int Mpu6050::readOrientation(vector3D &orientation) {
 }
 
 int Mpu6050::readAccel(vector3D &accel) {
-    return -1;
+    accel.x = m_accelDataF[0];
+    accel.y = m_accelDataF[1];
+    accel.z = m_accelDataF[2];
+    return 0;
 }
 
 int Mpu6050::readTemperature(float *temp) {
@@ -65,7 +71,7 @@ bool Mpu6050::init(I2CMaster &interface) {
     bool result1 = m_interface->write(registerMap::PWR_MGMT_1, wakeup, false);
     bool result2 = m_interface->write(registerMap::GYRO_CONFIG, gyroScale, false);
     bool result3 = m_interface->write(registerMap::ACCEL_CONFIG, accelScale, false);
-
+    
     return result1 && result2 && result3; 
 }
 

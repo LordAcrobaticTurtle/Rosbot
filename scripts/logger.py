@@ -8,8 +8,8 @@ import sys
 def signal_handler(sig, frame):
     sys.exit(0)
 
-ser = serial.Serial('COM3')
-ser.port = 'COM3'
+ser = serial.Serial('COM18')
+ser.port = 'COM18'
 ser.flushInput()
 initTime = time.time()
 signal.signal(signal.SIGINT, signal_handler)
@@ -22,6 +22,6 @@ while True:
         with open("test_data.csv","a") as f:
             writer = csv.writer(f,delimiter=",")
             writer.writerow([time.time()-initTime,decoded_bytes])
-    except:
-        print("keyboard interrupt")
+    except Exception as e:
+        print(f"keyboard interrupt: {e}")
         break

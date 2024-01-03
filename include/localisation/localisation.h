@@ -3,6 +3,7 @@
 #include <utility/utility.h>
 #include <interfaces/encoder_interface.h>
 #include <interfaces/imu_interface.h>
+#include <localisation/madgwick_filter.h>
 #include <utility/math.h>
 
 class Localisation {
@@ -33,6 +34,9 @@ protected:
     vector3D m_position;
     vector3D m_gyroRates;
     vector3D m_accelReadings;
+    vector2D m_vwheel;
+
+    quaternion m_qEst;
 };
 
 

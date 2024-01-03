@@ -1,80 +1,49 @@
-#include <drivers/AS5600.h>
+#include "AS5600.h"
 
+double floatMap(double value, double preMin, double preMax, double postMin, double postMax);
 
 AS5600::AS5600():
     m_aoutPin(-1),
     m_dirPin(-1),
-    m_GPOPin(-1)
+    m_GPOPin(-1),
+    m_isConnected(false)
 {
 
 }
 
 AS5600::~AS5600() {}
 
-int AS5600::setup(I2CDriverWire *p_wirePtr) {
+int AS5600::setup(I2CMaster &interface) {
     // Assign variables
-    // Test I2C comms
-    // Check if the sensor exists
-    // Use technique from i2c scanner
-
-    if (p_wirePtr == NULL) {
-        Serial.println("Setup: m_wireObj is null");
-        while (true) {}
-    }
-
-    m_i2cInterface.setup(p_wirePtr, AS5600_ADDRESS);
-    
-    if (m_i2cInterface.isDeviceConnected() != I2Cinterface::I2Ccodes::SUCCESS) {
-        Serial.print("AS5600.setup(): Sensor not attached error");
-        m_isConnected = false;
-    }
-
-    // m_wireObj->begin();
-    // m_wireObj->beginTransmission(m_ADDRESS);
-    
-    // // A successfully detected device will return a 0 on end transmission
-    // char error = m_wireObj->endTransmission();
-    // // char error = 0;
-
-    // if (error != 0) {
-    //     Serial.print("Sensor not attached, error: " + String(error));
-    //     m_isConnected = false;
-    // }
-
+    m_interface = std::make_shared<I2CDevice>(interface, m_ADDRESS, __ORDER_BIG_ENDIAN__);
     m_isConnected = true;
-    
-    return 0  ;
+    m_currTime = 0;
+    m_prevTime = 0;
+    return 0;
 }
 
-// int AS5600::requestData(unsigned int p_numBytesRequested, unsigned char * p_buffer, unsigned int p_bufferSize) {
-//     return i2c_read(m_wireObj, m_ADDRESS, p_numBytesRequested, p_buffer, p_bufferSize);
-// }
 
-// int AS5600::writeData(unsigned char * p_whichRegisters, unsigned int p_bufferSize) {
-//     return i2c_write(m_wireObj, m_ADDRESS, p_whichRegisters, p_bufferSize, true);
-// }
+double AS5600::getAngle() {
+    // Use integers because it is easier to do integer math and the changes will be easier to debug
 
-unsigned int AS5600::getAngle() {
-    
     // Check if the sensor is actually connected
     if (!m_isConnected) {
         Serial.println("getAngle: encoder is not connected");
         return 0;
     }
     
-    byte reg = registerAddresses[ANGLEL];
-    m_i2cInterface.i2cWrite(&reg, 1);
-
+    byte regAddr = registerAddresses[ANGLEL];
     byte angleData[2] = {0,0};
-    m_i2cInterface.i2cRead(angleData,2);
-    // int error = requestData(2, angleData, 2);
-    
-    // if (error == -1)  
-    //     Serial.println("Error in request data");
+    for (int i = 0; i < 2; i++) {
+      m_interface->read(regAddr+i, &angleData[i], true);
+    }
+
 
     m_angleRaw = angleData[0] << 8 | angleData[1];
     
-    return m_angleRaw;
+    m_angle = floatMap(m_angleRaw, 0, 4096, 0, 360);
+
+    return m_angle;
 }
 
 unsigned char AS5600::getStatus() {
@@ -82,13 +51,10 @@ unsigned char AS5600::getStatus() {
     if (!m_isConnected) 
         return 0;
 
-    byte reg = registerAddresses[STATUS];
+    byte regAddr = registerAddresses[STATUS];
     byte status = 0;
-    m_i2cInterface.i2cWrite(&reg, 1);
-    int error = m_i2cInterface.i2cRead(&status, 1);
-    // // writeData(&reg, 1);
-    // int error = requestData(1,&status,1);
-    
+    int error = m_interface->read(regAddr, &status, true);
+
     if (error == -1) 
         Serial.println("Status: Error in request data");
     
@@ -101,17 +67,47 @@ unsigned char AS5600::getAGC() {
     if (!m_isConnected)
         return 0;
         
-    byte reg = registerAddresses[AGC];
+    byte regAddr = registerAddresses[AGC];
     byte response = 0;
     
-    m_i2cInterface.i2cWrite(&reg, 1);
-    int error = m_i2cInterface.i2cRead(&response, 1);
-    // writeData(&reg,1);
-    // int error = requestData(1,&response, 1);
- 
+    int error = m_interface->read(regAddr, &response, true);
+    
     if (error == -1) 
         Serial.println("AGC: Error in request data");
 
     m_AGC = response;
     return m_AGC;
 }
+
+double AS5600::getVelocity() {
+  // Compare current position and current timestamp with prev position and timestamp.
+  // Linearly interpolate between the two of them. 
+  static long int funcTimer = 0;
+  m_currTime = millis();
+
+  if (m_currTime - funcTimer < 1) {
+    funcTimer = m_currTime;
+    return m_currVelocity;
+  }
+  
+  // Calculate change in position
+  double diffAngleDegrees = (double) m_angle - m_prevAngle;
+  double diffTime = (double) m_currTime - m_prevTime;
+
+  diffTime *= 1e-3;
+
+  m_prevAngle = m_angle;
+  m_prevTime = m_currTime;
+  m_currVelocity = diffAngleDegrees / diffTime;
+
+  return m_currVelocity;
+}
+
+double floatMap(
+    double value, double preMin, double preMax, 
+    double postMin, double postMax) 
+{
+    return (postMax - postMin)/(preMax - preMin) * (value - preMin) + postMin;
+}
+
+
