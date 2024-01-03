@@ -9,6 +9,11 @@ Localisation::Localisation(
     m_encoderL(encoderL),
     m_encoderR(encoderR)
 {
+    // m_qEst = {1, 0, 0, 0};
+    m_qEst.q1 = 1;
+    m_qEst.q2 = 0;
+    m_qEst.q3 = 0;
+    m_qEst.q4 = 0;
 
 }
 
@@ -21,6 +26,24 @@ void Localisation::run() {
     m_imu->update(dt - lastDt);
     m_imu->readOrientation(m_orientation);
     m_imu->readGyroRates(m_gyroRates);
+    m_imu->readAccel(m_accelReadings);
+
+    imu_filter(m_accelReadings.x, m_accelReadings.y, m_accelReadings.z, 
+                m_gyroRates.x, m_gyroRates.y, m_gyroRates.z, m_qEst);
+    
+    float roll, pitch, yaw;
+    eulerAngles(m_qEst, &roll, &pitch, &yaw);
+    m_orientation.x = roll;
+    m_orientation.y = pitch;
+    m_orientation.z = yaw;
+
+    char buffer[256];
+    m_orientation.toString(buffer);
+    Serial.println(buffer);
+
+    m_vwheel.v1 = m_encoderL->readRPM();
+    m_vwheel.v2 = m_encoderR->readRPM();
+    
     lastDt = dt;
 }
 
@@ -29,10 +52,7 @@ void Localisation::resetImu() {
 }
 
 vector2D Localisation::getWheelVelocity() {
-    vector2D vec;
-    vec.v1 = -1;
-    vec.v2 = -1;
-    return vec;
+    return m_vwheel;
 }
 
 vector3D Localisation::getPosition() {
@@ -54,6 +74,8 @@ vector3D Localisation::getAccel() {
 vector3D Localisation::getAngularRates() {
     return m_gyroRates;
 }
+
+
 
 RobotModel::RobotModel(): 
     dx(4,1),
