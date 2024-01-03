@@ -7,14 +7,14 @@
 #define BUFFER_SIZE 256
 
 
- Comms::Comms(
+Comms::Comms(
     std::shared_ptr<Rosbot> robot,
     std::shared_ptr<RadioInterface> rx
 ) : m_robot(robot),
     m_rx(rx),
     m_streamMode(STREAM_MODE_NONE)
 {
-    m_transceiver = std::make_shared<BluetoothTransceiver>(&Serial4, 9600);
+    m_transceiver = std::make_shared<BluetoothTransceiver>(&Serial4, 115200);
     memset(m_radioChannels, 0, TX_NUM_CHANNELS*sizeof(double));
 }
 
@@ -204,7 +204,7 @@ void Comms::sendLocalisationResponse() {
     char vwheelBuffer[128] = {0};
     res.encoderVelocities.toString(vwheelBuffer);
 
-    sprintf((char *) buffer, "%s,%s,%s,%s", accelBuffer, gyroBuffer, angleBuffer, vwheelBuffer);
+    sprintf((char *) buffer, "%s,%s,%s,%s,(%f)", accelBuffer, gyroBuffer, angleBuffer, vwheelBuffer, 0);
     // Serial.println(buffer);
     sendResponse(buffer, CliCommandIndex::CLI_LOCALISATION_PACKET);
      
