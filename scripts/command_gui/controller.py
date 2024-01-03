@@ -3,6 +3,7 @@ import serial.tools.list_ports
 import threading
 import math
 import time
+from datetime import datetime
 from comms.packetID import PacketIDs
 from comms.packet import PacketHeader, Packet
 from comms.comms_layer import PacketSerializer
@@ -136,8 +137,9 @@ class Controller:
         commandIndexFromBuffer = int(splitBuffer[0])
         timestamp = int(splitBuffer[1])
         data = splitBuffer[2]
-        # print(f"CommandIndex: {commandIndexFromBuffer}, t: {timestamp}, d: {data}")
-
+        serialStr = f"CommandIndex: {commandIndexFromBuffer}, t: {timestamp}, d: {data}"
+        
+        self.view.updateSerialConsole(serialStr)
         # What to do with different information
         # Begin, standby, Calibrate, reset-IMU, Motor, Help -> Send response to terminal
         if (commandIndexFromBuffer >= commands.CliCommandIndex.CLI_BEGIN and 
@@ -219,8 +221,9 @@ class Controller:
     def openCalibrationFile(self, directoryPath : str):
 
         if directoryPath == None:
-            directoryPath = "C:/Users/SamHall/Desktop"
-        self._calibrationFile = open(directoryPath + "/test.csv", "w")
+            directoryPath = "B:/Projects/Rosbot/Data"
+        currTime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        self._calibrationFile = open(directoryPath + "/" + currTime + ".csv", "w")
         self._calibrationFile.write("timestamp, a_x, a_y, a_z, gr_x, gr_y, gr_z, ga_x, ga_y, ga_z, vel L, vel R, pendAngle\n")
 
     def deactivateRecording(self):

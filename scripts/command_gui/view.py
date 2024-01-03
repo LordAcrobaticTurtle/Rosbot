@@ -57,16 +57,16 @@ class View(ttk.Frame):
         print("Creating plot windows")
         # Create graphing windows
         # self.collectedPlots["Plot1"] = False
-        plot1, plotVariables = self.createPlotWindow(self._parent, "Plot1")
-        self.collectedPlots["Plot1"] = plotVariables
-        self.collectedPlots["Plot1"]["animation"] = animation.FuncAnimation(self.collectedPlots["Plot1"]["figure"], self.plotAnimatePlot1, interval=0, blit = True, repeat=False)
-        plot1.grid(column=1, row=0, sticky=(tk.E), padx=10)
+        # plot1, plotVariables = self.createPlotWindow(self._parent, "Plot1")
+        # self.collectedPlots["Plot1"] = plotVariables
+        # self.collectedPlots["Plot1"]["animation"] = animation.FuncAnimation(self.collectedPlots["Plot1"]["figure"], self.plotAnimatePlot1, interval=0, blit = True, repeat=False)
+        # plot1.grid(column=1, row=0, sticky=(tk.E), padx=10)
 
         # self.collectedPlots["Plot2"] = False
-        plot2, plotVars2 = self.createPlotWindow(self._parent, "Plot2")
-        self.collectedPlots["Plot2"] = plotVars2
-        self.collectedPlots["Plot2"]["animation"] = animation.FuncAnimation(self.collectedPlots["Plot2"]["figure"], self.plotAnimatePlot2, interval=0, blit = True, repeat=False)
-        plot2.grid(column=2, row=0, stick=(tk.E), padx = 10)
+        # plot2, plotVars2 = self.createPlotWindow(self._parent, "Plot2")
+        # self.collectedPlots["Plot2"] = plotVars2
+        # self.collectedPlots["Plot2"]["animation"] = animation.FuncAnimation(self.collectedPlots["Plot2"]["figure"], self.plotAnimatePlot2, interval=0, blit = True, repeat=False)
+        # plot2.grid(column=2, row=0, stick=(tk.E), padx = 10)
         
         # Create app settings panel
         appSettingsFrame = self.createAppSettingsWindow(self._parent)
