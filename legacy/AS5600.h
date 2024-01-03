@@ -1,10 +1,7 @@
 #pragma once
 #include <Arduino.h>
 #include <i2c_device.h>
-#include <i2c_driver_wire.h>
-
-#include "comms/I2CInterface.h"
-
+#include <memory>
 //  Functionality
 //  ====================================================================
     // I2C functionality. The address pointer on the AS5600 is automatically incremented after reach read. 
@@ -47,23 +44,31 @@ class AS5600 {
         // Returns an int that indicates the status of the AS5600
         // 0 = Connected and transmitting data
         // 1 = ERROR
-        int setup(I2CDriverWire *p_wirePtr);
-        // Number of bytes requested
-        int requestData(unsigned int p_numBytesRequested, unsigned char * p_buffer, unsigned int p_bufferSize);
-        int writeData(unsigned char * p_buffer, unsigned int p_bufferSize);
-        unsigned int getAngle();
+        int setup(I2CMaster &interface);
+        // // Number of bytes requested
+        // int requestData(unsigned int p_numBytesRequested, unsigned char * p_buffer, unsigned int p_bufferSize);
+        // int writeData(unsigned char * p_buffer, unsigned int p_bufferSize);
+        double getAngle();
         unsigned char getStatus();
         unsigned char getAGC();
-        float getVelocity();
+        double getVelocity();
     
     private:
         // I2CDriverWire *m_wireObj;
-        // const int m_ADDRESS = 0x36;
-        I2Cinterface m_i2cInterface;
+        const int m_ADDRESS = 0x36;
+        std::shared_ptr<I2CDevice> m_interface;
 
         unsigned int m_angleRaw;
-        float m_angle;
-        float m_prevAngle;
+        unsigned int m_prevAngleRaw;
+        unsigned int m_angleLarge;
+        unsigned int m_prevAngleLarge;
+
+        double m_angle;
+        double m_prevAngle;
+
+        long int m_currTime;
+        long int m_prevTime;
+        double m_currVelocity;
 
         const int m_aoutPin;
         const int m_dirPin ;
@@ -112,10 +117,4 @@ class AS5600 {
             // MAGNITUDE
             0x1B,0x1C
         };
-        
-
-
-    // Which bus?
-
-
 };
