@@ -158,41 +158,6 @@ class Controller:
             packet.fromString(data)
             self.model.insertCalibrationPacket(packet, timestamp)
         
-
-    def checkForModeActivation(self, buffer : bytearray) -> None:
-        # Easiest to process with a decoded array
-        decodedBuffer = buffer.decode()
-        
-        # Find substring ok. Return if not OK
-        isStringOk = decodedBuffer.find('OK')
-        if (isStringOk == -1):
-            return
-        
-        # Find command between first index and first space. 
-        firstSpaceIndex = decodedBuffer.find(' ')
-        if (firstSpaceIndex == -1):
-            print("Malformed command")
-            return
-        
-        # Check command matches the pre-defined commands
-        cliCommandSubstring = decodedBuffer[0:firstSpaceIndex]
-        for command in commands.commands:
-            if command == cliCommandSubstring:
-                self.cliCommandFunctions[command]()
-                # Do something
-                # Call the respective activation function
-                # E.g. 
-                # "cli - OK" will never be sent. 
-                # "Begin - OK" will change a switch such that all streamed data will now go to the 
-                # same place. 
-                # "Standby - OK" will switch off the data stream
-                # "Calibration - OK" will stream data to calibration part of the model
-                # "Reset-IMU - OK" will do nothing
-                # "Motor - OK" Will probably do nothing. But I could send motor data across the comm
-                # "Help" will do nothing. (Unlikely to be handled by this function)
-                pass
-
-
     def sendString(self, string : str):
         if (self._isPortOpen):
             self._openPort.write((string).encode())
@@ -208,9 +173,11 @@ class Controller:
             print(f"Port has been closed")
 
     def activateRecording(self, directoryPath : str):
+        # Activate embedded recording
         self._isRecordingActive = True
         # Open the file specified by the filepath in the main window
         self.openCalibrationFile(directoryPath)
+
         # Register callback function
         funcAndId = {
             "id":"PacketRecording",
@@ -219,11 +186,10 @@ class Controller:
         self.model.registerCalibrationCallbackFunction(funcAndId)
 
     def openCalibrationFile(self, directoryPath : str):
-
-        if directoryPath == None:
-            directoryPath = "B:/Projects/Rosbot/Data"
+        if not directoryPath:
+            directoryPath = "C:/Users/Sam/Documents/PlatformIO/Projects/Rosbot/datasets"
         currTime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        self._calibrationFile = open(directoryPath + "/" + currTime + ".csv", "w")
+        self._calibrationFile = open(f"{directoryPath}/{currTime}-mbed.csv", "w")
         self._calibrationFile.write("timestamp, a_x, a_y, a_z, gr_x, gr_y, gr_z, ga_x, ga_y, ga_z, vel L, vel R, pendAngle\n")
 
     def deactivateRecording(self):
