@@ -16,11 +16,8 @@ initTime = time.time()
 signal.signal(signal.SIGINT, signal_handler)
 ser.write("t".encode())
 ser.write("z".encode())
-date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-file = open(f"../datasets/{date}-pendulum.csv", "a")
-file.write("timestamp (python), timestamp (Teensy), Angular pos (deg), AGC, Status, Angular Vel (deg)\n")
 isRecordingActive = False
-
+file = 0
 while True:
     char = ''
     if msvcrt.kbhit():
@@ -28,6 +25,11 @@ while True:
     
     if char == ' ' and isRecordingActive == False:
         isRecordingActive = True
+        date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        file = open(f"../datasets/{date}-pendulum.csv", "a")
+        file.write("timestamp (python), timestamp (Teensy), Angular pos (deg), AGC, Status, Angular Vel (deg)\n")
+        ser.write("t".encode())
+        ser.write("z".encode())
     elif char == ' ' and isRecordingActive == True:
         isRecordingActive = False
     if char == 'q':
