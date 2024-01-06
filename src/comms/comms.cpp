@@ -2,6 +2,7 @@
 #include <comms/packet_serializer.h>
 #include <drivers/bluetooth_transceiver.h>
 #include <data-structures/circular_queue.h>
+#include <utility/timing.h>
 
 
 #define BUFFER_SIZE 256
@@ -81,6 +82,8 @@ int Comms::handlePacket(MessageContents packet) {
             m_streamMode = STREAM_MODE_LOCALISATION_CALIBRATION;
             byte buffer[] = "Calibration-OK";
             sendResponse(buffer, CliCommandIndex::CLI_CALIBRATE);
+            // Capture current time to use as offset
+            m_timerOffset = millis();
             Serial.println("Calibrate");
             break;
         }
@@ -118,7 +121,7 @@ void Comms::sendResponse(byte *buffer, CliCommandIndex packetID) {
     // Frame data with null bytes
     byte bufferToSend[256];
     auto time = millis();
-    sprintf((char*) bufferToSend, "0x%x %d %ld %s 0x%x", FRAMING_START, packetID, time, buffer, FRAMING_END);
+    sprintf((char*) bufferToSend, "0x%x %d %ld %s 0x%x", FRAMING_START, packetID, time - m_timerOffset, buffer, FRAMING_END);
     m_transceiver->sendBytes(bufferToSend, strlen((const char*) bufferToSend));
     Serial.println((char *) bufferToSend);
 }
@@ -134,7 +137,6 @@ void Comms::sendHelp() {
     }
     
     sendResponse(buffer, CliCommandIndex::CLI_HELP);
-
 }
 
 void Comms::returnStreamResponse() {
@@ -166,8 +168,8 @@ void Comms::returnStreamResponse() {
 }
 
 void Comms::serialHeartbeat() {
-    const int time = millis();
-    static int lastTime = 0;    
+    const unsigned int time = millis();
+    static unsigned int lastTime = 0;    
     
     if (time - lastTime >= 1000) {
         Serial.println("Comms");
@@ -205,7 +207,6 @@ void Comms::sendLocalisationResponse() {
     res.encoderVelocities.toString(vwheelBuffer);
 
     sprintf((char *) buffer, "%s,%s,%s,%s,(%f)", accelBuffer, gyroBuffer, angleBuffer, vwheelBuffer, 0);
-    // Serial.println(buffer);
     sendResponse(buffer, CliCommandIndex::CLI_LOCALISATION_PACKET);
      
 }
