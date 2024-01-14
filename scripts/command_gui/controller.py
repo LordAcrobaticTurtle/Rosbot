@@ -18,6 +18,7 @@ class Controller:
         self._isPortOpen = False
         self._isMockPortOpen = False
         self._isRecordingActive = False
+        self._serialPortLock = threading.Lock()
 
     def close(self):
         self.isAppRunning = False
@@ -32,13 +33,14 @@ class Controller:
         return comPortList
         
     def openMockSerialPort(self, port : str, baudrate : str) -> None:
-        if (self._isPortOpen):
-            print("There is already one active connection")
-            return
-        self.view.updateSerialConsole(f"Opening {port} @ {baudrate}")
-        self._isMockPortOpen = True
-        self._t1 = threading.Thread(target=self.updateMockSerialPort, args=())
-        self._t1.start()
+        with self._serialPortLock:
+            if (self._isPortOpen):
+                print("There is already one active connection")
+                return
+            self.view.updateSerialConsole(f"Opening {port} @ {baudrate}")
+            self._isMockPortOpen = True
+            self._t1 = threading.Thread(target=self.updateMockSerialPort, args=())
+            self._t1.start()
         
     def closeMockSerialPort(self) -> None:
         if (self._isMockPortOpen):
@@ -64,44 +66,47 @@ class Controller:
 
 
     def openSerialPort(self, port: str, baudrate: str) -> None:
-        
-        if (self._isPortOpen):
-            print("There is already one active connection")
-            return
+        with self._serialPortLock:
+            if (self._isPortOpen):
+                print("There is already one active connection")
+                return
+
+            self.view.updateSerialConsole(f"Opening {port} @ {baudrate}")
+            self._openPort = serial.Serial()
+            self._openPort.baudrate = baudrate
+            self._openPort.port = port
+            self._openPort.timeout = 1
+            self._openPort.xonxoff = 1
+            self._openPort.bytesize = serial.EIGHTBITS
+            self._openPort.parity = serial.PARITY_NONE
+            self._openPort.stopbits = serial.STOPBITS_ONE
             
-        self.view.updateSerialConsole(f"Opening {port} @ {baudrate}")
-        self._openPort = serial.Serial()
-        self._openPort.baudrate = baudrate
-        self._openPort.port = port
-        self._openPort.timeout = 1
-        self._openPort.xonxoff = 1
-        self._openPort.bytesize = serial.EIGHTBITS
-        self._openPort.parity = serial.PARITY_NONE
-        self._openPort.stopbits = serial.STOPBITS_ONE
-        
-        try:
-            self._openPort.open()
-            self._isPortOpen = True
-            self._t1 = threading.Thread(target=self.serialUpdate, args=())
-            self._t1.start()
-            successStr = f"{port} is now open"
-            print(successStr)
-            self.view.updateSerialConsole(successStr)
-        except serial.SerialException as e:
-            self._isPortOpen = False
-            errorStr = f"Warning: {port} is not accessible - {e}"
-            print(errorStr)
-            self.view.updateSerialConsole(errorStr)
+            try:
+                self._openPort.open()
+                self._isPortOpen = True
+                self._t1 = threading.Thread(target=self.serialUpdate, args=())
+                self._t1.start()
+                successStr = f"{port} is now open"
+                print(successStr)
+                self.view.updateSerialConsole(successStr)
+            except serial.SerialException as e:
+                self._isPortOpen = False
+                errorStr = f"Warning: {port} is not accessible - {e}"
+                print(errorStr)
+                self.view.updateSerialConsole(errorStr)
         
     def serialUpdate(self) -> None:
         # Append items to a buffer. Once a terminating character appears, then I can process and reset the buffer
         # How to handle sending data to the right place? 
         buffer = str()
         while (self._isPortOpen):
+            
+            self._serialPortLock.acquire()
             while (self._openPort.in_waiting > 0):
                 character = self._openPort.read(1)
                 buffer += character.decode()
-            
+            self._serialPortLock.release()
+
             # Unpack frame from 0x2 0x3 delimiters
             unpackedBuffer = self.unpackFrame(buffer)
 
@@ -195,14 +200,18 @@ class Controller:
 
     def sendString(self, string : str):
         if (self._isPortOpen):
+            self._serialPortLock.acquire()
             self._openPort.write((string).encode())
+            self._serialPortLock.release()
             print("String sent!")
             print(string)
 
     def closeSerialPort(self):
         # Must close serial port and the thread
         if (self._isPortOpen == True):
+            self._serialPortLock.acquire()
             self._openPort.close()
+            self._serialPortLock.release(0)
             self._isPortOpen = False
             self._t1.join()
             print(f"Port has been closed")
@@ -243,8 +252,6 @@ class Controller:
         self._calibrationFile.write(buffer)
         print("Cb: " + buffer)
         
-        
-
     def generateSineWaveDataPoint(self, i):
         x = math.sin(i)
         return (i, x)
