@@ -155,9 +155,15 @@ class View(ttk.Frame):
 
     def createAppSettingsWindow(self, tkRootElement : tk.Tk) -> tk.Frame:
         appSettingsFrameBase = ttk.LabelFrame(tkRootElement, text="AppSettingsWindow")
+        # self.recordingButton = ToggleButton()
+        # self.recordingButton.create(appSettingsFrameBase, "C:/Users/Sam/Documents/PlatformIO/Projects/Rosbot/scripts/command_gui/record-button.png", "C:/Users/Sam/Documents/PlatformIO/Projects/Rosbot/scripts/command_gui/stop-button.png",self.toggleRecording)
+        # self.recordingButton.getFrame().grid(column=0, row=0, padx=1, pady=1)
+        self.isRecordingActive = tk.BooleanVar()
+        ttk.Checkbutton(appSettingsFrameBase, text="Recording", padding=10, command=self.toggleRecording, variable=self.isRecordingActive).grid(column=0, row=0, padx=5, pady=5)
         
-        ttk.Button(appSettingsFrameBase, text="Start recording", padding=10, command = self.startRecordingClicked).grid(column=0, row=0, padx=5, pady=5)
-        ttk.Button(appSettingsFrameBase, text="Stop recording", padding=10, command = self.stopRecordingClicked).grid(column=1, row=0, padx=5, pady=5)
+        # self.recordingButton.
+        # ttk.Button(appSettingsFrameBase, text="Start recording", padding=10, command = self.startRecordingClicked).grid(column=0, row=0, padx=5, pady=5)
+        # ttk.Button(appSettingsFrameBase, text="Stop recording", padding=10, command = self.stopRecordingClicked).grid(column=1, row=0, padx=5, pady=5)
         # ttk.Button(appSettingsFrameBase, text="File path for recording", padding=10).grid(column=0, row=1, padx=5, pady=5)
         self._recordingPath = tk.StringVar()
         ttk.Entry(appSettingsFrameBase, textvariable=self._recordingPath, state="readonly").grid(column=0, row=1, padx=5, pady=5)
@@ -383,6 +389,16 @@ class View(ttk.Frame):
     def startRecordingClicked(self):
         print("Start recording clicked!")
         self.controller.activateRecording(self._recordingPath.get())
+
+    def toggleRecording(self):
+        print("Toggle recording clicked!")
+
+        if self.isRecordingActive.get():
+            print("Active recording!")
+            self.controller.activateRecording(self._recordingPath.get())
+        else:
+            print("Deactive recording!")
+            self.controller.deactivateRecording()
 
     def stopRecordingClicked(self):
         self.controller.deactivateRecording()

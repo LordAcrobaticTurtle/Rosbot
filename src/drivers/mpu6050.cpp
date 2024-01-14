@@ -9,6 +9,13 @@ Mpu6050::Mpu6050(I2CMaster &interface)
     setup();
 }
 
+int Mpu6050::readImuData (ImuData &data) {
+    readAccel(data.accelData);
+    readGyroRates(data.gyroRates);
+    readOrientation(data.orientation);
+    readMagnetField(data.magneticField);
+}
+
 int Mpu6050::readGyroRates(vector3D &rates) {
     rates.x = m_gyroDataF[0];
     rates.y = m_gyroDataF[1];

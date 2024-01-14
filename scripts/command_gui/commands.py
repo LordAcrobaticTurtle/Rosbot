@@ -74,7 +74,8 @@ class LocalisationPacket:
         
         splitBuffer = buffer.split("),(")
         splitBuffer[0] = splitBuffer[0].strip("()")
-
+        if (len(splitBuffer) != 5):
+            return
         splitBuffer[len(splitBuffer)-1] = splitBuffer[len(splitBuffer)-1].strip("()")
         self.accel.fromString(splitBuffer[0])
         self.gyroRates.fromString(splitBuffer[1])

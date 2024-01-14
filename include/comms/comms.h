@@ -1,8 +1,6 @@
 #pragma once
 #include <memory>
 
-
-// #include <comms/packet.h>
 #include <comms/cli/turtle_shell.h>
 #include <interfaces/comms_interface.h>
 #include <drivers/radio_interface.h>
@@ -63,6 +61,10 @@ protected:
     TurtleShell m_shell;
 
     StreamMode m_streamMode;    
+
+    // Timer
+    unsigned int m_timerOffset;
+
     double m_radioChannels[TX_NUM_CHANNELS];
 };
 

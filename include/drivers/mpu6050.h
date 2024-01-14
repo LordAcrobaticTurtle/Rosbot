@@ -13,12 +13,12 @@ class Mpu6050 : public ImuInterface {
     public:
         Mpu6050(I2CMaster &interface);
         ~Mpu6050() {}
-        virtual int readGyroRates(vector3D &rates) override;
-        virtual int readOrientation(vector3D &orientation) override;
-        virtual int readAccel(vector3D &accel) override;
-        virtual int readTemperature(float *temp) override;
-        virtual int readMagnetField(vector3D &field) override;
-    
+        virtual int readGyroRates (vector3D &rates)         override;
+        virtual int readOrientation (vector3D &orientation) override;
+        virtual int readAccel (vector3D &accel)             override;
+        virtual int readTemperature (float *temp)           override;
+        virtual int readMagnetField (vector3D &field)       override;
+        virtual int readImuData (ImuData &data)             override;
         // Updates all data objects
         virtual int update(float ts) override;
 
