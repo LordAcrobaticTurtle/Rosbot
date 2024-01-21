@@ -31,6 +31,7 @@ while True:
         ser.write("t".encode())
         ser.write("z".encode())
     elif char == ' ' and isRecordingActive == True:
+        file.close()
         isRecordingActive = False
     if char == 'q':
         break
@@ -44,5 +45,4 @@ while True:
     else:
         print(decoded_bytes)
     
-
-file.close()
+ser.close()
