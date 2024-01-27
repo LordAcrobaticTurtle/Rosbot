@@ -74,6 +74,7 @@ ControlResponse Rosbot::getControlResponse() {
     res.params = m_control->getParams();    
     res.controlIDPlaceholder = 0;
     res.controlResponse = 0;
+    
     return res;
 }
 

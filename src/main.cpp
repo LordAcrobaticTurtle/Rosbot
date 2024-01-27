@@ -4,6 +4,7 @@
 #include <drivers/encoder_N20.h>
 #include <i2c_device.h>
 #include <drivers/DRV8876.h>
+#include <utility/timing.h>
 
 std::shared_ptr<Comms> comms;
 std::shared_ptr<Rosbot> robot;
