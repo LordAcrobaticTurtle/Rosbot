@@ -19,3 +19,27 @@ class HardwareTime : public SystemTimeI {
 
 void setupGlobalTimer ();
 
+
+class FrequencyTimer {
+    public:
+        FrequencyTimer();
+        ~FrequencyTimer() = default;
+
+        void setPeriod (long int timeInMicroseconds);
+
+        void setFrequency (double freqInHz);
+
+
+        /**
+         * @brief Returns true if the time enough time has elapsed since the last call.
+         * 
+         * @return true 
+         * @return false 
+         */
+        bool checkEnoughTimeHasPassed ();
+
+    protected:
+        long int m_time;
+        long int m_lastTime;
+        long int m_target;
+};
