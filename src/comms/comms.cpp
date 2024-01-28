@@ -121,9 +121,9 @@ void Comms::sendResponse(byte *buffer, CliCommandIndex packetID) {
     // Frame data with null bytes
     byte bufferToSend[256];
     auto time = millis();
-    sprintf((char*) bufferToSend, "0x%x %d %ld %s 0x%x", FRAMING_START, packetID, time - m_timerOffset, buffer, FRAMING_END);
+    // sprintf((char*) bufferToSend, "0x%x %d %ld %s 0x%x", FRAMING_START, packetID, time - m_timerOffset, buffer, FRAMING_END);
     m_transceiver->sendBytes(bufferToSend, strlen((const char*) bufferToSend));
-    Serial.println((char *) bufferToSend);
+    // Serial.println((char *) bufferToSend);
 }
 
 void Comms::sendHelp() {
@@ -150,14 +150,14 @@ void Comms::returnStreamResponse() {
     switch (m_streamMode) {
         case STREAM_MODE_CONTROL: {
             sendControlResponse();
-            Serial.println("Control response");
+            // Serial.println("Control response");
             break;
         }
 
         case STREAM_MODE_LOCALISATION_CALIBRATION: {
             // Pre-calculate number of bytes required for 11 floats, but as a string 
             sendLocalisationResponse();
-            Serial.println("Localisation response");
+            // Serial.println("Localisation response");
             break;
         }
 
