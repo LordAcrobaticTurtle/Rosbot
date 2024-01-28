@@ -6,6 +6,7 @@ struct ImuData {
     vector3D accelData;
     vector3D magneticField;
     vector3D orientation;
+    vector3D position;
 };
 
 class ImuInterface {
