@@ -1,9 +1,9 @@
 
-
+#pragma once
 #include <math.h>
 #include <stdio.h>
 
-struct quaternion{
+struct quaternion {
     float q1;
     float q2;
     float q3;
@@ -14,7 +14,7 @@ struct quaternion{
 struct quaternion quat_mult (struct quaternion q_L, struct quaternion q_R);
 
 // Multiply a reference of a quaternion by a scalar, q = s*q
-static inline void quat_scalar(struct quaternion * q, float scalar){
+static inline void quat_scalar(struct quaternion * q, float scalar) {
     q -> q1 *= scalar;
     q -> q2 *= scalar;
     q -> q3 *= scalar;

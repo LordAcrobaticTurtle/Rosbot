@@ -13,6 +13,13 @@ Rosbot::Rosbot() :
     m_isControlOn(false),
     m_isLocalisationOn(false)
 { 
+    m_pidParams.bounds[0] = -1;
+    m_pidParams.bounds[1] = 1;
+    m_qEst.q1 = 1;
+    m_qEst.q2 = 0;
+    m_qEst.q3 = 0;
+    m_qEst.q4 = 0;
+
 }
 
 Rosbot::~Rosbot() {}
@@ -23,67 +30,59 @@ void Rosbot::setup()
     // m_imu.setup(Master);
     // Drivers need to inherit
     // Then can create drivers here, and pass into respective classes
-    std::shared_ptr<Mpu6050> imu = std::make_shared<Mpu6050>(Master);
+    std::shared_ptr<Mpu6050> m_imu = std::make_shared<Mpu6050>(Master);
     m_status.switchGreenOn();
-    std::shared_ptr<DRV8876> motorL = std::make_shared<DRV8876>(12, 11, 10, -1, 5);
-    std::shared_ptr<DRV8876> motorR = std::make_shared<DRV8876>(23, 21, 14, -1, 20);
-    std::shared_ptr<EncoderN20> encoderL = std::make_shared<EncoderN20>(6,7);
-    std::shared_ptr<EncoderN20> encoderR = std::make_shared<EncoderN20>(8,9);
+    std::shared_ptr<DRV8876> m_motorL = std::make_shared<DRV8876>(12, 11, 10, -1, 5);
+    std::shared_ptr<DRV8876> m_motorR = std::make_shared<DRV8876>(23, 21, 14, -1, 20);
+    std::shared_ptr<EncoderN20> m_encoderL = std::make_shared<EncoderN20>(6,7);
+    std::shared_ptr<EncoderN20> m_encoderR = std::make_shared<EncoderN20>(8,9);
     
-    m_localisation = std::make_shared<Localisation>(
-        imu, encoderL, encoderR
-    );
-
-    m_control = std::make_shared<Control>(
-        m_localisation, motorL, motorR
-    );
 }
 
 void Rosbot::ActivateStandbyMode() {
     m_isStandbyOn = true;
-    toggleControl(false);
-    toggleLocalisation(false);
+    setControlMode(false);
+    setLocalisationMode(false);
 }
 
 void Rosbot::ActivateCalibration() {
     m_isStandbyOn = false;
-    toggleLocalisation(true);
-    toggleControl(false);
+    setLocalisationMode(true);
+    setControlMode(false);
 }
 
 void Rosbot::ActivateControlMode() {
     m_isStandbyOn = false;
-    toggleLocalisation(true);
-    toggleControl(true);
+    setLocalisationMode(true);
+    setControlMode(true);
 }
 
-void Rosbot::toggleControl(bool isControlOn) {
-    m_isControlOn = !m_isControlOn;
+void Rosbot::setControlMode(bool isControlOn) {
+    m_isControlOn = isControlOn;
 }
 
-void Rosbot::toggleLocalisation(bool isLocalisationOn) {
-    m_isLocalisationOn = !m_isLocalisationOn;
+void Rosbot::setLocalisationMode(bool isLocalisationOn) {
+    m_isLocalisationOn = isLocalisationOn;
 }
 
 void Rosbot::resetImu() {
-    m_localisation->resetImu();
+    
 }
 
 ControlResponse Rosbot::getControlResponse() {
     ControlResponse res;
-    res.params = m_control->getParams();    
+    res.params = m_pidParams;    
     res.controlIDPlaceholder = 0;
     res.controlResponse = 0;
-    
     return res;
 }
 
 LocalisationResponse Rosbot::getLocalisationResponse() {
     LocalisationResponse res;
-    res.accelReadings = m_localisation->getAccel();
-    res.encoderVelocities = m_localisation->getWheelVelocity();
-    res.gyroRates = m_localisation->getAngularRates();
-    res.orientation = m_localisation->getOrientation();
+    res.accelReadings = m_imuData.accelData;
+    res.encoderVelocities = m_vwheel;
+    res.gyroRates =   m_imuData.gyroRates;
+    res.orientation = m_imuData.orientation;
     return res;
 }
 
@@ -96,11 +95,23 @@ void Rosbot::run() {
     } else if (!m_isStandbyOn) {
         m_status.mix(0, 0, 255);
     }
-    
-    m_localisation->run();
-    m_control->run();
-    
 
+    if (m_isLocalisationOn) {
+        // Run localisation module
+
+    }
+
+    if (m_isControlOn) {
+        // For proof of concept. Angular first
+        m_pidParams.currValue = m_imuData.orientation.y;
+        
+        // Perform PID control of angle
+        float response = PIDController::computeResponse(m_pidParams);
+        char buffer[64];
+        m_imuData.orientation.toString(buffer);
+        Serial.println(buffer);        
+    }
+    
     // m_tf = millis();
     // float dt = m_tf - m_ti;
     // m_imu.update(dt/1000.0);

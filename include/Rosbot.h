@@ -3,7 +3,7 @@
 #include <localisation/localisation.h>
 #include <control/control.h>
 #include <drivers/RGB_LED.h>
-
+#include <utility/quaternion.h>
 
 struct ControlResponse {
     size_t controlIDPlaceholder;
@@ -34,17 +34,38 @@ class Rosbot {
         ControlResponse getControlResponse();
         void resetImu();
 
+        PIDParams getParams();
+        void setParams(PIDParams params);
+
+
     protected:
-        void toggleLocalisation (bool isLocalisationOn);
-        void toggleControl (bool isControlOn);
+        void setLocalisationMode (bool isLocalisationOn);
+        void setControlMode (bool isControlOn);
+        void runLocalisation ();
+        void runControl ();
 
-    private:
+    protected:
+        // Driver related components
         RGBLED m_status;
-        std::shared_ptr<Localisation> m_localisation;
-        std::shared_ptr<Control> m_control;
+        std::shared_ptr<ImuInterface> m_imu;
+        std::shared_ptr<EncoderInterface> m_encoderL;
+        std::shared_ptr<EncoderInterface> m_encoderR;
+        std::shared_ptr<DcMotorInterface> m_motorL;
+        std::shared_ptr<DcMotorInterface> m_motorR;
 
+        // State estimation related data.
+        ImuData m_imuData;
+        quaternion m_qEst;
+        vector2D m_vwheel;
+
+        // Control related data
+        PIDParams m_pidParams;
+
+        // Mode related data
         bool m_isStandbyOn;
-        bool m_isLocalisationOn;
         bool m_isControlOn;
+        bool m_isLocalisationOn;
+
+
         
 };
