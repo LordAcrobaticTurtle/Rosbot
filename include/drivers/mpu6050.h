@@ -8,6 +8,7 @@
 #define MPU6050_ADDRESS 0x68
 #define GRAVITY 9.81
 // The Mpu6050 starts in sleep mode
+// Float offset of x - 6.855438814
 
 class Mpu6050 : public ImuInterface {
     public:
