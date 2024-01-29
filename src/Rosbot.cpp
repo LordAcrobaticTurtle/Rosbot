@@ -3,7 +3,7 @@
 #include <drivers/mpu6050.h>
 #include <drivers/DRV8876.h>
 #include <drivers/encoder_N20.h>
-
+#include <utility/timing.h>
 
 I2CMaster& master = Master;
 
@@ -19,7 +19,6 @@ Rosbot::Rosbot() :
     m_qEst.q2 = 0;
     m_qEst.q3 = 0;
     m_qEst.q4 = 0;
-
 }
 
 Rosbot::~Rosbot() {}
@@ -36,7 +35,6 @@ void Rosbot::setup()
     std::shared_ptr<DRV8876> m_motorR = std::make_shared<DRV8876>(23, 21, 14, -1, 20);
     std::shared_ptr<EncoderN20> m_encoderL = std::make_shared<EncoderN20>(6,7);
     std::shared_ptr<EncoderN20> m_encoderR = std::make_shared<EncoderN20>(8,9);
-    
 }
 
 void Rosbot::ActivateStandbyMode() {
@@ -98,20 +96,53 @@ void Rosbot::run() {
 
     if (m_isLocalisationOn) {
         // Run localisation module
-
+        runLocalisation();
     }
 
     if (m_isControlOn) {
-        // For proof of concept. Angular first
+        runControl();     
+    }
+}
+
+void Rosbot::runControl () {
         m_pidParams.currValue = m_imuData.orientation.y;
-        
         // Perform PID control of angle
         float response = PIDController::computeResponse(m_pidParams);
         char buffer[64];
         m_imuData.orientation.toString(buffer);
-        Serial.println(buffer);        
+        Serial.println(buffer);       
+}
+
+void Rosbot::runLocalisation () {
+    // Localisation updates
+    // Time since last update
+    static FrequencyTimer funcTimer(10000); // -> 0.01 s = 100 Hz
+
+    if (!funcTimer.checkEnoughTimeHasPassed()) {
+        return;
     }
+
+    m_imu->run();
+    m_imu->readImuData(m_imuData);
+    // m_orientation = data.orientation;
     
+    imu_filter(m_imuData.accelData.x, m_imuData.accelData.y, m_imuData.accelData.z, 
+                m_imuData.gyroRates.x, m_imuData.gyroRates.y, m_imuData.gyroRates.z, m_qEst);
+    
+    float roll, pitch, yaw;
+    eulerAngles(m_qEst, &roll, &pitch, &yaw);
+    m_imuData.orientation.x = roll;
+    m_imuData.orientation.y = pitch;
+    m_imuData.orientation.z = yaw;
+
+    char buffer[256];
+    m_imuData.orientation.toString(buffer);
+    Serial.println(buffer);
+
+    m_vwheel.v1 = m_encoderL->readRPM();
+    m_vwheel.v2 = m_encoderR->readRPM();
+    
+}
     // m_tf = millis();
     // float dt = m_tf - m_ti;
     // m_imu.update(dt/1000.0);
@@ -157,7 +188,6 @@ void Rosbot::run() {
     // motorControl();
     
     // m_ti = m_tf;
-}
 
 // void Rosbot::printRobotState() {
 

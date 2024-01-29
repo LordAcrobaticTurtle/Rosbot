@@ -20,8 +20,9 @@ class Mpu6050 : public ImuInterface {
         virtual int readTemperature (float *temp)           override;
         virtual int readMagnetField (vector3D &field)       override;
         virtual int readImuData (ImuData &data)             override;
+        
         // Updates all data objects
-        virtual int update(float ts) override;
+        virtual int run () override;
 
         float *getEulerXYZ() {return m_eulerXYZ;}
 

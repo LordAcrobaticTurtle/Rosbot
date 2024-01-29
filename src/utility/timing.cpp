@@ -19,7 +19,13 @@ void setupGlobalTimer () {
 
 
 FrequencyTimer::FrequencyTimer () {
+    m_target = 0;
+    m_lastTime = 0;
     m_time = 0;
+}
+
+FrequencyTimer::FrequencyTimer (long int timeInMicroseconds) {
+    m_target = timeInMicroseconds;
     m_lastTime = 0;
     m_time = 0;
 }

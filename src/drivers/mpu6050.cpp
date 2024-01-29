@@ -82,11 +82,9 @@ bool Mpu6050::init(I2CMaster &interface) {
     return result1 && result2 && result3; 
 }
 
-int Mpu6050::update(float dt) {
-    m_dt = dt;
+int Mpu6050::run () {
     getRawSensorRegisters();
     parseRawData();
-    calculateEulerAngles();
     return 0;
 }
 
@@ -126,10 +124,6 @@ void Mpu6050::parseRawData() {
         m_accelDataF[i] = m_accelData[i] / 16384.0 * GRAVITY;
     }
 
-    // for (int i = 0; i < 3; i++) {
-    //     Serial.print(String(m_accelDataF[i]) + ", ");
-    // }
-    // Serial.println();
 }
 
 int Mpu6050::calculateEulerAngles() {

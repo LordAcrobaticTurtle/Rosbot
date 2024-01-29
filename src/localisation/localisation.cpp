@@ -29,7 +29,7 @@ void Localisation::run() {
         return;
     }
 
-    m_imu->update(timeInSeconds - lastDt);
+    m_imu->run();
     ImuData data;
     m_imu->readImuData(data);
     // m_orientation = data.orientation;

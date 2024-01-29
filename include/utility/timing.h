@@ -23,6 +23,7 @@ void setupGlobalTimer ();
 class FrequencyTimer {
     public:
         FrequencyTimer();
+        FrequencyTimer(long int timeInMicroseconds);
         ~FrequencyTimer() = default;
 
         void setPeriod (long int timeInMicroseconds);
