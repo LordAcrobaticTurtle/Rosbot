@@ -29,12 +29,13 @@ void Rosbot::setup()
     // m_imu.setup(Master);
     // Drivers need to inherit
     // Then can create drivers here, and pass into respective classes
-    std::shared_ptr<Mpu6050> m_imu = std::make_shared<Mpu6050>(Master);
+    m_imu = std::make_shared<Mpu6050>(Master);
     m_status.switchGreenOn();
-    std::shared_ptr<DRV8876> m_motorL = std::make_shared<DRV8876>(12, 11, 10, -1, 5);
-    std::shared_ptr<DRV8876> m_motorR = std::make_shared<DRV8876>(23, 21, 14, -1, 20);
-    std::shared_ptr<EncoderN20> m_encoderL = std::make_shared<EncoderN20>(6,7);
-    std::shared_ptr<EncoderN20> m_encoderR = std::make_shared<EncoderN20>(8,9);
+    m_motorL = std::make_shared<DRV8876>(12, 11, 10, -1, 5);
+    m_motorR = std::make_shared<DRV8876>(23, 21, 14, -1, 20);
+    m_encoderL = std::make_shared<EncoderN20>(6,7);
+    m_encoderR = std::make_shared<EncoderN20>(8,9);
+    m_rx = std::make_shared<RadioInterface>(&Serial1);
 }
 
 void Rosbot::ActivateStandbyMode() {
@@ -64,7 +65,7 @@ void Rosbot::setLocalisationMode(bool isLocalisationOn) {
 }
 
 void Rosbot::resetImu() {
-    
+    // Reset and recompute angle offsets. 
 }
 
 ControlResponse Rosbot::getControlResponse() {
@@ -87,11 +88,16 @@ LocalisationResponse Rosbot::getLocalisationResponse() {
 void Rosbot::run() {
     // If standby is on, comms must still run
 
+    // This can be written more efficiently
     if (m_isStandbyOn) {
         m_status.mix(255, 163, 0);
         return;
     } else if (!m_isStandbyOn) {
         m_status.mix(0, 0, 255);
+    }
+
+    if (m_isRadioConnected && m_rx->hasLostConnection()) {
+        return;
     }
 
     if (m_isLocalisationOn) {
@@ -105,7 +111,15 @@ void Rosbot::run() {
 }
 
 void Rosbot::runControl () {
+        static FrequencyTimer funcTimer(HZ_100_MICROSECONDS);
+
+        if (!funcTimer.checkEnoughTimeHasPassed()) {
+            return;
+        }
+
         m_pidParams.currValue = m_imuData.orientation.y;
+        m_pidParams.dt = HZ_100_MICROSECONDS;
+        m_pidParams.target = 0;
         // Perform PID control of angle
         float response = PIDController::computeResponse(m_pidParams);
         char buffer[64];
@@ -116,7 +130,7 @@ void Rosbot::runControl () {
 void Rosbot::runLocalisation () {
     // Localisation updates
     // Time since last update
-    static FrequencyTimer funcTimer(10000); // -> 0.01 s = 100 Hz
+    static FrequencyTimer funcTimer(HZ_100_MICROSECONDS); 
 
     if (!funcTimer.checkEnoughTimeHasPassed()) {
         return;
@@ -124,7 +138,6 @@ void Rosbot::runLocalisation () {
 
     m_imu->run();
     m_imu->readImuData(m_imuData);
-    // m_orientation = data.orientation;
     
     imu_filter(m_imuData.accelData.x, m_imuData.accelData.y, m_imuData.accelData.z, 
                 m_imuData.gyroRates.x, m_imuData.gyroRates.y, m_imuData.gyroRates.z, m_qEst);
@@ -135,13 +148,26 @@ void Rosbot::runLocalisation () {
     m_imuData.orientation.y = pitch;
     m_imuData.orientation.z = yaw;
 
-    char buffer[256];
-    m_imuData.orientation.toString(buffer);
-    Serial.println(buffer);
+    // char buffer[256];
+    // m_imuData.orientation.toString(buffer);
+    // Serial.println(buffer);
 
-    m_vwheel.v1 = m_encoderL->readRPM();
-    m_vwheel.v2 = m_encoderR->readRPM();
+    float v1 = m_encoderL->readRPM();
+    float v2 = m_encoderR->readRPM();
     
+    if (v1 != -1) {
+        m_vwheel.v1 = v1;
+    }
+
+    if (v2!= -1) {
+        m_vwheel.v2 = v2;
+    }
+    
+}
+
+
+void Rosbot::setIsRadioConnected (bool isRadioConnected) {
+    m_isRadioConnected = isRadioConnected;
 }
     // m_tf = millis();
     // float dt = m_tf - m_ti;

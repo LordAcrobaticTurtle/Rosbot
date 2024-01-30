@@ -23,8 +23,6 @@ void setup()
     Serial.println("Begin!");
     Serial4.begin(9600);
     Master.begin(100 * 1000U);
-    // enc1.setup();
-    // enc2.setup();   
     setupMainloop();
     
     pinMode(LED_BUILTIN, OUTPUT);

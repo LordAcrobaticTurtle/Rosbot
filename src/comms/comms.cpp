@@ -121,7 +121,7 @@ void Comms::sendResponse(byte *buffer, CliCommandIndex packetID) {
     // Frame data with null bytes
     byte bufferToSend[256];
     auto time = millis();
-    // sprintf((char*) bufferToSend, "0x%x %d %ld %s 0x%x", FRAMING_START, packetID, time - m_timerOffset, buffer, FRAMING_END);
+    sprintf((char*) bufferToSend, "0x%x %d %ld %s 0x%x", FRAMING_START, packetID, time - m_timerOffset, buffer, FRAMING_END);
     m_transceiver->sendBytes(bufferToSend, strlen((const char*) bufferToSend));
     // Serial.println((char *) bufferToSend);
 }
@@ -143,21 +143,15 @@ void Comms::returnStreamResponse() {
     // Check what type of mode is being used. 
     // Generate a response and send it to the transceiver interface. 
 
-    // Is this where I'll pack it into a json object or nah. Yes but inside another function
-    const long int time = millis();
-    static long int timeElapsed = 0;
-
     switch (m_streamMode) {
         case STREAM_MODE_CONTROL: {
             sendControlResponse();
-            // Serial.println("Control response");
             break;
         }
 
         case STREAM_MODE_LOCALISATION_CALIBRATION: {
             // Pre-calculate number of bytes required for 11 floats, but as a string 
             sendLocalisationResponse();
-            // Serial.println("Localisation response");
             break;
         }
 
@@ -173,9 +167,6 @@ void Comms::serialHeartbeat() {
     
     if (time - lastTime >= 1000) {
         Serial.println("Comms");
-        // for (int i = 0; i < m_commsBuffer.getTailPos() + 1; i++) {
-        //     Serial.print(String(m_commsBuffer[i]) + " ");
-        // }
         lastTime = time;
     }
 }
@@ -206,7 +197,7 @@ void Comms::sendLocalisationResponse() {
     char vwheelBuffer[128] = {0};
     res.encoderVelocities.toString(vwheelBuffer);
 
-    sprintf((char *) buffer, "%s,%s,%s,%s,(%f)", accelBuffer, gyroBuffer, angleBuffer, vwheelBuffer, 0);
+    sprintf((char *) buffer, "%s,%s,%s,%s,(%f)", accelBuffer, gyroBuffer, angleBuffer, vwheelBuffer, 0.0);
     sendResponse(buffer, CliCommandIndex::CLI_LOCALISATION_PACKET);
      
 }

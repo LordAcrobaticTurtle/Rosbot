@@ -47,25 +47,25 @@ int Mpu6050::readMagnetField(vector3D &field) {
 void Mpu6050::setup() {
     
     // Compute bias of gyroscope at rest
-    const int numSamples = 1000;
-    float gyroSamples[3] = {0,0,0};
+    // const int numSamples = 1000;
+    // float gyroSamples[3] = {0,0,0};
 
-    for (int i = 0; i < numSamples; i++) {
-        getRawSensorRegisters();
-        parseRawData();
-        for (int i = 0; i < 3; i++) {
-            gyroSamples[i] += m_gyroDataF[i];
-        }
-    }
+    // for (int i = 0; i < numSamples; i++) {
+    //     getRawSensorRegisters();
+    //     parseRawData();
+    //     for (int i = 0; i < 3; i++) {
+    //         gyroSamples[i] += m_gyroDataF[i];
+    //     }
+    // }
 
-    Serial.print("GyroOffsets: ");
-    for (int i = 0; i < 3; i++) {
-        m_gyroRateOffset[i] = gyroSamples[i] / numSamples;
-        // Serial.print(String(m_gyroRateOffset[i]) + ", ");
-    }
+    // Serial.print("GyroOffsets: ");
+    // for (int i = 0; i < 3; i++) {
+    //     m_gyroRateOffset[i] = gyroSamples[i] / numSamples;
+    //     // Serial.print(String(m_gyroRateOffset[i]) + ", ");
+    // }
     // Serial.println();
 
-    m_gyroAngle[0] = -atan2(m_accelDataF[2], m_accelDataF[1]); // Initiate setup for absolute angles 
+    // m_gyroAngle[0] = -atan2(m_accelDataF[2], m_accelDataF[1]); // Initiate setup for absolute angles 
     
 }
 
@@ -108,9 +108,9 @@ void Mpu6050::parseRawData() {
         return;
     }
 
-    m_accelData[0] = m_rawRegisters[0] << 8 | m_rawRegisters[1];
-    m_accelData[1] = m_rawRegisters[2] << 8 | m_rawRegisters[3];
-    m_accelData[2] = m_rawRegisters[4] << 8 | m_rawRegisters[5];
+    m_accelDataRaw[0] = m_rawRegisters[0] << 8 | m_rawRegisters[1];
+    m_accelDataRaw[1] = m_rawRegisters[2] << 8 | m_rawRegisters[3];
+    m_accelDataRaw[2] = m_rawRegisters[4] << 8 | m_rawRegisters[5];
 
     // Temp
     m_temp = m_rawRegisters[6] << 8 | m_rawRegisters [7];
@@ -121,7 +121,7 @@ void Mpu6050::parseRawData() {
 
     for (int i = 0; i < 3; i++) {
         m_gyroDataF[i] = m_gyroDataRaw[i] / 131.0;
-        m_accelDataF[i] = m_accelData[i] / 16384.0 * GRAVITY;
+        m_accelDataF[i] = m_accelDataRaw[i] / 16384.0 * GRAVITY;
     }
 
 }

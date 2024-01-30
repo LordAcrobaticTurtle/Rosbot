@@ -4,6 +4,7 @@
 #include <control/control.h>
 #include <drivers/RGB_LED.h>
 #include <utility/quaternion.h>
+#include <drivers/radio_interface.h>
 
 struct ControlResponse {
     size_t controlIDPlaceholder;
@@ -37,6 +38,7 @@ class Rosbot {
         PIDParams getParams();
         void setParams(PIDParams params);
 
+        void setIsRadioConnected (bool isRadioConnected);
 
     protected:
         void setLocalisationMode (bool isLocalisationOn);
@@ -52,6 +54,7 @@ class Rosbot {
         std::shared_ptr<EncoderInterface> m_encoderR;
         std::shared_ptr<DcMotorInterface> m_motorL;
         std::shared_ptr<DcMotorInterface> m_motorR;
+        std::shared_ptr<RadioInterface> m_rx;
 
         // State estimation related data.
         ImuData m_imuData;
@@ -65,6 +68,7 @@ class Rosbot {
         bool m_isStandbyOn;
         bool m_isControlOn;
         bool m_isLocalisationOn;
+        bool m_isRadioConnected;
 
 
         
