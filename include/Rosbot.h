@@ -35,8 +35,8 @@ class Rosbot {
         ControlResponse getControlResponse();
         void resetImu();
 
-        PIDParams getParams();
-        void setParams(PIDParams params);
+        PIDParams getPIDParams();
+        void setPIDParams(PIDParams params);
 
         void setIsRadioConnected (bool isRadioConnected);
 

@@ -110,7 +110,7 @@ int Comms::handlePacket(MessageContents packet) {
 
         case (CliCommandIndex::CLI_PID_PARAMS_GET): {
             // Return PID params
-            PIDParams params = m_robot->getParams();
+            PIDParams params = m_robot->getPIDParams();
             char buffer[128];
             params.toString(buffer);
             sendResponse((byte *) buffer, CLI_PID_PARAMS_GET);
