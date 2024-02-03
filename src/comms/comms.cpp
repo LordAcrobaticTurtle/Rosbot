@@ -38,9 +38,9 @@ int Comms::run() {
         m_transceiver->readBytes(buffer, numBytesInSerialBuffer);
         m_commsBuffer.insert((const char *) buffer, numBytesInSerialBuffer);
     
-        for (int i = 0; i < m_commsBuffer.getTailPos() + 1; i++) {
-            Serial.println(m_commsBuffer[i]);
-        }
+        // for (int i = 0; i < m_commsBuffer.getTailPos() + 1; i++) {
+        //     Serial.println(m_commsBuffer[i]);
+        // }
     }
 
     MessageContents packet;
@@ -88,8 +88,13 @@ int Comms::handlePacket(MessageContents packet) {
 
         case (CliCommandIndex::CLI_RESET_IMU): {
             m_robot->resetImu();
-            byte buffer[] = "Reset_IMU-OK";
-            sendResponse(buffer, CliCommandIndex::CLI_RESET_IMU);
+            vector3D angleOffsets = m_robot->getAngleOffsets(); 
+            char angleBuffer[64];
+            angleOffsets.toString(angleBuffer);
+            byte msgOk[] = "Reset_IMU-OK";
+            char buffer[128];
+            sprintf(buffer, "%s: %s", msgOk, angleBuffer);
+            sendResponse( (byte *) buffer, CliCommandIndex::CLI_RESET_IMU);
             Serial.println("Reset IMU-OK");
             break;
         }
@@ -119,6 +124,34 @@ int Comms::handlePacket(MessageContents packet) {
 
         case (CliCommandIndex::CLI_PID_PARAMS_SET): {
             // Parse and set PID params
+            float p = 0; 
+            float i = 0;
+            float d = 0;
+            float target = 0;
+            if (packet.argc != 2) {
+                byte buffer[] = "Set-pid-Not-Ok. Argc != 2";
+                sendResponse(buffer, CLI_PID_PARAMS_SET);
+                return;
+            }
+
+            int valuesFilled = sscanf(packet.argv[1], "[%f,%f,%f,%f]", &p, &i, &d, &target);
+            
+            if (valuesFilled != 4) {
+                byte buffer[] = "Set-pid-Not-Ok. valuesFilled != 4";
+                sendResponse(buffer, CLI_PID_PARAMS_SET);
+                return;
+            }
+
+            PIDParams params = m_robot->getPIDParams();
+            params.kd = d;
+            params.kp = p;
+            params.ki = i;
+            params.target = target;
+            m_robot->setPIDParams(params);
+
+            byte buffer[] = "Set-pid-Ok";
+            sendResponse(buffer, CLI_PID_PARAMS_SET);
+            Serial.println("Set-pid Ok");
             break;
         }
 
@@ -193,7 +226,7 @@ void Comms::sendControlResponse() {
     sprintf(buffer, "%s", paramBuffer);
     sendResponse((byte*) buffer, CLI_CONTROL_PACKET);
 }
-
+ 
 void Comms::sendLocalisationResponse() {
     LocalisationResponse res = m_robot->getLocalisationResponse();
     byte buffer[1028];

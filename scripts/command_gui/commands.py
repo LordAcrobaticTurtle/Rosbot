@@ -11,6 +11,8 @@ class CliCommandIndex(IntEnum):
     CLI_HELP = auto()
     CLI_CONTROL_PACKET = auto()
     CLI_LOCALISATION_PACKET = auto()
+    CLI_GET_PID = auto()
+    CLI_SET_PID = auto()
     CLI_NUM_COMMAND = auto()
 
 commands = [
@@ -23,6 +25,8 @@ commands = [
     "Help",
     "ControlPacket",
     "LocalisationPacket",
+    "Get-pid",
+    "Set-pid",
     "None"
 ]
 
