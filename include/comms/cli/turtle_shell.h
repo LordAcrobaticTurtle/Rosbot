@@ -20,6 +20,8 @@ enum CliCommandIndex {
     CLI_HELP,
     CLI_CONTROL_PACKET,
     CLI_LOCALISATION_PACKET,
+    CLI_PID_PARAMS_SET,
+    CLI_PID_PARAMS_GET,
     CLI_NUM_COMMANDS
 };
 
@@ -33,13 +35,14 @@ const char cliCommands[CLI_NUM_COMMANDS+1][64] = {
     "Help",
     "ControlPacket",
     "LocalisationPacket",
+    "GET-PID",
+    "SET-PID",
     "None"
 };
 
 /**
  * @brief Can only handle 5 arguments in a single command as per the macro CLI_MAX_NUMBER_ARGUMENTS at time of writing.
  * Shell starts active. Currently nothing can switch it off. 
- * 
  */
 class TurtleShell {
     public:

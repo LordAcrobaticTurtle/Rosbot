@@ -9,10 +9,8 @@
 
 
 Comms::Comms(
-    std::shared_ptr<Rosbot> robot,
-    std::shared_ptr<RadioInterface> rx
+    std::shared_ptr<Rosbot> robot
 ) : m_robot(robot),
-    m_rx(rx),
     m_streamMode(STREAM_MODE_NONE)
 {
     m_transceiver = std::make_shared<BluetoothTransceiver>(&Serial4, 115200);
@@ -109,6 +107,21 @@ int Comms::handlePacket(MessageContents packet) {
             sendHelp();
             break;
         }
+
+        case (CliCommandIndex::CLI_PID_PARAMS_GET): {
+            // Return PID params
+            PIDParams params = m_robot->getParams();
+            char buffer[128];
+            params.toString(buffer);
+            sendResponse((byte *) buffer, CLI_PID_PARAMS_GET);
+            break;
+        }
+
+        case (CliCommandIndex::CLI_PID_PARAMS_SET): {
+            // Parse and set PID params
+            break;
+        }
+
 
         default:
             // Do nothing

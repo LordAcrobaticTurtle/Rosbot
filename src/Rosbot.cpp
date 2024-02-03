@@ -15,6 +15,9 @@ Rosbot::Rosbot() :
 { 
     m_pidParams.bounds[0] = -1;
     m_pidParams.bounds[1] = 1;
+    m_pidParams.kp = 1;
+    m_pidParams.kd = 0;
+    m_pidParams.ki = 0;
     m_qEst.q1 = 1;
     m_qEst.q2 = 0;
     m_qEst.q3 = 0;
@@ -36,6 +39,7 @@ void Rosbot::setup()
     m_encoderL = std::make_shared<EncoderN20>(6,7);
     m_encoderR = std::make_shared<EncoderN20>(8,9);
     m_rx = std::make_shared<RadioInterface>(&Serial1);
+    m_rx->setup();
 }
 
 void Rosbot::ActivateStandbyMode() {
@@ -101,7 +105,6 @@ void Rosbot::run() {
     }
 
     if (m_isLocalisationOn) {
-        // Run localisation module
         runLocalisation();
     }
 
@@ -119,7 +122,8 @@ void Rosbot::runControl () {
 
         m_pidParams.currValue = m_imuData.orientation.y;
         m_pidParams.dt = HZ_100_MICROSECONDS;
-        m_pidParams.target = 0;
+        m_pidParams.target = 0; // Assume 
+        
         // Perform PID control of angle
         float response = PIDController::computeResponse(m_pidParams);
         char buffer[64];
