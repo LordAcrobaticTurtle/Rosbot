@@ -152,9 +152,9 @@ void Rosbot::runLocalisation () {
     m_imuData.orientation.y = pitch;
     m_imuData.orientation.z = yaw;
 
-    // char buffer[256];
-    // m_imuData.orientation.toString(buffer);
-    // Serial.println(buffer);
+    char buffer[256];
+    m_imuData.orientation.toString(buffer);
+    Serial.println(buffer);
 
     float v1 = m_encoderL->readRPM();
     float v2 = m_encoderR->readRPM();
@@ -169,6 +169,9 @@ void Rosbot::runLocalisation () {
     
 }
 
+PIDParams Rosbot::getPIDParams () {
+    return m_pidParams;
+}
 
 void Rosbot::setIsRadioConnected (bool isRadioConnected) {
     m_isRadioConnected = isRadioConnected;
