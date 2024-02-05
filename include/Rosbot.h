@@ -33,12 +33,15 @@ class Rosbot {
 
         LocalisationResponse getLocalisationResponse();
         ControlResponse getControlResponse();
-        void resetImu();
+        void resetImu ();
+        vector3D getAngleOffsets ();
 
-        PIDParams getParams();
-        void setParams(PIDParams params);
+        PIDParams getPIDParams();
+        void setPIDParams(PIDParams params);
 
         void setIsRadioConnected (bool isRadioConnected);
+
+        void runAngleOffsetEstimation ();
 
     protected:
         void setLocalisationMode (bool isLocalisationOn);
@@ -69,6 +72,8 @@ class Rosbot {
         bool m_isControlOn;
         bool m_isLocalisationOn;
         bool m_isRadioConnected;
+
+        vector3D m_angleOffsets;
 
 
         

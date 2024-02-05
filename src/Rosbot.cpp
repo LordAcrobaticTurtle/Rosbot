@@ -11,11 +11,13 @@ Rosbot::Rosbot() :
     m_status(4,3,2,false),
     m_isStandbyOn(true),
     m_isControlOn(false),
-    m_isLocalisationOn(false)
+    m_isLocalisationOn(false),
+    m_isRadioConnected(false)
 { 
     m_pidParams.bounds[0] = -1;
     m_pidParams.bounds[1] = 1;
-    m_pidParams.kp = 1;
+
+    m_pidParams.kp = 0.1;
     m_pidParams.kd = 0;
     m_pidParams.ki = 0;
     m_qEst.q1 = 1;
@@ -32,6 +34,7 @@ void Rosbot::setup()
     // m_imu.setup(Master);
     // Drivers need to inherit
     // Then can create drivers here, and pass into respective classes
+    m_status.switchRedOn();
     m_imu = std::make_shared<Mpu6050>(Master);
     m_status.switchGreenOn();
     m_motorL = std::make_shared<DRV8876>(12, 11, 10, -1, 5);
@@ -70,6 +73,7 @@ void Rosbot::setLocalisationMode(bool isLocalisationOn) {
 
 void Rosbot::resetImu() {
     // Reset and recompute angle offsets. 
+    runAngleOffsetEstimation();
 }
 
 ControlResponse Rosbot::getControlResponse() {
@@ -95,14 +99,16 @@ void Rosbot::run() {
     // This can be written more efficiently
     if (m_isStandbyOn) {
         m_status.mix(255, 163, 0);
+        m_motorL->setThrottle(0);
+        m_motorR->setThrottle(0);
         return;
     } else if (!m_isStandbyOn) {
         m_status.mix(0, 0, 255);
     }
 
-    if (m_isRadioConnected && m_rx->hasLostConnection()) {
-        return;
-    }
+    // if (m_isRadioConnected && m_rx->hasLostConnection()) {
+    //     return;
+    // }
 
     if (m_isLocalisationOn) {
         runLocalisation();
@@ -130,9 +136,16 @@ void Rosbot::runControl () {
         
         // Perform PID control of angle
         float response = PIDController::computeResponse(m_pidParams);
-        char buffer[64];
-        m_imuData.orientation.toString(buffer);
-        Serial.println(buffer);       
+
+        int PWMresponse = response * 255.0;
+        Serial.println(PWMresponse);
+        m_motorL->setThrottle(-PWMresponse);
+        m_motorR->setThrottle(PWMresponse);
+        // Update motors with voltage command
+
+        // char buffer[64];
+        // m_imuData.orientation.toString(buffer);
+        // Serial.println(buffer);       
 }
 
 void Rosbot::runLocalisation () {
@@ -157,9 +170,10 @@ void Rosbot::runLocalisation () {
     
     float roll, pitch, yaw;
     eulerAngles(m_qEst, &roll, &pitch, &yaw);
-    m_imuData.orientation.x = roll;
-    m_imuData.orientation.y = pitch;
-    m_imuData.orientation.z = yaw;
+    // const double pitchOffset = -1.692832802;
+    m_imuData.orientation.x = roll - m_angleOffsets.x;
+    m_imuData.orientation.y = pitch - m_angleOffsets.y;
+    m_imuData.orientation.z = yaw - m_angleOffsets.z;
 
     // char buffer[256];
     // m_imuData.orientation.toString(buffer);
@@ -175,9 +189,42 @@ void Rosbot::runLocalisation () {
     if (v2!= -1) {
         m_vwheel.v2 = v2;
     }
-    
 }
 
+void Rosbot::runAngleOffsetEstimation () {
+    const int numSamples = 5000;
+    m_status.mix(255,0,255);
+    delay(100);
+    vector3D offset;
+    m_angleOffsets.x = 0;
+    m_angleOffsets.y = 0;
+    m_angleOffsets.z = 0;
+    for (int i = 0; i < numSamples; i++) {
+        runLocalisation();
+        offset.x += m_imuData.orientation.x;
+        offset.y += m_imuData.orientation.y;
+        offset.z += m_imuData.orientation.z;
+    }
+
+    m_angleOffsets.x = offset.x / numSamples;
+    m_angleOffsets.y = offset.y / numSamples;
+    m_angleOffsets.z = offset.z / numSamples;
+    m_status.mix(0,255,0);
+}
+
+
+
+vector3D Rosbot::getAngleOffsets () {
+    return m_angleOffsets;
+}
+
+PIDParams Rosbot::getPIDParams () {
+    return m_pidParams;
+}
+
+void Rosbot::setPIDParams (PIDParams params) {
+    m_pidParams = params;
+}
 
 void Rosbot::setIsRadioConnected (bool isRadioConnected) {
     m_isRadioConnected = isRadioConnected;

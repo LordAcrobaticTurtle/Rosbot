@@ -6,7 +6,7 @@ Mpu6050::Mpu6050(I2CMaster &interface)
     memset(m_gyroAngle, 0, sizeof(float) * 3);
     memset(m_gyroRateOffset, 0, sizeof(float) * 3);
     m_configured = init(interface);
-    setup();
+    // setup();
 }
 
 int Mpu6050::readImuData (ImuData &data) {
@@ -47,25 +47,25 @@ int Mpu6050::readMagnetField(vector3D &field) {
 void Mpu6050::setup() {
     
     // Compute bias of gyroscope at rest
-    // const int numSamples = 1000;
-    // float gyroSamples[3] = {0,0,0};
+    const int numSamples = 1000;
+    float gyroSamples[3] = {0,0,0};
 
-    // for (int i = 0; i < numSamples; i++) {
-    //     getRawSensorRegisters();
-    //     parseRawData();
-    //     for (int i = 0; i < 3; i++) {
-    //         gyroSamples[i] += m_gyroDataF[i];
-    //     }
-    // }
+    for (int i = 0; i < numSamples; i++) {
+        getRawSensorRegisters();
+        parseRawData();
+        for (int i = 0; i < 3; i++) {
+            gyroSamples[i] += m_gyroDataF[i];
+        }
+    }
 
-    // Serial.print("GyroOffsets: ");
-    // for (int i = 0; i < 3; i++) {
-    //     m_gyroRateOffset[i] = gyroSamples[i] / numSamples;
-    //     // Serial.print(String(m_gyroRateOffset[i]) + ", ");
-    // }
-    // Serial.println();
+    Serial.print("GyroOffsets: ");
+    for (int i = 0; i < 3; i++) {
+        m_gyroRateOffset[i] = gyroSamples[i] / numSamples;
+        // Serial.print(String(m_gyroRateOffset[i]) + ", ");
+    }
+    Serial.println();
 
-    // m_gyroAngle[0] = -atan2(m_accelDataF[2], m_accelDataF[1]); // Initiate setup for absolute angles 
+    m_gyroAngle[0] = -atan2(m_accelDataF[2], m_accelDataF[1]); // Initiate setup for absolute angles 
     
 }
 
@@ -121,6 +121,7 @@ void Mpu6050::parseRawData() {
 
     for (int i = 0; i < 3; i++) {
         m_gyroDataF[i] = m_gyroDataRaw[i] / 131.0;
+        m_gyroDataF[i] = (m_gyroDataF[i] - m_gyroRateOffset[i]) * PI/180; 
         m_accelDataF[i] = m_accelDataRaw[i] / 16384.0 * GRAVITY;
     }
 

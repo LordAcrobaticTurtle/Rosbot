@@ -35,8 +35,8 @@ const char cliCommands[CLI_NUM_COMMANDS+1][64] = {
     "Help",
     "ControlPacket",
     "LocalisationPacket",
-    "GET-PID",
-    "SET-PID",
+    "Set-pid",
+    "Get-pid",
     "None"
 };
 
