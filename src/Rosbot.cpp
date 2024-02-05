@@ -113,6 +113,10 @@ void Rosbot::run() {
     }
 }
 
+PIDParams Rosbot::getParams () {
+    return m_pidParams;
+}
+
 void Rosbot::runControl () {
         static FrequencyTimer funcTimer(HZ_100_MICROSECONDS);
 

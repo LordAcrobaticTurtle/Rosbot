@@ -12,36 +12,31 @@ const int enc1_c1 = 6;
 const int enc1_c2 = 7;
 
 
-enum EncoderReturnOptions {
-    VALID,
-    TIMEOUT
-};
-
-struct EncoderResult {
-    EncoderReturnOptions option;
-    float RPM;
-};
-
 class EncoderN20 : public EncoderInterface {
 
     public:
         EncoderN20(int pin1, int pin2);
         ~EncoderN20() {};
-        virtual float readRPM();
 
-        EncoderResult readRPMwithStruct();
+        virtual float readRPM ()         override;
+        virtual long int readPosition () override;
 
-        int setup();
+        // This function assumes you are calling with a reasonable amount of time in between each function calls. 
+        // I.e. On the scale of milliseconds, not microseconds
+        virtual void update ()           override;
 
-        void update();
 
     private:
-    
+        float computeRPM ();
 
     private:
         const int pulsesPerRevolution = 7;
         
+        float m_rpm;
+
+        long int m_currCount;
         long int m_lastCount;
+        long int m_currTime;
         long int m_lastReadTime;
         
         int m_pin1, m_pin2;

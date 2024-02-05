@@ -2,9 +2,9 @@
 
 
 class EncoderInterface {
-public:
-    // EncoderInterface() {};
-    // virtual ~EncoderInterface() {};
-    virtual float readRPM() = 0;
+    public:    
+        virtual float readRPM() = 0;
+        virtual long int readPosition () = 0;
+        virtual void update () = 0;
 
 };
