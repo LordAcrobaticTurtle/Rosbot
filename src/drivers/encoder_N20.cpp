@@ -26,7 +26,7 @@ float EncoderN20::computeRPM () {
     const int dt = m_currTime - m_lastReadTime;
     const int countDifference = m_currCount - m_lastCount; // Could be positive or negative
 
-    float dtInSeconds = dt / 1000000.0; // s
+    float dtInSeconds = dt * 1.0e-6;
 
     float RPS = countDifference / (dtInSeconds*PPR); 
     m_rpm = RPS *60 ;

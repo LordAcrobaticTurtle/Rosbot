@@ -41,9 +41,11 @@ class Rosbot {
 
         void setIsRadioConnected (bool isRadioConnected);
 
-        void runAngleOffsetEstimation ();
+        void setMotorPosition (int motorIndex, int throttle);
+
 
     protected:
+        void runAngleOffsetEstimation ();
         void setLocalisationMode (bool isLocalisationOn);
         void setControlMode (bool isControlOn);
         void runLocalisation ();
@@ -66,6 +68,8 @@ class Rosbot {
 
         // Control related data
         PIDParams m_pidParams;
+        PIDParams m_motorLPositionParams;
+        PIDParams m_motorRPositionParams;
 
         // Mode related data
         bool m_isStandbyOn;

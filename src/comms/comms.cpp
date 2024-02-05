@@ -101,6 +101,25 @@ int Comms::handlePacket(MessageContents packet) {
 
         case (CliCommandIndex::CLI_MOTOR): {
             // Send velocity commands to motor
+            int motorIndex = -1;
+            int throttle = 0;
+
+            if (packet.argc != 2) {
+                byte buffer[] = "cli-Motor-Not-Ok. Argc != 2";
+                sendResponse(buffer, CLI_MOTOR);
+                return;
+            }
+
+            int valuesFilled = sscanf(packet.argv[1], "[%d,%d]", &motorIndex, &throttle);
+
+            if (valuesFilled != 2) {
+                byte buffer[] = "cli-Motor-Not-Ok. ValuesFilled != 2";
+                sendResponse(buffer, CLI_MOTOR);
+                return;
+            }
+
+            m_robot->setMotorPosition(motorIndex, throttle);
+
             byte buffer[] = "Motor-OK";
             sendResponse(buffer, CliCommandIndex::CLI_MOTOR);
             Serial.println("Motor command");
@@ -134,7 +153,7 @@ int Comms::handlePacket(MessageContents packet) {
                 return;
             }
 
-            int valuesFilled = sscanf(packet.argv[1], "[%f,%f,%f,%f]", &p, &i, &d, &target);
+            int valuesFilled = sscanf(packet.argv[1], "[%f,%f,%f]", &p, &i, &d, &target);
             
             if (valuesFilled != 4) {
                 byte buffer[] = "Set-pid-Not-Ok. valuesFilled != 4";
