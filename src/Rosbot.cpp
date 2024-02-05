@@ -183,10 +183,13 @@ void Rosbot::runLocalisation () {
 }
 
 void Rosbot::runAngleOffsetEstimation () {
-    const int numSamples = 2000;
+    const int numSamples = 5000;
     m_status.mix(255,0,255);
     delay(100);
     vector3D offset;
+    m_angleOffsets.x = 0;
+    m_angleOffsets.y = 0;
+    m_angleOffsets.z = 0;
     for (int i = 0; i < numSamples; i++) {
         runLocalisation();
         offset.x += m_imuData.orientation.x;
