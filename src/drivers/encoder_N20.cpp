@@ -10,7 +10,7 @@ EncoderN20::EncoderN20(int pin1, int pin2) :
     m_lastReadTime = 0;
 }
 
-void EncoderN20::update() {
+void EncoderN20::run() {
     m_currCount = m_encoder.read();
     computeRPM();
     m_lastCount = m_currCount;

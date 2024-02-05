@@ -23,7 +23,7 @@ class EncoderN20 : public EncoderInterface {
 
         // This function assumes you are calling with a reasonable amount of time in between each function calls. 
         // I.e. On the scale of milliseconds, not microseconds
-        virtual void update ()           override;
+        virtual void run ()           override;
 
 
     private:

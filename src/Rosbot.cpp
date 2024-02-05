@@ -144,7 +144,12 @@ void Rosbot::runLocalisation () {
         return;
     }
 
+    // Running each sub module responsible for driver level work
     m_imu->run();
+    m_encoderL->run();
+    m_encoderR->run();
+    
+    
     m_imu->readImuData(m_imuData);
     
     imu_filter(m_imuData.accelData.x, m_imuData.accelData.y, m_imuData.accelData.z, 
