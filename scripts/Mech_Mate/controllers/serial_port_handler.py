@@ -126,27 +126,11 @@ class SerialPortHandler():
         
         data = data[1:len(data)-1] # Remove start and end square brackets
         payload = data.split(',')
-        payload = [(int(x) for x in payload)]
+
+        
+
         self._model.insert(commandIndexFromBuffer, timestamp, payload)
-        # What to do with different information
-        # Begin, standby, Calibrate, reset-IMU, Motor, Help -> Send response to terminal
-        # if (commandIndexFromBuffer >= commands.CliCommandIndex.CLI_BEGIN and 
-        #     commandIndexFromBuffer <= commands.CliCommandIndex.CLI_HELP):
-        #     # Update
-        #     # parse for newlines and updates serial console appropriately
-        #     # Create objects to retrieve the data from
-        #     pass
-        # elif (commandIndexFromBuffer == commands.CliCommandIndex.CLI_CONTROL_PACKET):
-            
-        #     # Parse and store in control packet location
-        #     pass
-        # elif (commandIndexFromBuffer == commands.CliCommandIndex.CLI_LOCALISATION_PACKET):
-        #     # Parse and store in localisation packet location
-        #     packet = commands.LocalisationPacket()
-        #     packet.fromString(data)
-        #     self._model.insertCalibrationPacket(packet, timestamp)
-        # elif (commandIndexFromBuffer == commands.CliCommandIndex.CLI_SET_PID):
-        #     pass
+        
 
 
         
