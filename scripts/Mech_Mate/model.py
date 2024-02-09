@@ -2,80 +2,72 @@
 import commands
 import threading
 
+
+MAX_QUEUE_LENGTH = 200
+
 class Model():
     def __init__(self):
         self.name = "Model"
-        self.controlPackets = []
-        self.calibrationPackets = []
-        self.filePath = str()
-        self.maxElementsInArray = 200
-        self.calibrationPacketsLock = threading.Lock()
-        self.calibrationCallbacks = []
+        self.dataLock = threading.Lock()
+        self._data = {}
+        self._callbacks = {}
+        for i, __ in enumerate(commands.CliCommandIndex):
+            self._data[i] = []
+            self._callbacks[i] = []
         
-        
-    def insert(self, packetId : commands.CliCommandIndex, timestamp : int, payload : str):
+    # Assume payload is a csv separable string. 
+    def insert(self, packetId : int, timestamp : int, payload : list):
         print("Data inserted")
-
-        # 
-        self._data[packetId]["timestamp"]
-        pass
-
-    def insertCalibrationPacket(self, packet, timestamp : float):
-        # append to the list
-        # If exceeding x number of characters, remove the first element
-        dictionary = {
-            "data" : packet,
-            "timestamp" : timestamp
+        
+        structure = {
+            "timestamp" : timestamp,
+            "payload" : payload
         }
-        # print(packet)
-        with self.calibrationPacketsLock:    
-            self.calibrationPackets.append(dictionary)
-            if (len(self.calibrationPackets) > self.maxElementsInArray):
-                del self.calibrationPackets[0]
-        
-        self.executeCalibrationCallbackFunctions(timestamp, packet)
 
-        
-    
-    def getCalibrationPackets(self) -> list:
-        with self.calibrationPacketsLock:
-            return self.calibrationPackets.copy()
+        self.dataLock.acquire()
 
-    def insertControlPacket(self, packet):
-        self.controlPackets.append(packet)    
-        if (len(self.controlPackets) > self.maxElementsInArray):
-            del self.controlPackets[0]
-    
-    # func and IDstructured like so
-    # func = {
-    # "func" : function
-    # "id" : _where did the callback come from
-    # }
-    def registerCalibrationCallbackFunction(self, funcAndId : dict):
-        if (len(funcAndId.keys()) != 2):
-            print("registerCalibCallbacks: Dictionary not the right shape")
+        self._data[packetId].append(structure)
+        if len(self._data[packetId]) > MAX_QUEUE_LENGTH:
+            del self._data[packetId][0]
+
+        self.dataLock.release()
+
+        self.executeCallbackFunctions(packetId, timestamp, payload)
+
+    def registerCallbackFunction(self, funcAndId : dict):
+        if (len(funcAndId.keys()) != 3):
+            print("register Callbacks: Dictionary not the right shape")
             return
         
+        if ("packetId" not in funcAndId.keys()):
+            print("Register Callbacks: Dict missing packetID key")
+            return
+
         if ("func" not in funcAndId.keys()):
-            print("registerCalibCallbacks: Dict missing func key")
+            print("register Callbacks: Dict missing func key")
             return
         
-        if ("id" not in funcAndId.keys()):
-            print("registerCalibrationCallbacks: Dict missing id key")
+        if ("unique_id" not in funcAndId.keys()):
+            print("register Callbacks: Dict missing id key")
             return
-        listOfIds = [x["id"] for x in self.calibrationCallbacks]
+        
+        listOfIds = [x["id"] for x in self._callbacks[funcAndId["packetId"]]]
         
         if (funcAndId["id"] in listOfIds):
             print(f"registerCalibrationCallbacks: {funcAndId['id']} already in the list")
             return
 
-        self.calibrationCallbacks.append(funcAndId)
+        structure = {
+            "id" : funcAndId["id"],
+            "func" : funcAndId["func"]
+        }
 
-    def deregisterCalibrationCallbackFunction(self, id : str):
-        # listOfIds = [x["id"] for x in self.calibrationCallbacks]
+        self._callbacks[funcAndId["packetId"]].append(funcAndId)
+
+    def deRegisterCallbackFunction(self, id : str, packetID : int):
         isIdFound = False
-        elementIndex = -1
-        for i,j in enumerate(self.calibrationCallbacks):
+        
+        for i,j in enumerate(self._callbacks[packetID]):
             if j["id"] == id:
                 isIdFound = True
                 elementIndex = i
@@ -83,10 +75,10 @@ class Model():
         if (isIdFound == False):
             print(f"deregisterCalibrationCallback: {id} does not exist in list")
 
-        del self.calibrationCallbacks[i]
+        del self._callbacks[packetID][elementIndex]
 
-    def executeCalibrationCallbackFunctions(self, timestamp : float, newData):
-        for funcAndId in self.calibrationCallbacks:
+    def executeCallbackFunctions(self, packetId : int, timestamp : float, newData : list):
+        for funcAndId in self._callbacks[packetId]:
             funcAndId["func"](timestamp, newData)
 
 def demoCallback(timestamp : float, newData):
