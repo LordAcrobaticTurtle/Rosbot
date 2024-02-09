@@ -1,39 +1,84 @@
 #pragma once
-#include <AS5600.h>
-#include <i2c_device.h>
-#include <i2c_driver_wire.h>
-#include <AccelStepper.h>
-#include <RadioInterface.h>
-#include <SBUS.h>
 
-#define MOTORINTERFACETYPE 1
+#include <localisation/localisation.h>
+#include <control/control.h>
+#include <drivers/RGB_LED.h>
+#include <utility/quaternion.h>
+#include <drivers/radio_interface.h>
+
+struct ControlResponse {
+    size_t controlIDPlaceholder;
+    PIDParams params;
+    double controlResponse;
+};
+
+struct LocalisationResponse {
+    vector3D orientation;
+    vector3D gyroRates;
+    vector3D accelReadings;
+    vector2D encoderVelocities;
+};
 
 class Rosbot {
     public:
         Rosbot();
         ~Rosbot();
 
-        void tankDrive();
+        void setup();
+        void run();
 
-        void targetStepperPosL(int target);
-        void targetStepperPosR(int target);
-        void stepperRun();
+        void ActivateStandbyMode();
+        void ActivateCalibration();
+        void ActivateControlMode();
+
+        LocalisationResponse getLocalisationResponse();
+        ControlResponse getControlResponse();
+        void resetImu ();
+        vector3D getAngleOffsets ();
+
+        PIDParams getPIDParams();
+        void setPIDParams(PIDParams params);
+
+        void setIsRadioConnected (bool isRadioConnected);
+
+        void setMotorPosition (int motorIndex, int throttle);
+
+
+    protected:
+        void runAngleOffsetEstimation ();
+        void setLocalisationMode (bool isLocalisationOn);
+        void setControlMode (bool isControlOn);
+        void runLocalisation ();
+        void runControl ();
+
+    protected:
+        // Driver related components
+        RGBLED m_status;
+        std::shared_ptr<ImuInterface> m_imu;
+        std::shared_ptr<EncoderInterface> m_encoderL;
+        std::shared_ptr<EncoderInterface> m_encoderR;
+        std::shared_ptr<DcMotorInterface> m_motorL;
+        std::shared_ptr<DcMotorInterface> m_motorR;
+        std::shared_ptr<RadioInterface> m_rx;
+
+        // State estimation related data.
+        ImuData m_imuData;
+        quaternion m_qEst;
+        vector2D m_vwheel;
+
+        // Control related data
+        PIDParams m_pidParams;
+        PIDParams m_motorLPositionParams;
+        PIDParams m_motorRPositionParams;
+
+        // Mode related data
+        bool m_isStandbyOn;
+        bool m_isControlOn;
+        bool m_isLocalisationOn;
+        bool m_isRadioConnected;
+
+        vector3D m_angleOffsets;
+
 
         
-    private:
-        
-        AccelStepper m_stepperL;
-        AccelStepper m_stepperR;
-        RadioInterface m_rx;
-        AS5600 m_encL;
-        AS5600 m_encR;
-
-        int m_stepperMaxSpeed;
-        int m_stepperMaxAccel;
-
-        const int m_dirPinL = 3;
-        const int m_stepPinL = 2;
-        const int m_dirPinR = 14;
-        const int m_stepPinR = 12;
-
 };

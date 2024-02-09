@@ -4,3 +4,6 @@
 .vscode/launch.json
 .vscode/ipch
 /lib/*
+*.pyc
+
+build_test/
