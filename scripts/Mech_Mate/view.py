@@ -2,21 +2,9 @@ import tkinter as tk
 from tkinter import ttk
 from custom_errors import GUIError
 
-import ui_elements.command_sidebar as SideBar
-import ui_elements.record_settings as RecordSettings
-import ui_elements.serial_console as SerialConsole
-
-# Import dependenues for LIVE plotting
-# from matplotlib import style
-# import matplotlib.animation as animation
-# from matplotlib.figure import Figure
-# from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
-# from matplotlib import style
-# import math
-# from tkinter import filedialog
-# App is the parent widget. The View is the frame that sits on top
-# It should contain minimal logic for displaying data. 
-# It will call functions in the controller layer to retrieve the data 
+import ui_elements.ui_command_sidebar as SideBar
+import ui_elements.ui_record_settings as RecordSettings
+import ui_elements.ui_serial_console as SerialConsole
 
 class View(ttk.Frame):
     def __init__(self, root : tk.Tk):

@@ -2,7 +2,7 @@
 import serial 
 import serial.tools.list_ports
 import threading
-import ui_elements.serial_console as serialView
+import scripts.Mech_Mate.ui_elements.ui_serial_console as serialView
 import commands
 import model
 
@@ -18,14 +18,15 @@ class SerialPortHandler():
         self._view._callbacks[serialView.SerialConsoleCallbackIndex]["Connect"] = self.open
         self._view._callbacks[serialView.SerialConsoleCallbackIndex]["Disconnect"] = self.close
         self._view._callbacks[serialView.SerialConsoleCallbackIndex]["Get List"] = self.get_list_of_available_ports
-        
-        pass
+        return
 
     def close(self):
         self.isAppRunning = False
         if (self._isPortOpen):
             self._t1.join()
             self._isPortOpen = False
+        
+        return
 
     
     def open(self, port : str, baudrate : str):
@@ -34,7 +35,7 @@ class SerialPortHandler():
                 print("There is already one active connection")
                 return
 
-            # self.view.updateSerialConsole(f"Opening {port} @ {baudrate}")
+            self._view.updateSerialConsole(f"Opening {port} @ {baudrate}")
 
             self._openPort = serial.Serial()
             self._openPort.baudrate = int(baudrate)
@@ -52,12 +53,12 @@ class SerialPortHandler():
                 self._t1.start()
                 successStr = f"{port} is now open"
                 print(successStr)
-                # self.view.updateSerialConsole(successStr)
+                self._view.updateSerialConsole(successStr)
             except serial.SerialException as e:
                 self._isPortOpen = False
                 errorStr = f"Warning: {port} is not accessible - {e}"
                 print(errorStr)
-                # self.view.updateSerialConsole(errorStr)
+                self._view.updateSerialConsole(errorStr)
 
     def get_list_of_available_ports (self) -> list:
         ports = serial.tools.list_ports.comports()
@@ -123,7 +124,10 @@ class SerialPortHandler():
         serialStr = f"CommandIndex: {commandIndexFromBuffer}, t: {timestamp}, d: {data}"
         self._view.updateSerialConsole(serialStr)
         
-        self._model.insert(commandIndexFromBuffer, timestamp, data)
+        data = data[1:len(data)-1] # Remove start and end square brackets
+        payload = data.split(',')
+        payload = [(int(x) for x in payload)]
+        self._model.insert(commandIndexFromBuffer, timestamp, payload)
         # What to do with different information
         # Begin, standby, Calibrate, reset-IMU, Motor, Help -> Send response to terminal
         # if (commandIndexFromBuffer >= commands.CliCommandIndex.CLI_BEGIN and 
