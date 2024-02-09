@@ -1,5 +1,5 @@
 
-from commands import LocalisationPacket, ControlPacket
+import commands
 import threading
 
 class Model():
@@ -12,8 +12,15 @@ class Model():
         self.calibrationPacketsLock = threading.Lock()
         self.calibrationCallbacks = []
         
-    
-    def insertCalibrationPacket(self, packet : LocalisationPacket, timestamp : float):
+        
+    def insert(self, packetId : commands.CliCommandIndex, timestamp : int, payload : str):
+        print("Data inserted")
+
+        # 
+        self._data[packetId]["timestamp"]
+        pass
+
+    def insertCalibrationPacket(self, packet, timestamp : float):
         # append to the list
         # If exceeding x number of characters, remove the first element
         dictionary = {
@@ -34,7 +41,7 @@ class Model():
         with self.calibrationPacketsLock:
             return self.calibrationPackets.copy()
 
-    def insertControlPacket(self, packet : ControlPacket):
+    def insertControlPacket(self, packet):
         self.controlPackets.append(packet)    
         if (len(self.controlPackets) > self.maxElementsInArray):
             del self.controlPackets[0]
@@ -78,15 +85,11 @@ class Model():
 
         del self.calibrationCallbacks[i]
 
-    def executeCalibrationCallbackFunctions(self, timestamp : float, newData : LocalisationPacket):
+    def executeCalibrationCallbackFunctions(self, timestamp : float, newData):
         for funcAndId in self.calibrationCallbacks:
             funcAndId["func"](timestamp, newData)
 
-
-
-
-
-def demoCallback(timestamp : float, newData : LocalisationPacket):
+def demoCallback(timestamp : float, newData):
     print("Neeeeew data, weehoo")
     print(f"{newData}") 
 
@@ -96,11 +99,22 @@ def main():
         "id": "Test",
         "func" : demoCallback
     }
-    model.registerCalibrationCallbackFunction(funcAndId)
-    packet = LocalisationPacket()
-    buffer = f"(1.1,1.2,1.3),(1.1,1.2,1.3),(1.1,1.2,1.3),(9.1,8.9)"
-    packet.fromString(buffer)
-    model.insertCalibrationPacket(packet, 0.5)    
+
+    # for i, packetID in enumerate(commands.CliCommandIndex):
+        # print(packetID)
+
+    test = {
+        int(commands.CliCommandIndex.CLI_BEGIN) : 0
+    }
+
+    test[1] = 1
+
+    print(test)
+    # model.registerCalibrationCallbackFunction(funcAndId)
+    # packet = 
+    # buffer = f"(1.1,1.2,1.3),(1.1,1.2,1.3),(1.1,1.2,1.3),(9.1,8.9)"
+    # packet.fromString(buffer)
+    # model.insertCalibrationPacket(packet, 0.5)    
     
 
 

@@ -95,15 +95,12 @@ void Rosbot::resetImu() {
     runAngleOffsetEstimation();
 }
 
-void Rosbot::setMotorPosition (int motorIndex, int position) {
+void Rosbot::setMotorPosition (int motorIndex, int throttle) {
     
-    m_motorLPositionParams.target = position;
-    m_motorRPositionParams.target = position;
-
     if (motorIndex == 0) {
-        m_motorL->setPosition(m_motorLPositionParams);
+        m_motorL->setThrottle(throttle);
     } else if (motorIndex == 1) {
-        m_motorR->setPosition(m_motorRPositionParams);
+        m_motorR->setThrottle(throttle);
     }
 }
 
@@ -166,8 +163,8 @@ void Rosbot::runControl () {
         // m_motorL->setThrottle(-PWMresponse);
         // m_motorR->setThrottle(PWMresponse);
 
-        m_motorL->setPosition(m_motorLPositionParams);
-        m_motorL->setPosition(m_motorRPositionParams);
+        // m_motorL->setPosition(m_motorLPositionParams);
+        // m_motorL->setPosition(m_motorRPositionParams);
 
         // Update motors with voltage command
 

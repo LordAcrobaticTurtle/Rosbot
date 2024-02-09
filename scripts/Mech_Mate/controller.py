@@ -3,15 +3,15 @@ import serial.tools.list_ports
 import threading
 import math
 import time
-from datetime import datetime
-from comms.packetID import PacketIDs
-from comms.packet import PacketHeader, Packet
-from comms.comms_layer import PacketSerializer
 from time import sleep
+from datetime import datetime
 import commands 
 
+import view
+import model
+
 class Controller:
-    def __init__(self, model, view):
+    def __init__(self, model : model.Model, view : view.View):
         self.model = model
         self.view = view
         self.isAppRunning = True
@@ -147,8 +147,8 @@ class Controller:
         timestamp = int(splitBuffer[1])
         data = splitBuffer[2]
         serialStr = f"CommandIndex: {commandIndexFromBuffer}, t: {timestamp}, d: {data}"
-        
         self.view.updateSerialConsole(serialStr)
+        
         # What to do with different information
         # Begin, standby, Calibrate, reset-IMU, Motor, Help -> Send response to terminal
         if (commandIndexFromBuffer >= commands.CliCommandIndex.CLI_BEGIN and 

@@ -186,7 +186,7 @@ void Comms::sendResponse(byte *buffer, CliCommandIndex packetID) {
     // Frame data with null bytes
     byte bufferToSend[256];
     auto time = millis();
-    sprintf((char*) bufferToSend, "0x%x %d %ld %s 0x%x", FRAMING_START, packetID, time - m_timerOffset, buffer, FRAMING_END);
+    sprintf((char*) bufferToSend, "0x%x %d %ld [%s] 0x%x", FRAMING_START, packetID, time - m_timerOffset, buffer, FRAMING_END);
     m_transceiver->sendBytes(bufferToSend, strlen((const char*) bufferToSend));
     // Serial.println((char *) bufferToSend);
 }
@@ -262,7 +262,7 @@ void Comms::sendLocalisationResponse() {
     char vwheelBuffer[128] = {0};
     res.encoderVelocities.toString(vwheelBuffer);
 
-    sprintf((char *) buffer, "%s,%s,%s,%s,(%f)", accelBuffer, gyroBuffer, angleBuffer, vwheelBuffer, 0.0);
+    sprintf((char *) buffer, "%s,%s,%s,%s,%f", accelBuffer, gyroBuffer, angleBuffer, vwheelBuffer, 0.0);
     sendResponse(buffer, CliCommandIndex::CLI_LOCALISATION_PACKET);
      
 }
