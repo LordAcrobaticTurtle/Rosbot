@@ -1,37 +1,38 @@
 import tkinter as tk
 from tkinter import ttk
 from custom_errors import GUIError
-from controller import Controller
-from toggle_button import ToggleButton
-from comms.packetID import PacketIDs
-import commands
+
+import ui_elements.command_sidebar as SideBar
+import ui_elements.record_settings as RecordSettings
+import ui_elements.serial_console as SerialConsole
 
 # Import dependenues for LIVE plotting
-from matplotlib import style
-import matplotlib.animation as animation
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
-from matplotlib import style
-import math
-from tkinter import filedialog
+# from matplotlib import style
+# import matplotlib.animation as animation
+# from matplotlib.figure import Figure
+# from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+# from matplotlib import style
+# import math
+# from tkinter import filedialog
 # App is the parent widget. The View is the frame that sits on top
 # It should contain minimal logic for displaying data. 
 # It will call functions in the controller layer to retrieve the data 
 
 class View(ttk.Frame):
-    def __init__(self, parent : tk.Tk):
-        super().__init__(parent)
-        self._parent = parent
+    def __init__(self, root : tk.Tk):
+        super().__init__(root)
+        self._parent = root
         self._isControllerSet = False
+        self._callbacks = {}
+
         
     def close(self):
-        self.controller.close()
         self._parent.quit()
         self._parent.destroy()
 
     def create_window(self): 
-        if not self._isControllerSet:
-            raise GUIError("Controller has not been set")
+        # if not self._isControllerSet:
+        #     raise GUIError("Controller has not been set")
 
         numColums = 3
         numRows = 2
@@ -48,13 +49,16 @@ class View(ttk.Frame):
         
         # Create title bar
         self.createTitleBar()
+
+        self._sideBar = SideBar.CommandSideBar(self._parent, self._callbacks)
+        commandFrame = self._sideBar.create_window()
         
         # Create command window
-        commandFrame = self.createCommandWindow(self._parent)
+        # commandFrame = self.createCommandWindow(self._parent)
         commandFrame.grid(column=0,row=0, sticky=(tk.N,tk.S), rowspan=numRows)        
 
-        self.collectedPlots = {}
-        print("Creating plot windows")
+        # self.collectedPlots = {}
+        # print("Creating plot windows")
         # Create graphing windows
         # self.collectedPlots["Plot1"] = False
         # plot1, plotVariables = self.createPlotWindow(self._parent, "Plot1")
@@ -69,11 +73,13 @@ class View(ttk.Frame):
         # plot2.grid(column=2, row=0, stick=(tk.E), padx = 10)
         
         # Create app settings panel
-        appSettingsFrame = self.createAppSettingsWindow(self._parent)
+        self._recordingSettings = RecordSettings.RecordSettings(self._parent, self._callbacks)
+        appSettingsFrame = self._recordingSettings.create_window()
         appSettingsFrame.grid(column=1, row=1)
         
         #  Create serial console
-        comSettingsFrame = self.createSerialConsoleAndSettings(self._parent)
+        self._serialConsoleSettings = SerialConsole.SerialConsole(self._parent, self._callbacks)
+        comSettingsFrame = self._serialConsoleSettings.create_window()
         comSettingsFrame.grid(column=2, row=1, sticky=(tk.W,tk.E))
 
     def createPlotWindow(self, tkRootElement :tk.Tk, plotIndex : str) -> (tk.Frame, dict):
@@ -279,6 +285,9 @@ class View(ttk.Frame):
         clearBtn.grid(column=3,row=2, sticky = (tk.E))
 
         return comFrameBase
+    
+    def button_pressed(self, whichButton : str): 
+        print(whichButton)
 
     def openComPort(self):
         if (self._chosen_com_port.get() == "Mock Connection"):
@@ -309,11 +318,6 @@ class View(ttk.Frame):
         button = tk.Button(filewin, text="Do nothing button")
         button.pack()
 
-    def About_me(self):
-        filewin = tk.Toplevel(self._parent)
-        button = tk.Button(filewin, text="Quit", command = filewin.destroy)
-        button.pack()
-
     def serial_input_keypress_enter(self, event):
         self.controller.sendString(self._serialInputString.get() + "\n")
         self._serialInputString.set("")
@@ -321,7 +325,7 @@ class View(ttk.Frame):
     def clear_listBox(self):
         self._serialConsole.delete(0, tk.END)
 
-    def set_controller(self, controller : Controller):
+    def set_controller(self, controller):
         """
         Set the controller
         :param controller:
@@ -329,46 +333,6 @@ class View(ttk.Frame):
         """
         self._isControllerSet = True
         self.controller = controller
-
-    def save_button_clicked(self):
-        """
-        Handle button click event
-        :return:
-        """
-        if self.controller:
-            self.controller.save(self.email_var.get())
-
-    def show_error(self, message):
-        """
-        Show an error message
-        :param message:
-        :return:
-        """
-        self.message_label['text'] = message
-        self.message_label['foreground'] = 'red'
-        self.message_label.after(3000, self.hide_message)
-        self.email_entry['foreground'] = 'red'
-
-    def show_success(self, message):
-        """
-        Show a success message
-        :param message:
-        :return:
-        """
-        self.message_label['text'] = message
-        self.message_label['foreground'] = 'green'
-        self.message_label.after(3000, self.hide_message)
-
-        # reset the form
-        self.email_entry['foreground'] = 'black'
-        self.email_var.set('')
-
-    def hide_message(self):
-        """
-        Hide the message
-        :return:
-        """
-        self.message_label['text'] = ''
 
     def beginButtonClicked(self):
         self.controller.sendString("Begin\n")
