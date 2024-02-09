@@ -6,7 +6,7 @@ Mpu6050::Mpu6050(I2CMaster &interface)
     memset(m_gyroAngle, 0, sizeof(float) * 3);
     memset(m_gyroRateOffset, 0, sizeof(float) * 3);
     m_configured = init(interface);
-    setup();
+    // setup();
 }
 
 int Mpu6050::readImuData (ImuData &data) {
@@ -63,7 +63,7 @@ void Mpu6050::setup() {
         m_gyroRateOffset[i] = gyroSamples[i] / numSamples;
         // Serial.print(String(m_gyroRateOffset[i]) + ", ");
     }
-    // Serial.println();
+    Serial.println();
 
     m_gyroAngle[0] = -atan2(m_accelDataF[2], m_accelDataF[1]); // Initiate setup for absolute angles 
     
@@ -82,11 +82,9 @@ bool Mpu6050::init(I2CMaster &interface) {
     return result1 && result2 && result3; 
 }
 
-int Mpu6050::update(float dt) {
-    m_dt = dt;
+int Mpu6050::run () {
     getRawSensorRegisters();
     parseRawData();
-    calculateEulerAngles();
     return 0;
 }
 
@@ -110,9 +108,9 @@ void Mpu6050::parseRawData() {
         return;
     }
 
-    m_accelData[0] = m_rawRegisters[0] << 8 | m_rawRegisters[1];
-    m_accelData[1] = m_rawRegisters[2] << 8 | m_rawRegisters[3];
-    m_accelData[2] = m_rawRegisters[4] << 8 | m_rawRegisters[5];
+    m_accelDataRaw[0] = m_rawRegisters[0] << 8 | m_rawRegisters[1];
+    m_accelDataRaw[1] = m_rawRegisters[2] << 8 | m_rawRegisters[3];
+    m_accelDataRaw[2] = m_rawRegisters[4] << 8 | m_rawRegisters[5];
 
     // Temp
     m_temp = m_rawRegisters[6] << 8 | m_rawRegisters [7];
@@ -123,13 +121,10 @@ void Mpu6050::parseRawData() {
 
     for (int i = 0; i < 3; i++) {
         m_gyroDataF[i] = m_gyroDataRaw[i] / 131.0;
-        m_accelDataF[i] = m_accelData[i] / 16384.0 * GRAVITY;
+        m_gyroDataF[i] = (m_gyroDataF[i] - m_gyroRateOffset[i]) * PI/180; 
+        m_accelDataF[i] = m_accelDataRaw[i] / 16384.0 * GRAVITY;
     }
 
-    // for (int i = 0; i < 3; i++) {
-    //     Serial.print(String(m_accelDataF[i]) + ", ");
-    // }
-    // Serial.println();
 }
 
 int Mpu6050::calculateEulerAngles() {

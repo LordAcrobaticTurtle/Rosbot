@@ -22,14 +22,22 @@ void Localisation::run() {
     static float lastDt = 0;
     // Localisation updates
     // Time since last update
-    float dt = millis() / 1000.0;
-    m_imu->update(dt - lastDt);
-    m_imu->readOrientation(m_orientation);
-    m_imu->readGyroRates(m_gyroRates);
-    m_imu->readAccel(m_accelReadings);
+    long int timeInMilliseconds = millis();
+    static long int lastTimeInMilliseconds = 0;
+    float timeInSeconds = millis() / 1000.0;
+    if (timeInMilliseconds - lastTimeInMilliseconds < 10) {
+        return;
+    }
 
-    imu_filter(m_accelReadings.x, m_accelReadings.y, m_accelReadings.z, 
-                m_gyroRates.x, m_gyroRates.y, m_gyroRates.z, m_qEst);
+    m_imu->run();
+    ImuData data;
+    m_imu->readImuData(data);
+    // m_orientation = data.orientation;
+    m_accelReadings = data.accelData;
+    m_gyroRates = data.gyroRates;
+
+    imu_filter(data.accelData.x, data.accelData.y, data.accelData.z, 
+                data.gyroRates.x, data.gyroRates.y, data.gyroRates.z, m_qEst);
     
     float roll, pitch, yaw;
     eulerAngles(m_qEst, &roll, &pitch, &yaw);
@@ -44,7 +52,8 @@ void Localisation::run() {
     m_vwheel.v1 = m_encoderL->readRPM();
     m_vwheel.v2 = m_encoderR->readRPM();
     
-    lastDt = dt;
+    lastDt = timeInSeconds;
+    lastTimeInMilliseconds = timeInMilliseconds;
 }
 
 void Localisation::resetImu() {

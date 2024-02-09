@@ -7,7 +7,6 @@
 
 #include "localisation/madgwick_filter.h"
 
-// struct quaternion q_est = { 1, 0, 0, 0};       // initialize with as unit vector with real component  = 1
 
 struct quaternion quat_mult (struct quaternion L, struct quaternion R){
     
@@ -21,7 +20,7 @@ struct quaternion quat_mult (struct quaternion L, struct quaternion R){
 }
 
 
-// The resulting quaternion is a global variable (q_est), so it is not returned or passed by reference/pointer
+// The resulting quaternion is a global variable (q_est), so it is not returned or passed by reference/pointer -- Changed to be function param now
 // Gyroscope Angular Velocity components are in Radians per Second
 // Accelerometer componets will be normalized
 void imu_filter(float ax, float ay, float az, float gx, float gy, float gz, quaternion &q_est) {

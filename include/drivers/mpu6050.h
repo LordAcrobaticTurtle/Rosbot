@@ -8,24 +8,28 @@
 #define MPU6050_ADDRESS 0x68
 #define GRAVITY 9.81
 // The Mpu6050 starts in sleep mode
+// Float offset of x - 6.855438814
 
 class Mpu6050 : public ImuInterface {
     public:
         Mpu6050(I2CMaster &interface);
         ~Mpu6050() {}
+        
         virtual int readGyroRates (vector3D &rates)         override;
         virtual int readOrientation (vector3D &orientation) override;
         virtual int readAccel (vector3D &accel)             override;
         virtual int readTemperature (float *temp)           override;
         virtual int readMagnetField (vector3D &field)       override;
         virtual int readImuData (ImuData &data)             override;
+        // virtual int readRawAdcData (ImuData &data)          override;
+        
         // Updates all data objects
-        virtual int update(float ts) override;
+        virtual int run () override;
 
         float *getEulerXYZ() {return m_eulerXYZ;}
 
     private:
-        bool init(I2CMaster &interface);
+         bool init(I2CMaster &interface);
         // Setup - Take the MPU6050 out of sleep mode
         void setup();
         void getRawSensorRegisters();
@@ -41,7 +45,7 @@ class Mpu6050 : public ImuInterface {
         byte m_rawRegisters[14];
         // Raw data array
         // [x ,y, z]
-        int16_t m_accelData[3];
+        int16_t m_accelDataRaw[3];
         int16_t m_temp;
         int16_t m_gyroDataRaw[3];
         //                            Units

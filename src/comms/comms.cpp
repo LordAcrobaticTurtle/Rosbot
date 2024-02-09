@@ -9,10 +9,8 @@
 
 
 Comms::Comms(
-    std::shared_ptr<Rosbot> robot,
-    std::shared_ptr<RadioInterface> rx
+    std::shared_ptr<Rosbot> robot
 ) : m_robot(robot),
-    m_rx(rx),
     m_streamMode(STREAM_MODE_NONE)
 {
     m_transceiver = std::make_shared<BluetoothTransceiver>(&Serial4, 115200);
@@ -40,9 +38,9 @@ int Comms::run() {
         m_transceiver->readBytes(buffer, numBytesInSerialBuffer);
         m_commsBuffer.insert((const char *) buffer, numBytesInSerialBuffer);
     
-        for (int i = 0; i < m_commsBuffer.getTailPos() + 1; i++) {
-            Serial.println(m_commsBuffer[i]);
-        }
+        // for (int i = 0; i < m_commsBuffer.getTailPos() + 1; i++) {
+        //     Serial.println(m_commsBuffer[i]);
+        // }
     }
 
     MessageContents packet;
@@ -90,14 +88,38 @@ int Comms::handlePacket(MessageContents packet) {
 
         case (CliCommandIndex::CLI_RESET_IMU): {
             m_robot->resetImu();
-            byte buffer[] = "Reset_IMU-OK";
-            sendResponse(buffer, CliCommandIndex::CLI_RESET_IMU);
+            vector3D angleOffsets = m_robot->getAngleOffsets(); 
+            char angleBuffer[64];
+            angleOffsets.toString(angleBuffer);
+            byte msgOk[] = "Reset_IMU-OK";
+            char buffer[128];
+            sprintf(buffer, "%s: %s", msgOk, angleBuffer);
+            sendResponse( (byte *) buffer, CliCommandIndex::CLI_RESET_IMU);
             Serial.println("Reset IMU-OK");
             break;
         }
 
         case (CliCommandIndex::CLI_MOTOR): {
             // Send velocity commands to motor
+            int motorIndex = -1;
+            int throttle = 0;
+
+            if (packet.argc != 2) {
+                byte buffer[] = "cli-Motor-Not-Ok. Argc != 2";
+                sendResponse(buffer, CLI_MOTOR);
+                return;
+            }
+
+            int valuesFilled = sscanf(packet.argv[1], "[%d,%d]", &motorIndex, &throttle);
+
+            if (valuesFilled != 2) {
+                byte buffer[] = "cli-Motor-Not-Ok. ValuesFilled != 2";
+                sendResponse(buffer, CLI_MOTOR);
+                return;
+            }
+
+            m_robot->setMotorPosition(motorIndex, throttle);
+
             byte buffer[] = "Motor-OK";
             sendResponse(buffer, CliCommandIndex::CLI_MOTOR);
             Serial.println("Motor command");
@@ -109,6 +131,49 @@ int Comms::handlePacket(MessageContents packet) {
             sendHelp();
             break;
         }
+
+        case (CliCommandIndex::CLI_PID_PARAMS_GET): {
+            // Return PID params
+            PIDParams params = m_robot->getPIDParams();
+            char buffer[128];
+            params.toString(buffer);
+            sendResponse((byte *) buffer, CLI_PID_PARAMS_GET);
+            break;
+        }
+
+        case (CliCommandIndex::CLI_PID_PARAMS_SET): {
+            // Parse and set PID params
+            float p = 0; 
+            float i = 0;
+            float d = 0;
+            float target = 0;
+            if (packet.argc != 2) {
+                byte buffer[] = "Set-pid-Not-Ok. Argc != 2";
+                sendResponse(buffer, CLI_PID_PARAMS_SET);
+                return;
+            }
+
+            int valuesFilled = sscanf(packet.argv[1], "[%f,%f,%f]", &p, &i, &d, &target);
+            
+            if (valuesFilled != 4) {
+                byte buffer[] = "Set-pid-Not-Ok. valuesFilled != 4";
+                sendResponse(buffer, CLI_PID_PARAMS_SET);
+                return;
+            }
+
+            PIDParams params = m_robot->getPIDParams();
+            params.kd = d;
+            params.kp = p;
+            params.ki = i;
+            params.target = target;
+            m_robot->setPIDParams(params);
+
+            byte buffer[] = "Set-pid-Ok";
+            sendResponse(buffer, CLI_PID_PARAMS_SET);
+            Serial.println("Set-pid Ok");
+            break;
+        }
+
 
         default:
             // Do nothing
@@ -123,7 +188,7 @@ void Comms::sendResponse(byte *buffer, CliCommandIndex packetID) {
     auto time = millis();
     sprintf((char*) bufferToSend, "0x%x %d %ld %s 0x%x", FRAMING_START, packetID, time - m_timerOffset, buffer, FRAMING_END);
     m_transceiver->sendBytes(bufferToSend, strlen((const char*) bufferToSend));
-    Serial.println((char *) bufferToSend);
+    // Serial.println((char *) bufferToSend);
 }
 
 void Comms::sendHelp() {
@@ -143,21 +208,15 @@ void Comms::returnStreamResponse() {
     // Check what type of mode is being used. 
     // Generate a response and send it to the transceiver interface. 
 
-    // Is this where I'll pack it into a json object or nah. Yes but inside another function
-    const long int time = millis();
-    static long int timeElapsed = 0;
-
     switch (m_streamMode) {
         case STREAM_MODE_CONTROL: {
             sendControlResponse();
-            Serial.println("Control response");
             break;
         }
 
         case STREAM_MODE_LOCALISATION_CALIBRATION: {
             // Pre-calculate number of bytes required for 11 floats, but as a string 
             sendLocalisationResponse();
-            Serial.println("Localisation response");
             break;
         }
 
@@ -173,9 +232,6 @@ void Comms::serialHeartbeat() {
     
     if (time - lastTime >= 1000) {
         Serial.println("Comms");
-        // for (int i = 0; i < m_commsBuffer.getTailPos() + 1; i++) {
-        //     Serial.print(String(m_commsBuffer[i]) + " ");
-        // }
         lastTime = time;
     }
 }
@@ -189,7 +245,7 @@ void Comms::sendControlResponse() {
     sprintf(buffer, "%s", paramBuffer);
     sendResponse((byte*) buffer, CLI_CONTROL_PACKET);
 }
-
+ 
 void Comms::sendLocalisationResponse() {
     LocalisationResponse res = m_robot->getLocalisationResponse();
     byte buffer[1028];
@@ -206,7 +262,7 @@ void Comms::sendLocalisationResponse() {
     char vwheelBuffer[128] = {0};
     res.encoderVelocities.toString(vwheelBuffer);
 
-    sprintf((char *) buffer, "%s,%s,%s,%s,(%f)", accelBuffer, gyroBuffer, angleBuffer, vwheelBuffer, 0);
+    sprintf((char *) buffer, "%s,%s,%s,%s,(%f)", accelBuffer, gyroBuffer, angleBuffer, vwheelBuffer, 0.0);
     sendResponse(buffer, CliCommandIndex::CLI_LOCALISATION_PACKET);
      
 }

@@ -3,7 +3,8 @@
 #include <localisation/localisation.h>
 #include <control/control.h>
 #include <drivers/RGB_LED.h>
-
+#include <utility/quaternion.h>
+#include <drivers/radio_interface.h>
 
 struct ControlResponse {
     size_t controlIDPlaceholder;
@@ -32,19 +33,52 @@ class Rosbot {
 
         LocalisationResponse getLocalisationResponse();
         ControlResponse getControlResponse();
-        void resetImu();
+        void resetImu ();
+        vector3D getAngleOffsets ();
+
+        PIDParams getPIDParams();
+        void setPIDParams(PIDParams params);
+
+        void setIsRadioConnected (bool isRadioConnected);
+
+        void setMotorPosition (int motorIndex, int throttle);
+
 
     protected:
-        void toggleLocalisation (bool isLocalisationOn);
-        void toggleControl (bool isControlOn);
+        void runAngleOffsetEstimation ();
+        void setLocalisationMode (bool isLocalisationOn);
+        void setControlMode (bool isControlOn);
+        void runLocalisation ();
+        void runControl ();
 
-    private:
+    protected:
+        // Driver related components
         RGBLED m_status;
-        std::shared_ptr<Localisation> m_localisation;
-        std::shared_ptr<Control> m_control;
+        std::shared_ptr<ImuInterface> m_imu;
+        std::shared_ptr<EncoderInterface> m_encoderL;
+        std::shared_ptr<EncoderInterface> m_encoderR;
+        std::shared_ptr<DcMotorInterface> m_motorL;
+        std::shared_ptr<DcMotorInterface> m_motorR;
+        std::shared_ptr<RadioInterface> m_rx;
 
+        // State estimation related data.
+        ImuData m_imuData;
+        quaternion m_qEst;
+        vector2D m_vwheel;
+
+        // Control related data
+        PIDParams m_pidParams;
+        PIDParams m_motorLPositionParams;
+        PIDParams m_motorRPositionParams;
+
+        // Mode related data
         bool m_isStandbyOn;
-        bool m_isLocalisationOn;
         bool m_isControlOn;
+        bool m_isLocalisationOn;
+        bool m_isRadioConnected;
+
+        vector3D m_angleOffsets;
+
+
         
 };

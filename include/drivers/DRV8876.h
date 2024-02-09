@@ -40,6 +40,8 @@ class DRV8876 : public DcMotorInterface {
 
         int readCurrentAnalog();
 
+        void setPosition (PIDParams params);
+
     private:
 
 
@@ -52,5 +54,7 @@ class DRV8876 : public DcMotorInterface {
         int m_pinCurrSense;
         int m_pinNFault;
         int m_pinSleep;
+
+        PIDParams m_positionParams;
 
 };

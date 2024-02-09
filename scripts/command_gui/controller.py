@@ -104,7 +104,11 @@ class Controller:
             self._serialPortLock.acquire()
             while (self._openPort.in_waiting > 0):
                 character = self._openPort.read(1)
-                buffer += character.decode()
+                try: 
+                    buffer += character.decode()
+                except:
+                    print(f"Error attempting to decode: {buffer}")
+            
             self._serialPortLock.release()
 
             # Unpack frame from 0x2 0x3 delimiters
@@ -162,6 +166,9 @@ class Controller:
             packet = commands.LocalisationPacket()
             packet.fromString(data)
             self.model.insertCalibrationPacket(packet, timestamp)
+        elif (commandIndexFromBuffer == commands.CliCommandIndex.CLI_SET_PID):
+            pass
+        
         
     def sendString(self, string : str):
         if (self._isPortOpen):
@@ -176,7 +183,7 @@ class Controller:
         if (self._isPortOpen == True):
             self._serialPortLock.acquire()
             self._openPort.close()
-            self._serialPortLock.release(0)
+            self._serialPortLock.release()
             self._isPortOpen = False
             self._t1.join()
             print(f"Port has been closed")

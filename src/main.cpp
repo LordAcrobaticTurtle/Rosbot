@@ -23,8 +23,6 @@ void setup()
     Serial.println("Begin!");
     Serial4.begin(9600);
     Master.begin(100 * 1000U);
-    // enc1.setup();
-    // enc2.setup();   
     setupMainloop();
     
     pinMode(LED_BUILTIN, OUTPUT);
@@ -35,10 +33,7 @@ void setupMainloop() {
     robot = std::make_shared<Rosbot>();
     robot->setup();
     
-    rx = std::make_shared<RadioInterface>(&Serial1);
-    rx->setup();
-    
-    comms = std::make_shared<Comms>(robot, rx);
+    comms = std::make_shared<Comms>(robot);
     
     Serial.print("Start");
 }
@@ -59,7 +54,5 @@ void loop()
 void mainloop() {    
     comms->run();
     robot->run();
-    // Still has access to rosbot here
-    // Can write a scheduling class and affect it
 }
 

@@ -25,9 +25,8 @@ enum StreamMode {
 
 class Comms {
 public:
-    Comms(std::shared_ptr<Rosbot> robot, std::shared_ptr<RadioInterface> rx);
+    Comms(std::shared_ptr<Rosbot> robot);
 
-    // int decodeStream(byte* buffer, Packet &packet);
     int run();
 
 protected: 
