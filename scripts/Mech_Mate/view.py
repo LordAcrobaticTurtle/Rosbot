@@ -12,6 +12,9 @@ class View(ttk.Frame):
         self._parent = root
         self._isControllerSet = False
         self._callbacks = {}
+        self._sideBar = SideBar.CommandSideBar(self._parent, self._callbacks)
+        self._recordingSettings = RecordSettings.RecordSettings(self._parent, self._callbacks)
+        self._serialConsoleSettings = SerialConsole.SerialConsole(self._parent, self._callbacks)
 
         
     def close(self):
@@ -37,36 +40,10 @@ class View(ttk.Frame):
         
         # Create title bar
         self.createTitleBar()
-
-        self._sideBar = SideBar.CommandSideBar(self._parent, self._callbacks)
         commandFrame = self._sideBar.create_window()
-        
-        # Create command window
-        # commandFrame = self.createCommandWindow(self._parent)
         commandFrame.grid(column=0,row=0, sticky=(tk.N,tk.S), rowspan=numRows)        
-
-        # self.collectedPlots = {}
-        # print("Creating plot windows")
-        # Create graphing windows
-        # self.collectedPlots["Plot1"] = False
-        # plot1, plotVariables = self.createPlotWindow(self._parent, "Plot1")
-        # self.collectedPlots["Plot1"] = plotVariables
-        # self.collectedPlots["Plot1"]["animation"] = animation.FuncAnimation(self.collectedPlots["Plot1"]["figure"], self.plotAnimatePlot1, interval=0, blit = True, repeat=False)
-        # plot1.grid(column=1, row=0, sticky=(tk.E), padx=10)
-
-        # self.collectedPlots["Plot2"] = False
-        # plot2, plotVars2 = self.createPlotWindow(self._parent, "Plot2")
-        # self.collectedPlots["Plot2"] = plotVars2
-        # self.collectedPlots["Plot2"]["animation"] = animation.FuncAnimation(self.collectedPlots["Plot2"]["figure"], self.plotAnimatePlot2, interval=0, blit = True, repeat=False)
-        # plot2.grid(column=2, row=0, stick=(tk.E), padx = 10)
-        
-        # Create app settings panel
-        self._recordingSettings = RecordSettings.RecordSettings(self._parent, self._callbacks)
         appSettingsFrame = self._recordingSettings.create_window()
         appSettingsFrame.grid(column=1, row=1)
-        
-        #  Create serial console
-        self._serialConsoleSettings = SerialConsole.SerialConsole(self._parent, self._callbacks)
         comSettingsFrame = self._serialConsoleSettings.create_window()
         comSettingsFrame.grid(column=2, row=1, sticky=(tk.W,tk.E))
 
@@ -145,42 +122,6 @@ class View(ttk.Frame):
         plot2["axis"].set_xlim(tdata2[0], tdata2[-1])
 
         return (plot2["lineplot"], )
-
-
-    def createAppSettingsWindow(self, tkRootElement : tk.Tk) -> tk.Frame:
-        appSettingsFrameBase = ttk.LabelFrame(tkRootElement, text="AppSettingsWindow")
-        # self.recordingButton = ToggleButton()
-        # self.recordingButton.create(appSettingsFrameBase, "C:/Users/Sam/Documents/PlatformIO/Projects/Rosbot/scripts/command_gui/record-button.png", "C:/Users/Sam/Documents/PlatformIO/Projects/Rosbot/scripts/command_gui/stop-button.png",self.toggleRecording)
-        # self.recordingButton.getFrame().grid(column=0, row=0, padx=1, pady=1)
-        self.isRecordingActive = tk.BooleanVar()
-        ttk.Checkbutton(appSettingsFrameBase, text="Recording", padding=10, command=self.toggleRecording, variable=self.isRecordingActive).grid(column=0, row=0, padx=5, pady=5)
-        
-        # self.recordingButton.
-        # ttk.Button(appSettingsFrameBase, text="Start recording", padding=10, command = self.startRecordingClicked).grid(column=0, row=0, padx=5, pady=5)
-        # ttk.Button(appSettingsFrameBase, text="Stop recording", padding=10, command = self.stopRecordingClicked).grid(column=1, row=0, padx=5, pady=5)
-        # ttk.Button(appSettingsFrameBase, text="File path for recording", padding=10).grid(column=0, row=1, padx=5, pady=5)
-        self._recordingPath = tk.StringVar()
-        ttk.Entry(appSettingsFrameBase, textvariable=self._recordingPath, state="readonly").grid(column=0, row=1, padx=5, pady=5)
-        
-        ttk.Button(appSettingsFrameBase, text="Change file path", padding=10, command=self.changeFilePathClicked).grid(column=1, row=1, padx=5, pady=5)
-        
-        return appSettingsFrameBase
-
-    def createCommandWindow(self, tkRootElement : tk.Tk) -> tk.Frame:
-        commandFrameBase = ttk.LabelFrame(tkRootElement, text="Robot commands", width=20)
-
-        commands = ["Begin", "Standby", "Calibrate", "Reset-IMU" ]
-        self.commandButtons = [self.beginButtonClicked, self.standbyButtonClicked, self.calibrateButtonClicked, self.resetImuClicked]
-        for counter, c in enumerate(commands):
-            button = ttk.Button(commandFrameBase, text=c, padding=15, command=self.commandButtons[counter])
-            button.grid(column=0, row=counter, pady=10)
-            self.commandButtons[counter] = button
-    
-        # toggle is WIP
-        # toggleButton = ToggleButton()
-        # toggleButton.create(commandFrameBase)
-        # toggleButton.getFrame().grid(column=0, row=5, pady=10)
-        return commandFrameBase
 
 
     def createTitleBar(self):

@@ -8,6 +8,9 @@ class SerialConsole(ttk.Frame):
         # super.__init__(root)
         self._root = root
         self._callbacks = callbacks
+        print("View")
+        self._callbacks[SerialConsoleCallbackIndex] = {}
+        
 
     def create_window (self):
         # Create a base frame for all serial console elements.
@@ -31,8 +34,8 @@ class SerialConsole(ttk.Frame):
         #self._com_ports = self.controller.getComPortList()
         # Have a separate button responsible for updating com port list.
         self._com_ports = []
-        com_menu = ttk.OptionMenu(comFrameSettings, self._chosen_com_port, self._com_ports)
-        com_menu.grid(column=1, row=1, sticky=(tk.E))
+        self.com_menu = ttk.OptionMenu(comFrameSettings, self._chosen_com_port, self._com_ports)
+        self.com_menu.grid(column=1, row=1, sticky=(tk.E))
 
         # Create serial console
         self._serialConsole = tk.Listbox(comConsole, width=100, xscrollcommand=1)
@@ -48,7 +51,7 @@ class SerialConsole(ttk.Frame):
         self._serialInputString = tk.StringVar()
         self._serialInputBox = ttk.Entry(comConsole, textvariable=self._serialInputString)
         self._serialInputBox.grid(column=1, row=2, sticky= tk.W + tk.E)
-        self._serialInputBox.bind("<Return>", lambda: self.button_pressed("SerialEnter"))
+        self._serialInputBox.bind("<Return>", lambda: self.button_pressed("<Return>"))
 
         subBtn = ttk.Button(comFrameSettings, text="Connect", command = lambda: self.button_pressed("Connect"))
         subBtn.grid(column=4,row=1, sticky = (tk.E))
@@ -67,28 +70,23 @@ class SerialConsole(ttk.Frame):
     def button_pressed(self, whichButton : str):
         print(whichButton)
         
-        try:
-            if whichButton == "Connect":
-                # Send the right parameters
-                self._callbacks[SerialConsoleCallbackIndex]["Connect"](self._chosen_com_port, self._chosen_baud_rate)
-                pass
-            elif whichButton == "Disconnect":
-                self._callbacks[SerialConsoleCallbackIndex]["Disconnect"]()
-                pass
-            elif whichButton == "Get List":
-                self._callbacks[SerialConsoleCallbackIndex]["Get list"]()
-                pass
-            elif whichButton == "Clear Messages":
-                self._serialConsole.delete(0, tk.END)
-                pass
-            # self._callbacks[SerialConsoleCallbackIndex]["Clear messages"]()
-            elif whichButton == "SerialInput":
-                # Send string
-                self._callbacks[SerialConsoleCallbackIndex]["SerialInput"](self._serialInputString.get())
-                pass
-        except: 
-            print("Button callback not implemented correctly")
-        # self._callbacks[SerialConsoleCallbackIndex]["SerialInput"]()
+        if whichButton == "Connect":
+            # Send the right parameters
+            self._callbacks[SerialConsoleCallbackIndex]["Connect"](self._chosen_com_port, self._chosen_baud_rate)
+            
+        elif whichButton == "Disconnect":
+            self._callbacks[SerialConsoleCallbackIndex]["Disconnect"]()
+            
+        elif whichButton == "Get list":
+            print(self._callbacks[SerialConsoleCallbackIndex]["Get list"]())
+
+        elif whichButton == "Clear Messages":
+            self._serialConsole.delete(0, tk.END)
+            
+        elif whichButton == "<Return>":
+            self._callbacks[SerialConsoleCallbackIndex]["<Return>"](self._serialInputString.get())
+            pass
+        
 
     def updateSerialConsole(self, buffer : str):
         self._serialConsole.insert("end", buffer)

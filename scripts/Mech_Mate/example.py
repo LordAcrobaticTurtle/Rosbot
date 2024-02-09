@@ -1,45 +1,26 @@
+import tkinter as tk
 
+def show(x):
+    """ Show menu items """
+    var.set(x)
 
-class Monkey:
-    def __init__(self) -> None:
-        self.bananas = {
-            "Too" : 1, 
-            "Many": 2,
-            "Bananas" : 3
-        }
+def refresh(l):
+    """ Refresh menu contents """
+    var.set('')
+    menu.delete(0, 'end')
+    for i in l:
+        menu.add_command(label=i, command=lambda x=i: show(x))
 
-    def getBananas(self) -> list:
-        return self.bananas
-    
+root = tk.Tk()
+menubar = tk.Menu(root)
+root.configure(menu=menubar)
+menu = tk.Menu(menubar, tearoff=False)
+menubar.add_cascade(label='Choice', menu=menu)
 
-    def printBananas(self):
-        print(self.bananas)
-
-
-
-class Humans:
-    def __init__(self, bananaList: dict) -> None:
-        self.stolenCultures = bananaList
-        self.stolenCultures[1] = "Indian"
-        self.stolenCultures[2] = "Japanese"
-
-
-    def printStolenCultures(self):
-        print(self.stolenCultures)
-
-
-
-def main():
-    animal = Monkey()
-    animal.printBananas()
-
-    asshole = Humans(animal.getBananas())
-    asshole.printStolenCultures()
-
-    animal.printBananas()
-
-
-
-
-
-main()
+var = tk.StringVar()
+l = ['one', 'two', 'three']
+refresh(l)
+l = ['four', 'five', 'six', 'seven']
+tk.Button(root, text='Refresh', command=lambda: refresh(l)).pack()
+tk.Label(root, textvariable=var).pack()
+root.mainloop()

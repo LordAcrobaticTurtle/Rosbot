@@ -1,14 +1,12 @@
-import serial
-import serial.tools.list_ports
-import threading
 import math
-import time
 from time import sleep
 from datetime import datetime
 import commands 
 
 import view
 import model
+
+import controllers.serial_port_handler
 
 class Controller:
     def __init__(self, model : model.Model, view : view.View):
@@ -18,12 +16,15 @@ class Controller:
         self._isPortOpen = False
         self._isMockPortOpen = False
         self._isRecordingActive = False
-        self._serialPortLock = threading.Lock()
 
-    def close(self):
-        self.isAppRunning = False
-        self.closeSerialPort()
-        self.closeMockSerialPort()
+        self._serialPortHandler = controllers.serial_port_handler.SerialPortHandler(self.view, self.model)
+        self._serialPortHandler.populate_callbacks()
+
+
+    # def close(self):
+    #     self.isAppRunning = False
+    #     self.closeSerialPort()
+    #     self.closeMockSerialPort()
 
     # def getComPortList(self) -> list:
     #     ports = serial.tools.list_ports.comports()

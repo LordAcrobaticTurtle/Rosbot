@@ -2,7 +2,7 @@
 import serial 
 import serial.tools.list_ports
 import threading
-import scripts.Mech_Mate.ui_elements.ui_serial_console as serialView
+import ui_elements.ui_serial_console as serialView
 import commands
 import model
 
@@ -15,9 +15,11 @@ class SerialPortHandler():
         self._model = model
 
     def populate_callbacks(self) -> None:
+        print("Controller")
         self._view._callbacks[serialView.SerialConsoleCallbackIndex]["Connect"] = self.open
         self._view._callbacks[serialView.SerialConsoleCallbackIndex]["Disconnect"] = self.close
-        self._view._callbacks[serialView.SerialConsoleCallbackIndex]["Get List"] = self.get_list_of_available_ports
+        self._view._callbacks[serialView.SerialConsoleCallbackIndex]["Get list"] = self.get_list_of_available_ports
+        self._view._callbacks[serialView.SerialConsoleCallbackIndex]["<Return>"] = self.send
         return
 
     def close(self):
@@ -35,7 +37,7 @@ class SerialPortHandler():
                 print("There is already one active connection")
                 return
 
-            self._view.updateSerialConsole(f"Opening {port} @ {baudrate}")
+            self._view._serialConsoleSettings.updateSerialConsole(f"Opening {port} @ {baudrate}")
 
             self._openPort = serial.Serial()
             self._openPort.baudrate = int(baudrate)
@@ -53,17 +55,16 @@ class SerialPortHandler():
                 self._t1.start()
                 successStr = f"{port} is now open"
                 print(successStr)
-                self._view.updateSerialConsole(successStr)
+                self._view._serialConsoleSettings.updateSerialConsole(successStr)
             except serial.SerialException as e:
                 self._isPortOpen = False
                 errorStr = f"Warning: {port} is not accessible - {e}"
                 print(errorStr)
-                self._view.updateSerialConsole(errorStr)
+                self._view._serialConsoleSettings.updateSerialConsole(errorStr)
 
     def get_list_of_available_ports (self) -> list:
         ports = serial.tools.list_ports.comports()
         comPortList = [com[0] for com in ports]
-        comPortList.insert(0, "Select an option")
         comPortList.insert(len(comPortList), "Mock Connection")
         return comPortList
 
