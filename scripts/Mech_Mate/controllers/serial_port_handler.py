@@ -26,7 +26,9 @@ class SerialPortHandler():
         self.isAppRunning = False
         if (self._isPortOpen):
             self._t1.join()
+            self._openPort.close()
             self._isPortOpen = False
+            
         
         return
 
@@ -70,7 +72,7 @@ class SerialPortHandler():
 
     def threaded_update(self) -> None:
         buffer = str()
-        while (self._isPortOpen):
+        while (self.isAppRunning):
             
             self._serialPortLock.acquire()
             while (self._openPort.in_waiting > 0):
@@ -91,12 +93,12 @@ class SerialPortHandler():
                 buffer = str()
 
     def send(self, string : str) -> None:
+        print(string)
         if (self._isPortOpen):
             self._serialPortLock.acquire()
             self._openPort.write((string + "\n").encode())
             self._serialPortLock.release()
             print("String sent!")
-            print(string)
 
 
     def unpackFrame(self, buffer : str) -> str:
@@ -123,12 +125,10 @@ class SerialPortHandler():
         timestamp = int(splitBuffer[1])
         data = splitBuffer[2]
         serialStr = f"CommandIndex: {commandIndexFromBuffer}, t: {timestamp}, d: {data}"
-        self._view.updateSerialConsole(serialStr)
+        self._view._serialConsoleSettings.updateSerialConsole(serialStr)
         
         data = data[1:len(data)-1] # Remove start and end square brackets
         payload = data.split(',')
-
-        
 
         self._model.insert(commandIndexFromBuffer, timestamp, payload)
         

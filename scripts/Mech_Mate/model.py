@@ -17,7 +17,6 @@ class Model():
         
     # Assume payload is a csv separable string. 
     def insert(self, packetId : int, timestamp : int, payload : list):
-        print("Data inserted")
         
         structure = {
             "timestamp" : timestamp,
@@ -33,6 +32,7 @@ class Model():
         self.dataLock.release()
 
         self.executeCallbackFunctions(packetId, timestamp, payload)
+        # print(self._data)
 
     def registerCallbackFunction(self, funcAndId : dict):
         if (len(funcAndId.keys()) != 3):
@@ -51,14 +51,14 @@ class Model():
             print("register Callbacks: Dict missing id key")
             return
         
-        listOfIds = [x["id"] for x in self._callbacks[funcAndId["packetId"]]]
+        listOfIds = [x["unique_id"] for x in self._callbacks[funcAndId["packetId"]]]
         
-        if (funcAndId["id"] in listOfIds):
-            print(f"registerCalibrationCallbacks: {funcAndId['id']} already in the list")
+        if (funcAndId["unique_id"] in listOfIds):
+            print(f"registerCalibrationCallbacks: {funcAndId['unique_id']} already in the list")
             return
 
         structure = {
-            "id" : funcAndId["id"],
+            "unique_id" : funcAndId["unique_id"],
             "func" : funcAndId["func"]
         }
 
@@ -68,7 +68,7 @@ class Model():
         isIdFound = False
         
         for i,j in enumerate(self._callbacks[packetID]):
-            if j["id"] == id:
+            if j["unique_id"] == id:
                 isIdFound = True
                 elementIndex = i
             
@@ -81,34 +81,31 @@ class Model():
         for funcAndId in self._callbacks[packetId]:
             funcAndId["func"](timestamp, newData)
 
-def demoCallback(timestamp : float, newData):
-    print("Neeeeew data, weehoo")
-    print(f"{newData}") 
 
-def main():
-    model = Model()
-    funcAndId = {
-        "id": "Test",
-        "func" : demoCallback
-    }
+# def main():
+#     model = Model()
+#     funcAndId = {
+#         "id": "Test",
+#         "func" : demoCallback
+#     }
 
-    # for i, packetID in enumerate(commands.CliCommandIndex):
-        # print(packetID)
+#     # for i, packetID in enumerate(commands.CliCommandIndex):
+#         # print(packetID)
 
-    test = {
-        int(commands.CliCommandIndex.CLI_BEGIN) : 0
-    }
+#     test = {
+#         int(commands.CliCommandIndex.CLI_BEGIN) : 0
+#     }
 
-    test[1] = 1
+#     test[1] = 1
 
-    print(test)
-    # model.registerCalibrationCallbackFunction(funcAndId)
-    # packet = 
-    # buffer = f"(1.1,1.2,1.3),(1.1,1.2,1.3),(1.1,1.2,1.3),(9.1,8.9)"
-    # packet.fromString(buffer)
-    # model.insertCalibrationPacket(packet, 0.5)    
+#     print(test)
+#     # model.registerCalibrationCallbackFunction(funcAndId)
+#     # packet = 
+#     # buffer = f"(1.1,1.2,1.3),(1.1,1.2,1.3),(1.1,1.2,1.3),(9.1,8.9)"
+#     # packet.fromString(buffer)
+#     # model.insertCalibrationPacket(packet, 0.5)    
     
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()

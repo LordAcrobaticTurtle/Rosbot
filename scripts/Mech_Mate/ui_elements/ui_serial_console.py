@@ -33,8 +33,8 @@ class SerialConsole(ttk.Frame):
 
         #self._com_ports = self.controller.getComPortList()
         # Have a separate button responsible for updating com port list.
-        self._com_ports = []
-        self.com_menu = ttk.OptionMenu(comFrameSettings, self._chosen_com_port, self._com_ports)
+        self._com_ports = self._callbacks[SerialConsoleCallbackIndex]["Get list"]()
+        self.com_menu = ttk.OptionMenu(comFrameSettings, self._chosen_com_port, *self._com_ports)
         self.com_menu.grid(column=1, row=1, sticky=(tk.E))
 
         # Create serial console
@@ -51,7 +51,7 @@ class SerialConsole(ttk.Frame):
         self._serialInputString = tk.StringVar()
         self._serialInputBox = ttk.Entry(comConsole, textvariable=self._serialInputString)
         self._serialInputBox.grid(column=1, row=2, sticky= tk.W + tk.E)
-        self._serialInputBox.bind("<Return>", lambda: self.button_pressed("<Return>"))
+        self._serialInputBox.bind("<Return>", self.serialInput)
 
         subBtn = ttk.Button(comFrameSettings, text="Connect", command = lambda: self.button_pressed("Connect"))
         subBtn.grid(column=4,row=1, sticky = (tk.E))
@@ -72,7 +72,7 @@ class SerialConsole(ttk.Frame):
         
         if whichButton == "Connect":
             # Send the right parameters
-            self._callbacks[SerialConsoleCallbackIndex]["Connect"](self._chosen_com_port, self._chosen_baud_rate)
+            self._callbacks[SerialConsoleCallbackIndex]["Connect"](self._chosen_com_port.get(), self._chosen_baud_rate.get())
             
         elif whichButton == "Disconnect":
             self._callbacks[SerialConsoleCallbackIndex]["Disconnect"]()
@@ -83,10 +83,10 @@ class SerialConsole(ttk.Frame):
         elif whichButton == "Clear Messages":
             self._serialConsole.delete(0, tk.END)
             
-        elif whichButton == "<Return>":
-            self._callbacks[SerialConsoleCallbackIndex]["<Return>"](self._serialInputString.get())
-            pass
         
+    def serialInput(self, event):
+        self._callbacks[SerialConsoleCallbackIndex]["<Return>"](self._serialInputString.get())
+        self._serialInputString.set("")
 
     def updateSerialConsole(self, buffer : str):
         self._serialConsole.insert("end", buffer)

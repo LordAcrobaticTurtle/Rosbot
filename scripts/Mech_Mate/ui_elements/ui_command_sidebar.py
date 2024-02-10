@@ -9,6 +9,7 @@ class CommandSideBar(ttk.Frame):
         # super.__init__(root)
         self._root = root
         self._callbacks = callbacks
+        self._callbacks[CommandSideBarCallbackIndex] = {}
 
     # The callbacks dict must be initialized BEFORE calling create window
     def create_window(self):
@@ -35,6 +36,5 @@ class CommandSideBar(ttk.Frame):
         print(whichButton) 
         # Based on which button I push, I can call the appropriate callback through the callbacks dict
         # None of these sidebar functions should have parameters
-        pass
-        # self._callbacks[CommandSideBarCallbackIndex][whichButton]() 
+        self._callbacks[CommandSideBarCallbackIndex][whichButton](whichButton) 
 

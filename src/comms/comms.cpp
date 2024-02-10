@@ -93,7 +93,7 @@ int Comms::handlePacket(MessageContents packet) {
             angleOffsets.toString(angleBuffer);
             byte msgOk[] = "Reset_IMU-OK";
             char buffer[128];
-            sprintf(buffer, "%s: %s", msgOk, angleBuffer);
+            sprintf(buffer, "%s,%s", msgOk, angleBuffer);
             sendResponse( (byte *) buffer, CliCommandIndex::CLI_RESET_IMU);
             Serial.println("Reset IMU-OK");
             break;
@@ -107,7 +107,7 @@ int Comms::handlePacket(MessageContents packet) {
             if (packet.argc != 2) {
                 byte buffer[] = "cli-Motor-Not-Ok. Argc != 2";
                 sendResponse(buffer, CLI_MOTOR);
-                return;
+                return 0;
             }
 
             int valuesFilled = sscanf(packet.argv[1], "[%d,%d]", &motorIndex, &throttle);
@@ -115,7 +115,7 @@ int Comms::handlePacket(MessageContents packet) {
             if (valuesFilled != 2) {
                 byte buffer[] = "cli-Motor-Not-Ok. ValuesFilled != 2";
                 sendResponse(buffer, CLI_MOTOR);
-                return;
+                return 0;
             }
 
             m_robot->setMotorPosition(motorIndex, throttle);
@@ -150,15 +150,15 @@ int Comms::handlePacket(MessageContents packet) {
             if (packet.argc != 2) {
                 byte buffer[] = "Set-pid-Not-Ok. Argc != 2";
                 sendResponse(buffer, CLI_PID_PARAMS_SET);
-                return;
+                return 0;
             }
 
-            int valuesFilled = sscanf(packet.argv[1], "[%f,%f,%f]", &p, &i, &d, &target);
+            int valuesFilled = sscanf(packet.argv[1], "[%f,%f,%f]", &p, &i, &d);
             
-            if (valuesFilled != 4) {
-                byte buffer[] = "Set-pid-Not-Ok. valuesFilled != 4";
+            if (valuesFilled != 3) {
+                byte buffer[] = "Set-pid-Not-Ok. valuesFilled != 3";
                 sendResponse(buffer, CLI_PID_PARAMS_SET);
-                return;
+                return 0;
             }
 
             PIDParams params = m_robot->getPIDParams();
@@ -188,7 +188,7 @@ void Comms::sendResponse(byte *buffer, CliCommandIndex packetID) {
     auto time = millis();
     sprintf((char*) bufferToSend, "0x%x %d %ld [%s] 0x%x", FRAMING_START, packetID, time - m_timerOffset, buffer, FRAMING_END);
     m_transceiver->sendBytes(bufferToSend, strlen((const char*) bufferToSend));
-    // Serial.println((char *) bufferToSend);
+    Serial.println((char *) bufferToSend);
 }
 
 void Comms::sendHelp() {
