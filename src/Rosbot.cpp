@@ -39,6 +39,10 @@ Rosbot::Rosbot() :
     m_motorRPositionParams.ki = 0;
     m_motorRPositionParams.dt = HZ_100_MICROSECONDS;
 
+    m_angleOffsets.x = 0;
+    m_angleOffsets.y = 0;
+    m_angleOffsets.z = 0;
+
     m_qEst.q1 = 1;
     m_qEst.q2 = 0;
     m_qEst.q3 = 0;
