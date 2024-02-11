@@ -24,6 +24,7 @@ class SerialPortHandler():
 
     def close(self):
         self.isAppRunning = False
+        self.send("Standby")
         if (self._isPortOpen):
             self._t1.join()
             self._openPort.close()
@@ -32,7 +33,6 @@ class SerialPortHandler():
         
         return
 
-    
     def open(self, port : str, baudrate : str):
         with self._serialPortLock:
             if (self._isPortOpen):
