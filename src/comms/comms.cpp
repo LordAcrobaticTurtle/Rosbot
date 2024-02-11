@@ -89,7 +89,7 @@ int Comms::handlePacket(MessageContents packet) {
         case (CliCommandIndex::CLI_RESET_IMU): {
             m_robot->resetImu();
             vector3D angleOffsets = m_robot->getAngleOffsets(); 
-            char angleBuffer[64];
+            char angleBuffer[128];
             angleOffsets.toString(angleBuffer);
             byte msgOk[] = "Reset_IMU-OK";
             char buffer[128];
@@ -262,7 +262,7 @@ void Comms::sendLocalisationResponse() {
     char vwheelBuffer[128] = {0};
     res.encoderVelocities.toString(vwheelBuffer);
 
-    sprintf((char *) buffer, "%s,%s,%s,%s,%f", accelBuffer, gyroBuffer, angleBuffer, vwheelBuffer, 0.0);
+    sprintf((char *) buffer, "%s,%s,%s,%s", accelBuffer, gyroBuffer, angleBuffer, vwheelBuffer);
     sendResponse(buffer, CliCommandIndex::CLI_LOCALISATION_PACKET);
      
 }
