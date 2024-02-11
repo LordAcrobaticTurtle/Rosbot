@@ -1,6 +1,4 @@
 
-from model import Model
-from view import View
 from controllers.serial_port_handler import SerialPortHandler
 from ui_elements.ui_pid_tuning import PIDTuningCallbackIndex, PidTuning
 
