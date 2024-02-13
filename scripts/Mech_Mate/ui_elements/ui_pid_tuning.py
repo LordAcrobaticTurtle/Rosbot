@@ -19,8 +19,6 @@ class PidTuning(ttk.Frame):
         angleTuner.grid(column=0, row=0)
         positionTuner = self.create_pid_entries(PidTuningBase, "PID Tuner - Position")
         positionTuner.grid(column=0, row=1)
-
-        ttk.Button(PidTuningBase, text="Send!", padding=10, command= lambda : self.button_pressed("Send")).grid(column=2, row=0)
         
         return PidTuningBase
 
@@ -45,14 +43,22 @@ class PidTuning(ttk.Frame):
         ttk.Entry(baseFrame, textvariable=self._text[Text]["i"]).grid(column=3, row=0, padx=1, pady=5)
         ttk.Label(baseFrame, text="D").grid(column=4, row=0)
         ttk.Entry(baseFrame, textvariable=self._text[Text]["d"]).grid(column=5, row=0, padx=1, pady=5)
+        ttk.Button(baseFrame, text="Send!", padding=10, command= lambda : self.button_pressed(Text)).grid(column=6, row=0)
         
         return baseFrame
 
 
     def button_pressed(self, whichButton : str):
-        print(whichButton)
-        if whichButton == "Send":
-            self._callbacks[PIDTuningCallbackIndex]["Send"](float(self._pText.get()), float(self._iText.get()), float(self._dText.get()))
+
+        if whichButton == "PID Tuner - Angle":
+            controlIndex = 0
+            self._callbacks[PIDTuningCallbackIndex]["Send"](controlIndex, float(self._text[whichButton]["p"].get()), float(self._text[whichButton]["i"].get()), float(self._text[whichButton]["d"].get()))
+        elif whichButton == "PID Tuner - Position": 
+            controlIndex = 1
+            self._callbacks[PIDTuningCallbackIndex]["Send"](controlIndex, float(self._text[whichButton]["p"].get()), float(self._text[whichButton]["i"].get()), float(self._text[whichButton]["d"].get()))
+
+        return 
+            
         
 
 

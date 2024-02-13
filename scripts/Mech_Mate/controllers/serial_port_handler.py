@@ -93,12 +93,12 @@ class SerialPortHandler():
                 buffer = str()
 
     def send(self, string : str) -> None:
-        print(string)
+        print(f"Sending: {string}")
         if (self._isPortOpen):
             self._serialPortLock.acquire()
             self._openPort.write((string + "\n").encode())
             self._serialPortLock.release()
-            print("String sent!")
+            
 
 
     def unpackFrame(self, buffer : str) -> str:

@@ -146,17 +146,17 @@ int Comms::handlePacket(MessageContents packet) {
             float p = 0; 
             float i = 0;
             float d = 0;
-            float target = 0;
+            int controlIndex = 0;
             if (packet.argc != 2) {
                 byte buffer[] = "Set-pid-Not-Ok. Argc != 2";
                 sendResponse(buffer, CLI_PID_PARAMS_SET);
                 return 0;
             }
 
-            int valuesFilled = sscanf(packet.argv[1], "[%f,%f,%f]", &p, &i, &d);
+            int valuesFilled = sscanf(packet.argv[1], "[%d,%f,%f,%f]", &controlIndex, &p, &i, &d);
             
-            if (valuesFilled != 3) {
-                byte buffer[] = "Set-pid-Not-Ok. valuesFilled != 3";
+            if (valuesFilled != 4) {
+                byte buffer[] = "Set-pid-Not-Ok. valuesFilled != 4";
                 sendResponse(buffer, CLI_PID_PARAMS_SET);
                 return 0;
             }
@@ -165,7 +165,6 @@ int Comms::handlePacket(MessageContents packet) {
             params.kd = d;
             params.kp = p;
             params.ki = i;
-            params.target = target;
             m_robot->setPIDParams(params);
 
             byte buffer[] = "Set-pid-Ok";

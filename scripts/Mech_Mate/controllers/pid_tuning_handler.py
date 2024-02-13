@@ -11,8 +11,8 @@ class PIDTuningHandler():
     def populate_callbacks(self):
         self._ui._callbacks[PIDTuningCallbackIndex]["Send"] = self.send
         
-    def send(self, p : float, i : float, d : float):
-        buffer = f"Set-pid [{p},{i},{d}]"
+    def send(self, controlIndex : int,  p : float, i : float, d : float):
+        buffer = f"Set-pid [{controlIndex},{p},{i},{d}]"
         self._serialConnection.send(buffer)
 
     
