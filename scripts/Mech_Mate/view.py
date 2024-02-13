@@ -18,9 +18,11 @@ class View(ttk.Frame):
         self._sideBar = SideBar.CommandSideBar(self._parent, self._callbacks)
         self._recordingSettings = RecordSettings.RecordSettings(self._parent, self._callbacks)
         self._serialConsoleSettings = SerialConsole.SerialConsole(self._parent, self._callbacks)
-        self._pidTuner = PidTuning(self._parent, self._callbacks)
-
-        
+        self._callbacks["AngleTuner"] = {}
+        self._callbacks["PositionTuner"] = {}
+        self._angleTuner = PidTuning(self._parent, self._callbacks["AngleTuner"])
+        # self._positionTuner = PidTuning(self._parent, self._callbacks["PositionTuner"])
+   
     def close(self):
         self._parent.quit()
         self._parent.destroy()
@@ -51,8 +53,10 @@ class View(ttk.Frame):
         appSettingsFrame.grid(column=1, row=1)
         comSettingsFrame = self._serialConsoleSettings.create_window()
         comSettingsFrame.grid(column=2, row=1, sticky=(tk.W,tk.E))
-        PidTuningFrame = self._pidTuner.create_window()
-        PidTuningFrame.grid(column=1, row=0, sticky=(tk.E + tk.N))
+        AnglePidTuningFrame = self._angleTuner.create_window()
+        AnglePidTuningFrame.grid(column=1, row=0, sticky=(tk.E + tk.N))
+        # PositionPidTUningFrame = self._positionTuner.create_window()
+        # PositionPidTUningFrame.grid(column=1, row=1, sticky=(tk.E + tk.N))
 
     def createPlotWindow(self, tkRootElement :tk.Tk, plotIndex : str) -> (tk.Frame, dict):
     
