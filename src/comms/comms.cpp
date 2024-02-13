@@ -134,7 +134,7 @@ int Comms::handlePacket(MessageContents packet) {
 
         case (CliCommandIndex::CLI_PID_PARAMS_GET): {
             // Return PID params
-            PIDParams params = m_robot->getPIDParams();
+            PIDParams params = m_robot->getAnglePIDParams();
             char buffer[128];
             params.toString(buffer);
             sendResponse((byte *) buffer, CLI_PID_PARAMS_GET);
@@ -161,11 +161,19 @@ int Comms::handlePacket(MessageContents packet) {
                 return 0;
             }
 
-            PIDParams params = m_robot->getPIDParams();
-            params.kd = d;
-            params.kp = p;
-            params.ki = i;
-            m_robot->setPIDParams(params);
+            if (controlIndex == 0) {
+                PIDParams params = m_robot->getAnglePIDParams();
+                params.kd = d;
+                params.kp = p;
+                params.ki = i;
+                m_robot->setAnglePIDParams(params);
+            } else if (controlIndex == 1) {
+                PIDParams params = m_robot->getPositionPIDParams();
+                params.kd = d;
+                params.kp = p;
+                params.ki = i;
+                m_robot->setPositionPIDParams(params);
+            }
 
             byte buffer[] = "Set-pid-Ok";
             sendResponse(buffer, CLI_PID_PARAMS_SET);

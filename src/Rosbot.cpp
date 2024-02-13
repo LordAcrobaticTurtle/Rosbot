@@ -14,12 +14,12 @@ Rosbot::Rosbot() :
     m_isLocalisationOn(false),
     m_isRadioConnected(false)
 { 
-    m_pidParams.bounds[0] = -1;
-    m_pidParams.bounds[1] = 1;
-    m_pidParams.errorSum = 0;
-    m_pidParams.kp = 0.1;
-    m_pidParams.kd = 0;
-    m_pidParams.ki = 0;
+    m_anglePidParams.bounds[0] = -1;
+    m_anglePidParams.bounds[1] = 1;
+    m_anglePidParams.errorSum = 0;
+    m_anglePidParams.kp = 0.1;
+    m_anglePidParams.kd = 0;
+    m_anglePidParams.ki = 0;
 
     m_motorLPositionParams.bounds[0] = -1;
     m_motorLPositionParams.bounds[1] = 1;
@@ -110,7 +110,7 @@ void Rosbot::setMotorPosition (int motorIndex, int throttle) {
 
 ControlResponse Rosbot::getControlResponse() {
     ControlResponse res;
-    res.params = m_pidParams;    
+    res.params = m_anglePidParams;    
     res.controlIDPlaceholder = 0;
     res.controlResponse = 0;
     return res;
@@ -155,15 +155,23 @@ void Rosbot::runControl () {
             return;
         }
 
-        m_pidParams.currValue = m_imuData.orientation.y;
-        m_pidParams.dt = HZ_100_MICROSECONDS;
-        m_pidParams.target = 0; // Assume 
-        
-        // Perform PID control of angle
-        float response = PIDController::computeResponse(m_pidParams);
+        // Get count from encoders
+        long int countLeft = m_encoderL->readPosition();
+        long int countRight = m_encoderR->readPosition();
 
-        int PWMresponse = response * 255.0;
-        Serial.println(PWMresponse);
+// ===================================================================
+// Keep this
+        // m_anglePidParams.currValue = m_imuData.orientation.y;
+        // m_anglePidParams.dt = HZ_100_MICROSECONDS;
+        // m_anglePidParams.target = 0; // Assume 
+        
+        // // Perform PID control of angle
+        // float response = PIDController::computeResponse(m_anglePidParams);
+
+        // int PWMresponse = response * 255.0;
+        // Serial.println(PWMresponse);
+
+// ===================================================================
         // m_motorL->setThrottle(-PWMresponse);
         // m_motorR->setThrottle(PWMresponse);
 
@@ -217,6 +225,9 @@ void Rosbot::runAngleOffsetEstimation () {
     m_status.mix(255,0,255);
     delay(100);
     vector3D offset;
+    offset.x = 0;
+    offset.y = 0;
+    offset.z = 0;
     m_angleOffsets.x = 0;
     m_angleOffsets.y = 0;
     m_angleOffsets.z = 0;
@@ -233,18 +244,24 @@ void Rosbot::runAngleOffsetEstimation () {
     m_status.mix(0,255,0);
 }
 
-
-
 vector3D Rosbot::getAngleOffsets () {
     return m_angleOffsets;
 }
 
-PIDParams Rosbot::getPIDParams () {
-    return m_pidParams;
+PIDParams Rosbot::getAnglePIDParams () {
+    return m_anglePidParams;
 }
 
-void Rosbot::setPIDParams (PIDParams params) {
-    m_pidParams = params;
+void Rosbot::setAnglePIDParams (PIDParams params) {
+    m_anglePidParams = params;
+}
+
+void Rosbot::setPositionPIDParams (PIDParams params) {
+    m_positionPidParams = params;
+}
+
+PIDParams Rosbot::getPositionPIDParams () {
+    return m_positionPidParams;
 }
 
 void Rosbot::setIsRadioConnected (bool isRadioConnected) {
