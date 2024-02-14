@@ -1,7 +1,19 @@
 #pragma once
 #include <stdio.h>
 
+// target, currValue, bounds, dt + PID gains must be set.
 typedef struct PIDParams {
+
+    PIDParams() {
+        target = 0;
+        currValue = 0;
+        kp = 0;
+        ki = 0;
+        kd = 0;
+        prevError = 0;
+        errorSum = 0;
+    }
+
     float target;
     float currValue;
     float kp;

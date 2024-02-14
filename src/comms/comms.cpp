@@ -89,11 +89,11 @@ int Comms::handlePacket(MessageContents packet) {
         case (CliCommandIndex::CLI_RESET_IMU): {
             m_robot->resetImu();
             vector3D angleOffsets = m_robot->getAngleOffsets(); 
-            char angleBuffer[64];
+            char angleBuffer[128];
             angleOffsets.toString(angleBuffer);
             byte msgOk[] = "Reset_IMU-OK";
             char buffer[128];
-            sprintf(buffer, "%s: %s", msgOk, angleBuffer);
+            sprintf(buffer, "%s,%s", msgOk, angleBuffer);
             sendResponse( (byte *) buffer, CliCommandIndex::CLI_RESET_IMU);
             Serial.println("Reset IMU-OK");
             break;
@@ -107,7 +107,7 @@ int Comms::handlePacket(MessageContents packet) {
             if (packet.argc != 2) {
                 byte buffer[] = "cli-Motor-Not-Ok. Argc != 2";
                 sendResponse(buffer, CLI_MOTOR);
-                return;
+                return 0;
             }
 
             int valuesFilled = sscanf(packet.argv[1], "[%d,%d]", &motorIndex, &throttle);
@@ -115,7 +115,7 @@ int Comms::handlePacket(MessageContents packet) {
             if (valuesFilled != 2) {
                 byte buffer[] = "cli-Motor-Not-Ok. ValuesFilled != 2";
                 sendResponse(buffer, CLI_MOTOR);
-                return;
+                return 0;
             }
 
             m_robot->setMotorPosition(motorIndex, throttle);
@@ -134,7 +134,7 @@ int Comms::handlePacket(MessageContents packet) {
 
         case (CliCommandIndex::CLI_PID_PARAMS_GET): {
             // Return PID params
-            PIDParams params = m_robot->getPIDParams();
+            PIDParams params = m_robot->getAnglePIDParams();
             char buffer[128];
             params.toString(buffer);
             sendResponse((byte *) buffer, CLI_PID_PARAMS_GET);
@@ -146,27 +146,34 @@ int Comms::handlePacket(MessageContents packet) {
             float p = 0; 
             float i = 0;
             float d = 0;
-            float target = 0;
+            int controlIndex = 0;
             if (packet.argc != 2) {
                 byte buffer[] = "Set-pid-Not-Ok. Argc != 2";
                 sendResponse(buffer, CLI_PID_PARAMS_SET);
-                return;
+                return 0;
             }
 
-            int valuesFilled = sscanf(packet.argv[1], "[%f,%f,%f]", &p, &i, &d, &target);
+            int valuesFilled = sscanf(packet.argv[1], "[%d,%f,%f,%f]", &controlIndex, &p, &i, &d);
             
             if (valuesFilled != 4) {
                 byte buffer[] = "Set-pid-Not-Ok. valuesFilled != 4";
                 sendResponse(buffer, CLI_PID_PARAMS_SET);
-                return;
+                return 0;
             }
 
-            PIDParams params = m_robot->getPIDParams();
-            params.kd = d;
-            params.kp = p;
-            params.ki = i;
-            params.target = target;
-            m_robot->setPIDParams(params);
+            if (controlIndex == 0) {
+                PIDParams params = m_robot->getAnglePIDParams();
+                params.kd = d;
+                params.kp = p;
+                params.ki = i;
+                m_robot->setAnglePIDParams(params);
+            } else if (controlIndex == 1) {
+                PIDParams params = m_robot->getPositionPIDParams();
+                params.kd = d;
+                params.kp = p;
+                params.ki = i;
+                m_robot->setPositionPIDParams(params);
+            }
 
             byte buffer[] = "Set-pid-Ok";
             sendResponse(buffer, CLI_PID_PARAMS_SET);
@@ -186,9 +193,9 @@ void Comms::sendResponse(byte *buffer, CliCommandIndex packetID) {
     // Frame data with null bytes
     byte bufferToSend[256];
     auto time = millis();
-    sprintf((char*) bufferToSend, "0x%x %d %ld %s 0x%x", FRAMING_START, packetID, time - m_timerOffset, buffer, FRAMING_END);
+    sprintf((char*) bufferToSend, "0x%x %d %ld [%s] 0x%x", FRAMING_START, packetID, time - m_timerOffset, buffer, FRAMING_END);
     m_transceiver->sendBytes(bufferToSend, strlen((const char*) bufferToSend));
-    // Serial.println((char *) bufferToSend);
+    Serial.println((char *) bufferToSend);
 }
 
 void Comms::sendHelp() {
@@ -262,7 +269,7 @@ void Comms::sendLocalisationResponse() {
     char vwheelBuffer[128] = {0};
     res.encoderVelocities.toString(vwheelBuffer);
 
-    sprintf((char *) buffer, "%s,%s,%s,%s,(%f)", accelBuffer, gyroBuffer, angleBuffer, vwheelBuffer, 0.0);
+    sprintf((char *) buffer, "%s,%s,%s,%s", accelBuffer, gyroBuffer, angleBuffer, vwheelBuffer);
     sendResponse(buffer, CliCommandIndex::CLI_LOCALISATION_PACKET);
      
 }

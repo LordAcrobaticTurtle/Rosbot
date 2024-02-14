@@ -36,8 +36,11 @@ class Rosbot {
         void resetImu ();
         vector3D getAngleOffsets ();
 
-        PIDParams getPIDParams();
-        void setPIDParams(PIDParams params);
+        PIDParams getAnglePIDParams();
+        void setAnglePIDParams(PIDParams params);
+
+        PIDParams getPositionPIDParams ();
+        void setPositionPIDParams (PIDParams params);
 
         void setIsRadioConnected (bool isRadioConnected);
 
@@ -67,7 +70,8 @@ class Rosbot {
         vector2D m_vwheel;
 
         // Control related data
-        PIDParams m_pidParams;
+        PIDParams m_anglePidParams;
+        PIDParams m_positionPidParams;
         PIDParams m_motorLPositionParams;
         PIDParams m_motorRPositionParams;
 
