@@ -24,12 +24,8 @@ class App(tk.Tk):
         self.controller = Controller(self.model, self.view)
 
         # set the controller to view
-        self.view.set_controller(self.controller)
+        
         self.view.create_window()
-    
-    def close(self):    
-        self.view.close()
-        self.controller.close()
         
 if __name__ == '__main__':
     app = App()
