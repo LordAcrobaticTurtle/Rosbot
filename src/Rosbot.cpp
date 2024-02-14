@@ -16,27 +16,17 @@ Rosbot::Rosbot() :
 { 
     m_anglePidParams.bounds[0] = -1;
     m_anglePidParams.bounds[1] = 1;
-    m_anglePidParams.errorSum = 0;
-    m_anglePidParams.kp = 0.1;
-    m_anglePidParams.kd = 0;
-    m_anglePidParams.ki = 0;
-
+    
+    m_positionPidParams.bounds[0] = -1;
+    m_positionPidParams.bounds[0] = 1;
+    m_positionPidParams.dt = HZ_100_MICROSECONDS;
+    
     m_motorLPositionParams.bounds[0] = -1;
     m_motorLPositionParams.bounds[1] = 1;
-    m_motorLPositionParams.errorSum = 0;
-    m_motorLPositionParams.target = 0;
-    m_motorLPositionParams.kp = 0.1;
-    m_motorLPositionParams.kd = 0;
-    m_motorLPositionParams.ki = 0;
     m_motorLPositionParams.dt = HZ_100_MICROSECONDS;
 
     m_motorRPositionParams.bounds[0] = -1;
     m_motorRPositionParams.bounds[1] = 1;
-    m_motorRPositionParams.errorSum = 0;
-    m_motorRPositionParams.target = 0;
-    m_motorRPositionParams.kp = 0.1;
-    m_motorRPositionParams.kd = 0;
-    m_motorRPositionParams.ki = 0;
     m_motorRPositionParams.dt = HZ_100_MICROSECONDS;
 
     m_angleOffsets.x = 0;
@@ -159,6 +149,23 @@ void Rosbot::runControl () {
         long int countLeft = m_encoderL->readPosition();
         long int countRight = m_encoderR->readPosition();
 
+        m_motorLPositionParams = m_positionPidParams;
+        m_motorRPositionParams = m_positionPidParams;
+
+        m_motorLPositionParams.target = 0; // This will change depending on input from TX
+        m_motorRPositionParams.target = 0;
+
+        m_motorLPositionParams.currValue = countLeft;
+        m_motorRPositionParams.currValue = countRight;
+
+        float leftResponse = PIDController::computeResponse(m_motorLPositionParams);
+        float rightResponse = PIDController::computeResponse(m_motorRPositionParams);
+    
+        int leftPWMResponse = leftResponse * 255.0;
+        int rightPWMResponse = rightResponse * 255.0;
+        m_motorL->setThrottle(leftPWMResponse);
+        m_motorR->setThrottle(rightPWMResponse);
+        
 // ===================================================================
 // Keep this
         // m_anglePidParams.currValue = m_imuData.orientation.y;
@@ -216,8 +223,6 @@ void Rosbot::runLocalisation () {
 
     m_motorLPositionParams.currValue = m_encoderL->readPosition();
     m_motorRPositionParams.currValue = m_encoderR->readPosition();
-
-    
 }
 
 void Rosbot::runAngleOffsetEstimation () {
