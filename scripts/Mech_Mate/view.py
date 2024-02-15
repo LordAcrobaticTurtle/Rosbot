@@ -20,8 +20,8 @@ class View(ttk.Frame):
         self._serialConsoleSettings = SerialConsole.SerialConsole(self._parent, self._callbacks)
         self._callbacks["AngleTuner"] = {}
         self._callbacks["PositionTuner"] = {}
-        self._angleTuner = PidTuning(self._parent, self._callbacks["AngleTuner"])
-        # self._positionTuner = PidTuning(self._parent, self._callbacks["PositionTuner"])
+        self._pidTuner = PidTuning(self._parent, self._callbacks)
+        
    
     def close(self):
         self._parent.quit()
@@ -53,8 +53,8 @@ class View(ttk.Frame):
         appSettingsFrame.grid(column=1, row=1)
         comSettingsFrame = self._serialConsoleSettings.create_window()
         comSettingsFrame.grid(column=2, row=1, sticky=(tk.W,tk.E))
-        AnglePidTuningFrame = self._angleTuner.create_window()
-        AnglePidTuningFrame.grid(column=1, row=0, sticky=(tk.E + tk.N))
+        pidTuningFrame = self._pidTuner.create_window()
+        pidTuningFrame.grid(column=2, row=0, sticky=(tk.E + tk.N))
         # PositionPidTUningFrame = self._positionTuner.create_window()
         # PositionPidTUningFrame.grid(column=1, row=1, sticky=(tk.E + tk.N))
 
