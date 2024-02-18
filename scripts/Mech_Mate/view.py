@@ -6,6 +6,7 @@ import ui_elements.ui_command_sidebar as SideBar
 import ui_elements.ui_record_settings as RecordSettings
 import ui_elements.ui_serial_console as SerialConsole
 from ui_elements.ui_pid_tuning import PidTuning
+from ui_elements.ui_plot import PlotWindow
 
 APP_CALLBACK_INDEX = "APP_CALLBACK_INDEX"
 
@@ -21,6 +22,7 @@ class View(ttk.Frame):
         self._callbacks["AngleTuner"] = {}
         self._callbacks["PositionTuner"] = {}
         self._pidTuner = PidTuning(self._parent, self._callbacks)
+        self._plot1 = PlotWindow(self._parent, self._callbacks)
         
    
     def close(self):
@@ -36,7 +38,7 @@ class View(ttk.Frame):
         numRows = 2
 
         colWeights = [1, 3, 3]
-        rowWeights = [1, 1]
+        rowWeights = [1, 2]
 
         for c in range(numColums):
             self._parent.columnconfigure(c, weight=colWeights[c])
@@ -52,9 +54,11 @@ class View(ttk.Frame):
         appSettingsFrame = self._recordingSettings.create_window()
         appSettingsFrame.grid(column=1, row=1)
         comSettingsFrame = self._serialConsoleSettings.create_window()
-        comSettingsFrame.grid(column=2, row=1, sticky=(tk.W,tk.E))
+        comSettingsFrame.grid(column=2, row=1, sticky=(tk.W+tk.N))
         pidTuningFrame = self._pidTuner.create_window()
-        pidTuningFrame.grid(column=2, row=0, sticky=(tk.E + tk.N))
+        pidTuningFrame.grid(column=2, row=0)
+        plot1Frame = self._plot1.create_window()
+        plot1Frame.grid(column=1, row=0)
         # PositionPidTUningFrame = self._positionTuner.create_window()
         # PositionPidTUningFrame.grid(column=1, row=1, sticky=(tk.E + tk.N))
 

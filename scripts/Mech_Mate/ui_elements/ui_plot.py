@@ -4,29 +4,43 @@
 import tkinter as tk
 from tkinter import ttk
 
+from matplotlib import style
+import matplotlib.animation as animation
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+from matplotlib import style
+import commands
+
+PLOT_WINDOW_CALLBACK_INDEX = "PlotWindow"
 
 class PlotWindow(ttk.Frame):
     def __init__(self, root : tk.Tk, callbacks : dict):
         self._root = root
         self._callbacks = callbacks
+        self._callbacks[PLOT_WINDOW_CALLBACK_INDEX] = {}
+        self.dataCache = {}
+        self.dataCache["x"] = []
+        self.dataCache["y"] = []
 
     
     def create_window(self) -> tk.Frame:
         plotBaseFrame = tk.Frame(self._root)
 
         dataGraph = tk.StringVar()
-        plotType = ttk.OptionMenu(plotBaseFrame, dataGraph, "Select data to graph", "Control", "Localisation")
-        plotType.grid()
+
+        # Create drop down box that lists all packets you can subscribe too.
+        self._chosen_packet = tk.StringVar()
+        listOfPackets = []
+        for i, string in enumerate(commands.commands):
+            listOfPackets.append(f"{i} - {string}")
+
+        ttk.OptionMenu(plotBaseFrame, self._chosen_packet, *listOfPackets, command=self.ui_packetIDChanged).grid(column=0, row=0, padx=5, pady=5)
+
         style.use('ggplot')
 
-        plotVariables = {
-            "plotIndex" : plotIndex,
-            "t" : list(range(0, 200)),
-            "x" : [0] * 200
-        }
         fig = Figure(figsize=(8,8), dpi=100)
         axis = fig.add_subplot(111)
-        axis.set_title(f"{plotIndex}")
+        # axis.set_title(f"{plotIndex}")
         axis.set_xlabel("time (s)")
         axis.set_ylabel("Signal magnitude")
         axis.set_ylim([-2, 2])
@@ -38,18 +52,32 @@ class PlotWindow(ttk.Frame):
         # containing the Matplotlib figure
         canvas = FigureCanvasTkAgg(fig, master = plotBaseFrame)  
         
-        # Set all plots to update using the same function
-        # ani = animation.FuncAnimation(fig, self.plotAnimate, interval=0, blit = True, repeat=False)
-        
         canvas.draw()
         canvas.get_tk_widget().grid()
+
         
-        plotVariables["figure"] = fig
-        plotVariables["axis"] = axis
-        plotVariables["lineplot"] = linePlot
-        plotVariables["canvas"] = canvas
-        plotVariables["dataGraph"] = dataGraph
-        # plotVariables["animation"] = ani
-  
-        return plotBaseFrame, plotVariables
+        self.figure = fig
+        self.axis = axis
+        self.lineplot = linePlot
+        self.canvas = canvas
+        self.dataGraph = dataGraph
+
+        # Set all plots to update using the same function
+        ani = animation.FuncAnimation(fig, self.animate, interval=100)
+        self.animation = ani
+        
+        return plotBaseFrame
+    
+    def animate(self, i):
+        # Read cache and update plot
+        self.lineplot.set_data(self.dataCache["x"], self.dataCache["y"])
+
+
+    def ui_packetIDChanged(self, chosenPacket : str):
+        print(chosenPacket)
+        packetId = int(chosenPacket.split(" ")[0])
+        print(packetId)
+        
+
+
 
