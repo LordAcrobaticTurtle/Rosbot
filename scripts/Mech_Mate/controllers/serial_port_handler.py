@@ -5,6 +5,8 @@ import threading
 import ui_elements.ui_serial_console as serialView
 import commands
 import model
+import math
+from time import sleep
 
 class SerialPortHandler():
     def __init__(self, view : serialView.SerialConsole, model : model.Model) -> None:
@@ -13,6 +15,7 @@ class SerialPortHandler():
         self._isPortOpen = False
         self._view = view
         self._model = model
+        self._isMockedPortOpen = False
 
     def populate_callbacks(self) -> None:
         print("Controller")
@@ -30,10 +33,27 @@ class SerialPortHandler():
             self._openPort.close()
             self._isPortOpen = False
             
+        if (self._isMockedPortOpen):
+            self._t1.join()
+            self._isMockedPortOpen = False
         
         return
 
     def open(self, port : str, baudrate : str):
+        print(port)
+
+        if port == "Mock Connection":
+            self._isMockedPortOpen = True
+            # Open a thread
+            self._t1 = threading.Thread(target=self.threaded_update, args=())
+            self._t1.start()
+            successStr = f"{port} is now open"
+            print(successStr)
+            self._view._serialConsoleSettings.updateSerialConsole(successStr)
+            # Return
+            return
+
+
         with self._serialPortLock:
             if (self._isPortOpen):
                 print("There is already one active connection")
@@ -72,8 +92,18 @@ class SerialPortHandler():
 
     def threaded_update(self) -> None:
         buffer = str()
+        counter = 0
         while (self.isAppRunning):
             
+            if (self._isMockedPortOpen):
+                # Insert sine wave data into model
+                x,y = self.generateSineWaveDataPoint(counter/100)
+                counter += 1
+                self._model.insert(int(commands.CliCommandIndex.CLI_LOCALISATION_PACKET), x, [y])
+                sleep(0.01)
+                continue
+
+
             self._serialPortLock.acquire()
             while (self._openPort.in_waiting > 0):
                 character = self._openPort.read(1)
@@ -132,6 +162,9 @@ class SerialPortHandler():
 
         self._model.insert(commandIndexFromBuffer, timestamp, payload)
         
-
+    
+    def generateSineWaveDataPoint(self, i):
+        x = math.sin(i)
+        return (i, x)
 
         

@@ -11,6 +11,7 @@ import controllers.serial_port_handler
 import controllers.sidebar_handler
 import controllers.recording_handler
 import controllers.pid_tuning_handler
+from controllers.plotting_handler import PlottingHandler
 
 class Controller:
     def __init__(self, model : model.Model, ui : view.View):
@@ -27,9 +28,10 @@ class Controller:
         self._sidebarHandler.populate_callbacks()
         self._recordingHandler = controllers.recording_handler.RecordingHandler(self.view, self.model)
         self._recordingHandler.populate_callbacks()
-        self._angleTunerHandler = controllers.pid_tuning_handler.PIDTuningHandler(self.view._pidTuner, self._robotConnection)
-        self._angleTunerHandler.populate_callbacks()
-        # self._positionTunerHandler = controllers.pid_tuning_handler.PIDTuningHandler(self.view._positionTuner, self._robotConnection)
+        self._pidTunerHandler = controllers.pid_tuning_handler.PIDTuningHandler(self.view._pidTuner, self._robotConnection)
+        self._pidTunerHandler.populate_callbacks()
+        self._plotHandler = PlottingHandler(self.view._plot1, self.model)
+        self._plotHandler.populate_callbacks()
         
         ui._callbacks["close"] = self.close
     
