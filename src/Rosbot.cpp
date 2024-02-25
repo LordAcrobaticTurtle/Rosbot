@@ -18,16 +18,16 @@ Rosbot::Rosbot() :
     m_anglePidParams.bounds[1] = 1;
     
     m_positionPidParams.bounds[0] = -1;
-    m_positionPidParams.bounds[0] = 1;
-    m_positionPidParams.dt = HZ_100_MICROSECONDS;
+    m_positionPidParams.bounds[1] = 1;
+    m_positionPidParams.dt = 0.01;
     
     m_motorLPositionParams.bounds[0] = -1;
     m_motorLPositionParams.bounds[1] = 1;
-    m_motorLPositionParams.dt = HZ_100_MICROSECONDS;
+    m_motorLPositionParams.dt = 0.01;
 
     m_motorRPositionParams.bounds[0] = -1;
     m_motorRPositionParams.bounds[1] = 1;
-    m_motorRPositionParams.dt = HZ_100_MICROSECONDS;
+    m_motorRPositionParams.dt = 0.01;
 
     m_angleOffsets.x = 0;
     m_angleOffsets.y = 0;
@@ -152,24 +152,33 @@ void Rosbot::runControl () {
         m_motorLPositionParams = m_positionPidParams;
         m_motorRPositionParams = m_positionPidParams;
 
-        m_motorLPositionParams.target = 0; // This will change depending on input from TX
-        m_motorRPositionParams.target = 0;
-
         m_motorLPositionParams.currValue = countLeft;
         m_motorRPositionParams.currValue = countRight;
 
-        float leftResponse = PIDController::computeResponse(m_motorLPositionParams);
-        float rightResponse = PIDController::computeResponse(m_motorRPositionParams);
-    
-        int leftPWMResponse = leftResponse * 255.0;
-        int rightPWMResponse = rightResponse * 255.0;
-        m_motorL->setThrottle(leftPWMResponse);
-        m_motorR->setThrottle(rightPWMResponse);
+        float leftPosRes = PIDController::computeResponse(m_motorLPositionParams);
+        float rightPosRes = PIDController::computeResponse(m_motorRPositionParams);
+
+        // int leftPWMResponse = leftPosRes * 255.0;
+        // int rightPWMResponse = rightPosRes * 255.0;
+
+        // Take average of left and right responses.
+        float avgRes = (leftPosRes + rightPosRes) / 2;
+
+        // Scale to 10 degs
+        m_anglePidParams.target = avgRes * 10.0;
+        m_anglePidParams.currValue = m_imuData.orientation.x;
+        m_anglePidParams.dt = 0.01;
+
+        float angleResponse = PIDController::computeResponse(m_anglePidParams);
+        float PWMAngleResponse = angleResponse * 255.0;
+        
+        m_motorL->setThrottle(PWMAngleResponse);
+        m_motorR->setThrottle(-PWMAngleResponse);
         
 // ===================================================================
 // Keep this
         // m_anglePidParams.currValue = m_imuData.orientation.y;
-        // m_anglePidParams.dt = HZ_100_MICROSECONDS;
+        // m_anglePidParams.dt = 0.01;
         // m_anglePidParams.target = 0; // Assume 
         
         // // Perform PID control of angle
@@ -189,7 +198,9 @@ void Rosbot::runControl () {
 
         // char buffer[64];
         // m_imuData.orientation.toString(buffer);
-        // Serial.println(buffer);       
+        // Serial.println(buffer);  
+
+        // Serial.println("====== Control End ======");     
 }
 
 void Rosbot::runLocalisation () {

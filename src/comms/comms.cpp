@@ -117,8 +117,11 @@ int Comms::handlePacket(MessageContents packet) {
                 sendResponse(buffer, CLI_MOTOR);
                 return 0;
             }
-
-            m_robot->setMotorPosition(motorIndex, throttle);
+            
+            // m_robot->setMotorPosition(motorIndex, throttle);
+            auto params = m_robot->getPositionPIDParams();
+            params.target = throttle;
+            m_robot->setPositionPIDParams(params);
 
             byte buffer[] = "Motor-OK";
             sendResponse(buffer, CliCommandIndex::CLI_MOTOR);
