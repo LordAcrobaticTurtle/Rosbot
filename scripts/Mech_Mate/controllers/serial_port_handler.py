@@ -81,6 +81,8 @@ class SerialPortHandler():
                     buffer += character.decode()
                 except:
                     print(f"Error attempting to decode: {buffer}")
+                    # Reset buffer if an error occurs
+                    buffer = ""
             
             self._serialPortLock.release()
 

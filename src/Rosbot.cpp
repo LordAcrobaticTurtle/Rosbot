@@ -60,6 +60,7 @@ void Rosbot::setup()
 
 void Rosbot::ActivateStandbyMode() {
     m_isStandbyOn = true;
+    m_anglePidParams.errorSum = 0;
     setControlMode(false);
     setLocalisationMode(false);
 }
@@ -130,47 +131,64 @@ void Rosbot::run() {
 
 
     if (m_isLocalisationOn) {
+        static FrequencyTimer funcTimer(HZ_1000_MICROSECONDS); 
+
+        if (!funcTimer.checkEnoughTimeHasPassed()) {
+            return;
+        }
+
+        // Confirm the function doesn't run slower than 0.001s 
+        long int start = elapsedMicros();
         runLocalisation();
+        long int end = elapsedMicros();
+        if (end - start >= 1000) {
+            Serial.println("Warning - Localisation run time: " + String(end-start));
+        }
     }
 
     if (m_isControlOn) {
-        runControl();     
-    }
-}
-
-void Rosbot::runControl () {
         static FrequencyTimer funcTimer(HZ_100_MICROSECONDS);
 
         if (!funcTimer.checkEnoughTimeHasPassed()) {
             return;
         }
 
-        // Get count from encoders
-        long int countLeft = m_encoderL->readPosition();
-        long int countRight = m_encoderR->readPosition();
+        runControl();     
+
+    }
+}
+
+void Rosbot::runControl () {
+        
+
+        // Serial.println(currR, 8);
+
+        // // Get count from encoders
+        // long int countLeft = m_encoderL->readPosition();
+        // long int countRight = m_encoderR->readPosition();
 
         m_motorLPositionParams = m_positionPidParams;
         m_motorRPositionParams = m_positionPidParams;
 
-        m_motorLPositionParams.currValue = countLeft;
-        m_motorRPositionParams.currValue = countRight;
+        // m_motorLPositionParams.currValue = ;
+        // m_motorRPositionParams.currValue = ;
 
-        float leftPosRes = PIDController::computeResponse(m_motorLPositionParams);
-        float rightPosRes = PIDController::computeResponse(m_motorRPositionParams);
+        // float leftPosRes = PIDController::computeResponse(m_motorLPositionParams);
+        // float rightPosRes = PIDController::computeResponse(m_motorRPositionParams);
 
-        // int leftPWMResponse = leftPosRes * 255.0;
-        // int rightPWMResponse = rightPosRes * 255.0;
+        // // int leftPWMResponse = leftPosRes * 255.0;
+        // // int rightPWMResponse = rightPosRes * 255.0;
 
-        // Take average of left and right responses.
-        float avgRes = (leftPosRes + rightPosRes) / 2;
+        // // Take average of left and right responses.
+        // float avgRes = (leftPosRes + rightPosRes) / 2;
 
-        // Scale to 10 degs
-        m_anglePidParams.target = avgRes * 10.0;
+        // // Scale to 10 degs
+        // m_anglePidParams.target = 0.0;
         m_anglePidParams.currValue = m_imuData.orientation.x;
         m_anglePidParams.dt = 0.01;
-
+        Serial.println(m_anglePidParams.target);
         float angleResponse = PIDController::computeResponse(m_anglePidParams);
-        float PWMAngleResponse = angleResponse * 255.0;
+        int PWMAngleResponse = angleResponse * 255.0;
         
         m_motorL->setThrottle(PWMAngleResponse);
         m_motorR->setThrottle(-PWMAngleResponse);
@@ -206,11 +224,6 @@ void Rosbot::runControl () {
 void Rosbot::runLocalisation () {
     // Localisation updates
     // Time since last update
-    static FrequencyTimer funcTimer(HZ_100_MICROSECONDS); 
-
-    if (!funcTimer.checkEnoughTimeHasPassed()) {
-        return;
-    }
 
     // Running each sub module responsible for driver level work
     m_imu->run();
@@ -218,13 +231,13 @@ void Rosbot::runLocalisation () {
     m_encoderR->run();
     
     m_imu->readImuData(m_imuData);
-    
+
     imu_filter(m_imuData.accelData.x, m_imuData.accelData.y, m_imuData.accelData.z, 
                 m_imuData.gyroRates.x, m_imuData.gyroRates.y, m_imuData.gyroRates.z, m_qEst);
     
     float roll, pitch, yaw;
     eulerAngles(m_qEst, &roll, &pitch, &yaw);
-
+    
     m_imuData.orientation.x = roll - m_angleOffsets.x;
     m_imuData.orientation.y = pitch - m_angleOffsets.y;
     m_imuData.orientation.z = yaw - m_angleOffsets.z;
@@ -237,7 +250,7 @@ void Rosbot::runLocalisation () {
 }
 
 void Rosbot::runAngleOffsetEstimation () {
-    const int numSamples = 5000;
+    const int numSamples = 200;
     m_status.mix(255,0,255);
     delay(100);
     vector3D offset;

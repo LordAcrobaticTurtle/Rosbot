@@ -29,6 +29,26 @@ typedef struct PIDParams {
             target, currValue, kp, ki, kd, prevError, errorSum, dt, bounds[0], bounds[1]
         );
     }
+
+    // Set the fields of the struct being operated on
+    void operator=(const PIDParams& newParams) {
+        
+        // Guard against self assignment
+        if (this == &newParams) {
+            return;
+        }
+
+        target = newParams.target;
+        currValue = newParams.currValue;
+        kp = newParams.kp;
+        ki = newParams.ki;
+        kd = newParams.kd;
+        prevError = newParams.prevError;
+        errorSum = newParams.errorSum;
+        dt = newParams.dt;
+        bounds[0] = newParams.bounds[0];
+        bounds[1] = newParams.bounds[1];
+    }
 } PIDParams;
 
 

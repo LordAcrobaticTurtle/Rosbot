@@ -6,10 +6,10 @@
 //
 #pragma once
 #include "utility/quaternion.h"
-
+ 
 // Include a hardware specific header file to redefine these predetermined values
 #ifndef DELTA_T
-    #define DELTA_T 0.01f // 100Hz sampling frequency
+    #define DELTA_T 0.001f // 1000Hz sampling frequency
 #endif
 
 #ifndef PI  

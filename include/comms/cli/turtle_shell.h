@@ -22,6 +22,7 @@ enum CliCommandIndex {
     CLI_LOCALISATION_PACKET,
     CLI_PID_PARAMS_SET,
     CLI_PID_PARAMS_GET,
+    CLI_ANGLE_TARGET,
     CLI_NUM_COMMANDS
 };
 
@@ -37,6 +38,7 @@ const char cliCommands[CLI_NUM_COMMANDS+1][64] = {
     "LocalisationPacket",
     "Set-pid",
     "Get-pid",
+    "target",
     "None"
 };
 

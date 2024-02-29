@@ -118,10 +118,10 @@ int Comms::handlePacket(MessageContents packet) {
                 return 0;
             }
             
-            // m_robot->setMotorPosition(motorIndex, throttle);
-            auto params = m_robot->getPositionPIDParams();
-            params.target = throttle;
-            m_robot->setPositionPIDParams(params);
+            m_robot->setMotorPosition(motorIndex, throttle);
+            // auto params = m_robot->getPositionPIDParams();
+            // params.target = throttle;
+            // m_robot->setPositionPIDParams(params);
 
             byte buffer[] = "Motor-OK";
             sendResponse(buffer, CliCommandIndex::CLI_MOTOR);
@@ -184,6 +184,23 @@ int Comms::handlePacket(MessageContents packet) {
             break;
         }
 
+        case (CliCommandIndex::CLI_ANGLE_TARGET): {
+            float angleTarget = 0.0;
+            int valuesFilled = sscanf(packet.argv[1], "[%f]", &angleTarget);
+
+            if (valuesFilled != 1) {
+                byte buffer[] = "Set-angle-target-NOT-Ok";
+                sendResponse(buffer, CLI_PID_PARAMS_SET);    
+            }
+            auto params = m_robot->getAnglePIDParams();
+            params.target = angleTarget;
+            m_robot->setAnglePIDParams(params);
+
+            byte buffer[] = "Set-angle-target-Ok";
+            sendResponse(buffer, CLI_PID_PARAMS_SET);
+            break;
+        }
+
 
         default:
             // Do nothing
@@ -198,7 +215,7 @@ void Comms::sendResponse(byte *buffer, CliCommandIndex packetID) {
     auto time = millis();
     sprintf((char*) bufferToSend, "0x%x %d %ld [%s] 0x%x", FRAMING_START, packetID, time - m_timerOffset, buffer, FRAMING_END);
     m_transceiver->sendBytes(bufferToSend, strlen((const char*) bufferToSend));
-    Serial.println((char *) bufferToSend);
+    // Serial.println((char *) bufferToSend);
 }
 
 void Comms::sendHelp() {

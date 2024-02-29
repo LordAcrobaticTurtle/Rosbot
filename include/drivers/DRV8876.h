@@ -5,8 +5,8 @@
 #define MAX_THROTTLE 255
 #define MIN_THROTTLE -255
 
-#define A_IPROPI 1000 // uA/A
-#define R_IPROPI 1500 // ohms
+#define A_IPROPI 1000.0 // uA/A
+#define R_IPROPI 1500.0 // ohms
 
 #define K_t
 
