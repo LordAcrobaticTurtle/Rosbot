@@ -53,6 +53,7 @@ void DRV8876::setDirection(bool isClockwise) {
 double DRV8876::readCurrent() {
 
     int currentAsInteger = analogRead(m_pinCurrSense);
+    // Apply low pass filter
 
     // Convert to voltage
     double currentAsVoltage = floatMap(currentAsInteger, ADC_MIN, ADC_MAX, VOLTAGE_MIN, VOLTAGE_MAX);

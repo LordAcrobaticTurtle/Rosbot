@@ -18,7 +18,7 @@ class App(tk.Tk):
         self.protocol("WM_DELETE_WINDOW", self.view.close)
         self.view.grid(row=0, column=0, padx=10, pady=10)        
         # Make full screen
-        self.state('zoomed')
+        # self.state('zoomed')
 
         # create a controller
         self.controller = Controller(self.model, self.view)

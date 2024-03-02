@@ -48,7 +48,7 @@ class Rosbot {
 
 
     protected:
-        void runAngleOffsetEstimation ();
+        void runOffsetEstimation ();
         void setLocalisationMode (bool isLocalisationOn);
         void setControlMode (bool isControlOn);
         void runLocalisation ();
@@ -66,6 +66,8 @@ class Rosbot {
 
         // State estimation related data.
         ImuData m_imuData;
+        ImuData m_zeroOffsetData;
+        
         quaternion m_qEst;
         vector2D m_vwheel;
 

@@ -57,8 +57,8 @@ class View(ttk.Frame):
         comSettingsFrame.grid(column=2, row=1, sticky=(tk.W+tk.N))
         pidTuningFrame = self._pidTuner.create_window()
         pidTuningFrame.grid(column=2, row=0)
-        plot1Frame = self._plot1.create_window()
-        plot1Frame.grid(column=1, row=0)
+        # plot1Frame = self._plot1.create_window()
+        # plot1Frame.grid(column=1, row=0)
         # PositionPidTUningFrame = self._positionTuner.create_window()
         # PositionPidTUningFrame.grid(column=1, row=1, sticky=(tk.E + tk.N))
 

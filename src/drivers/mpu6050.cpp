@@ -61,7 +61,6 @@ void Mpu6050::setup() {
     Serial.print("GyroOffsets: ");
     for (int i = 0; i < 3; i++) {
         m_gyroRateOffset[i] = gyroSamples[i] / numSamples;
-        // Serial.print(String(m_gyroRateOffset[i]) + ", ");
     }
     Serial.println();
 
@@ -121,7 +120,7 @@ void Mpu6050::parseRawData() {
 
     for (int i = 0; i < 3; i++) {
         m_gyroDataF[i] = m_gyroDataRaw[i] / 131.0;
-        m_gyroDataF[i] = (m_gyroDataF[i] - m_gyroRateOffset[i]) * PI/180; 
+        m_gyroDataF[i] = (m_gyroDataF[i]) * PI/180; 
         m_accelDataF[i] = m_accelDataRaw[i] / 16384.0 * GRAVITY;
     }
 

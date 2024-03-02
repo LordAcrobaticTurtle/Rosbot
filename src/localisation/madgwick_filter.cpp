@@ -122,6 +122,7 @@ void imu_filter(float ax, float ay, float az, float gx, float gy, float gz, quat
  Roll is about the x axis, represented as phi
  Pitch is about the y axis, represented as theta
  Yaw is about the z axis, represented as psi (trident looking greek symbol)
+ All are in degrees
  */
 void eulerAngles(struct quaternion q, float* roll, float* pitch, float* yaw){
     

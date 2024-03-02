@@ -29,10 +29,6 @@ Rosbot::Rosbot() :
     m_motorRPositionParams.bounds[1] = 1;
     m_motorRPositionParams.dt = 0.01;
 
-    m_angleOffsets.x = 0;
-    m_angleOffsets.y = 0;
-    m_angleOffsets.z = 0;
-
     m_qEst.q1 = 1;
     m_qEst.q2 = 0;
     m_qEst.q3 = 0;
@@ -87,7 +83,7 @@ void Rosbot::setLocalisationMode(bool isLocalisationOn) {
 
 void Rosbot::resetImu() {
     // Reset and recompute angle offsets. 
-    runAngleOffsetEstimation();
+    runOffsetEstimation();
 }
 
 void Rosbot::setMotorPosition (int motorIndex, int throttle) {
@@ -232,15 +228,28 @@ void Rosbot::runLocalisation () {
     
     m_imu->readImuData(m_imuData);
 
+    // Apply offsets
+    m_imuData.accelData.subtract(
+        m_zeroOffsetData.accelData.x, 
+        m_zeroOffsetData.accelData.y,
+        m_zeroOffsetData.accelData.z
+    );
+
+    m_imuData.gyroRates.subtract(
+        m_zeroOffsetData.gyroRates.x, 
+        m_zeroOffsetData.gyroRates.y, 
+        m_zeroOffsetData.gyroRates.z
+    );
+    
     imu_filter(m_imuData.accelData.x, m_imuData.accelData.y, m_imuData.accelData.z, 
                 m_imuData.gyroRates.x, m_imuData.gyroRates.y, m_imuData.gyroRates.z, m_qEst);
     
     float roll, pitch, yaw;
     eulerAngles(m_qEst, &roll, &pitch, &yaw);
     
-    m_imuData.orientation.x = roll - m_angleOffsets.x;
-    m_imuData.orientation.y = pitch - m_angleOffsets.y;
-    m_imuData.orientation.z = yaw - m_angleOffsets.z;
+    m_imuData.orientation.x = roll - m_zeroOffsetData.orientation.x;
+    m_imuData.orientation.y = pitch - m_zeroOffsetData.orientation.y;
+    m_imuData.orientation.z = yaw - m_zeroOffsetData.orientation.z;
     
     m_vwheel.v1 = m_encoderL->readRPM();
     m_vwheel.v2 = m_encoderR->readRPM();
@@ -249,32 +258,51 @@ void Rosbot::runLocalisation () {
     m_motorRPositionParams.currValue = m_encoderR->readPosition();
 }
 
-void Rosbot::runAngleOffsetEstimation () {
+void Rosbot::runOffsetEstimation () {
     const int numSamples = 200;
     m_status.mix(255,0,255);
-    delay(100);
-    vector3D offset;
-    offset.x = 0;
-    offset.y = 0;
-    offset.z = 0;
-    m_angleOffsets.x = 0;
-    m_angleOffsets.y = 0;
-    m_angleOffsets.z = 0;
+    delay(10);
+
+    m_zeroOffsetData.accelData.reset();
+    m_zeroOffsetData.orientation.reset();
+    m_zeroOffsetData.gyroRates.reset();
+
+    vector3D angleOffset, gyroRateOffset, accelOffset;
+
     for (int i = 0; i < numSamples; i++) {
         runLocalisation();
-        offset.x += m_imuData.orientation.x;
-        offset.y += m_imuData.orientation.y;
-        offset.z += m_imuData.orientation.z;
+
+        angleOffset.x += m_imuData.orientation.x;
+        angleOffset.y += m_imuData.orientation.y;
+        angleOffset.z += m_imuData.orientation.z;
+
+        gyroRateOffset.x += m_imuData.gyroRates.x;
+        gyroRateOffset.y += m_imuData.gyroRates.y;
+        gyroRateOffset.z += m_imuData.gyroRates.z;
+
+        accelOffset.x += m_imuData.accelData.x;
+        accelOffset.y += m_imuData.accelData.y;
+        accelOffset.z += m_imuData.accelData.z;
     }
 
-    m_angleOffsets.x = offset.x / numSamples;
-    m_angleOffsets.y = offset.y / numSamples;
-    m_angleOffsets.z = offset.z / numSamples;
+    m_zeroOffsetData.orientation.x = angleOffset.x / numSamples;
+    m_zeroOffsetData.orientation.y = angleOffset.y / numSamples;
+    m_zeroOffsetData.orientation.z = angleOffset.z / numSamples;
+
+    m_zeroOffsetData.accelData.x = accelOffset.x / numSamples;
+    m_zeroOffsetData.accelData.y = accelOffset.y / numSamples;
+    m_zeroOffsetData.accelData.z = accelOffset.z / numSamples;
+
+    m_zeroOffsetData.gyroRates.x = gyroRateOffset.x / numSamples;
+    m_zeroOffsetData.gyroRates.y = gyroRateOffset.y / numSamples;
+    m_zeroOffsetData.gyroRates.z = gyroRateOffset.z / numSamples;
+    
+    
     m_status.mix(0,255,0);
 }
 
 vector3D Rosbot::getAngleOffsets () {
-    return m_angleOffsets;
+    return m_zeroOffsetData.orientation;
 }
 
 PIDParams Rosbot::getAnglePIDParams () {

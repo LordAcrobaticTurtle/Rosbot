@@ -8,12 +8,35 @@ typedef unsigned char byte;
 struct vector3D {
     float x, y, z;
 
+    vector3D () {
+        x = 0;
+        y = 0;
+        z = 0;
+    }
     /**
      * @brief Stores the vector3D contents into a string. Expects a buffer size of at least 64 bytes
      * @param buffer 
      */
     void toString(char *buffer) {
         sprintf(buffer, "%f,%f,%f", x, y, z);
+    }
+
+    void add (float ox, float oy, float oz) {
+        x += ox;
+        y += oy;
+        z += oz;
+    }
+
+    void subtract (float ox, float oy, float oz) {
+        x -= ox;
+        y -= oy;
+        z -= oz;
+    }
+
+    void reset () {
+        x = 0;
+        y = 0;
+        z = 0;
     }
 };
 
