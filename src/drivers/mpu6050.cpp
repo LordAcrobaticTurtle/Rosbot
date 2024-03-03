@@ -6,6 +6,8 @@ Mpu6050::Mpu6050(I2CMaster &interface)
     memset(m_gyroAngle, 0, sizeof(float) * 3);
     memset(m_gyroRateOffset, 0, sizeof(float) * 3);
     m_configured = init(interface);
+
+    
     // setup();
 }
 
@@ -71,12 +73,28 @@ void Mpu6050::setup() {
 bool Mpu6050::init(I2CMaster &interface) {
     m_interface = std::make_shared<I2CDevice>(interface, MPU6050_ADDRESS, __ORDER_BIG_ENDIAN__);
     uint16_t wakeup = 0;
-    uint16_t gyroScale = 0b00000000;
-    uint16_t accelScale = 0;
+    uint8_t gyroScale = 0b00010000;
+
+    // 8g scale. Needs 2 written to AFS_SEL
+    uint8_t accelScale = 0b00010000;
     // 0x6B
     bool result1 = m_interface->write(registerMap::PWR_MGMT_1, wakeup, false);
     bool result2 = m_interface->write(registerMap::GYRO_CONFIG, gyroScale, false);
     bool result3 = m_interface->write(registerMap::ACCEL_CONFIG, accelScale, false);
+
+
+    // Read back results
+    uint8_t r_gyroScale = 0, r_accelScale = 0;
+    m_interface->read(registerMap::GYRO_CONFIG, &r_gyroScale, false);
+    m_interface->read(registerMap::GYRO_CONFIG, &r_accelScale, true);
+
+    Serial.println("Gyro reg: " + String(r_gyroScale) + ", Accel reg: " + String(r_accelScale));
+
+    if (!(result1 && result2 && result3)) {
+        while (1) {
+            Serial.println("IMU incorrectly configured");
+        }
+    }
     
     return result1 && result2 && result3; 
 }
@@ -119,9 +137,9 @@ void Mpu6050::parseRawData() {
     m_gyroDataRaw[2] = m_rawRegisters[12] << 8 | m_rawRegisters[13];
 
     for (int i = 0; i < 3; i++) {
-        m_gyroDataF[i] = m_gyroDataRaw[i] / 131.0;
-        m_gyroDataF[i] = (m_gyroDataF[i]) * PI/180; 
-        m_accelDataF[i] = m_accelDataRaw[i] / 16384.0 * GRAVITY;
+        m_gyroDataF[i] = m_gyroDataRaw[i] / 32.8; // 32.8 for 1000 deg/s
+        m_gyroDataF[i] = (m_gyroDataF[i]) * PI/180; // Convert to radians
+        m_accelDataF[i] = m_accelDataRaw[i] / 4096.0 * GRAVITY; // 4096.0 for 8g scale. Change to m/s/s
     }
 
 }
