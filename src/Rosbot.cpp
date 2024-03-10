@@ -227,26 +227,30 @@ void Rosbot::runLocalisation () {
     m_encoderR->run();
     
     m_imu->readImuData(m_imuData);
-
     // Apply offsets
-    m_imuData.accelData.subtract(
-        m_zeroOffsetData.accelData.x, 
-        m_zeroOffsetData.accelData.y,
-        m_zeroOffsetData.accelData.z
-    );
+    // m_imuData.accelData.subtract(
+    //     m_zeroOffsetData.accelData.x, 
+    //     m_zeroOffsetData.accelData.y,
+    //     m_zeroOffsetData.accelData.z
+    // );
 
-    m_imuData.gyroRates.subtract(
-        m_zeroOffsetData.gyroRates.x, 
-        m_zeroOffsetData.gyroRates.y, 
-        m_zeroOffsetData.gyroRates.z
-    );
+    // m_imuData.gyroRates.subtract(
+    //     m_zeroOffsetData.gyroRates.x, 
+    //     m_zeroOffsetData.gyroRates.y, 
+    //     m_zeroOffsetData.gyroRates.z
+    // );
     
-    imu_filter(m_imuData.accelData.x, m_imuData.accelData.y, m_imuData.accelData.z, 
-                m_imuData.gyroRates.x, m_imuData.gyroRates.y, m_imuData.gyroRates.z, m_qEst);
+
+
+
+    // imu_filter(m_imuData.accelData.x, m_imuData.accelData.y, m_imuData.accelData.z, 
+    //             m_imuData.gyroRates.x, m_imuData.gyroRates.y, m_imuData.gyroRates.z, m_qEst);
     
     float roll, pitch, yaw;
-    eulerAngles(m_qEst, &roll, &pitch, &yaw);
+    // eulerAngles(m_qEst, &roll, &pitch, &yaw);
     
+
+
     m_imuData.orientation.x = roll - m_zeroOffsetData.orientation.x;
     m_imuData.orientation.y = pitch - m_zeroOffsetData.orientation.y;
     m_imuData.orientation.z = yaw - m_zeroOffsetData.orientation.z;

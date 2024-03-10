@@ -38,6 +38,12 @@ struct vector3D {
         y = 0;
         z = 0;
     }
+
+    void scale (float sx, float sy, float sz) {
+        x *= sx;
+        y *= sy;
+        z *= sz;
+    }
 };
 
 struct vector2D {
