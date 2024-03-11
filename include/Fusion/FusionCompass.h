@@ -11,8 +11,8 @@
 //------------------------------------------------------------------------------
 // Includes
 
-#include "FusionConvention.h"
-#include "FusionMath.h"
+#include "Fusion/FusionConvention.h"
+#include "Fusion/FusionMath.h"
 
 //------------------------------------------------------------------------------
 // Function declarations

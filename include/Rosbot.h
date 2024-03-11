@@ -5,6 +5,8 @@
 #include <drivers/RGB_LED.h>
 #include <utility/quaternion.h>
 #include <drivers/radio_interface.h>
+#include <Fusion/Fusion.h>
+
 
 struct ControlResponse {
     size_t controlIDPlaceholder;
@@ -70,6 +72,8 @@ class Rosbot {
         
         quaternion m_qEst;
         vector2D m_vwheel;
+
+        FusionAhrs m_ahrs;
 
         // Control related data
         PIDParams m_anglePidParams;

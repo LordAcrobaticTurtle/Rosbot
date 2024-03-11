@@ -8,8 +8,8 @@
 //------------------------------------------------------------------------------
 // Includes
 
-#include "FusionAxes.h"
-#include "FusionCompass.h"
+#include "Fusion/FusionAxes.h"
+#include "Fusion/FusionCompass.h"
 #include <math.h> // atan2f
 
 //------------------------------------------------------------------------------

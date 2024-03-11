@@ -22,6 +22,8 @@ void setupGlobalTimer ();
 
 #define HZ_100_MICROSECONDS 10000
 #define HZ_1000_MICROSECONDS 1000
+#define HZ_200_MICROSECONDS 5000
+#define HZ_500_MICROSECONDS 2000
 
 class FrequencyTimer {
     public:
@@ -32,7 +34,6 @@ class FrequencyTimer {
         void setPeriod (long int timeInMicroseconds);
 
         void setFrequency (double freqInHz);
-
 
         /**
          * @brief Returns true if the time enough time has elapsed since the last call.

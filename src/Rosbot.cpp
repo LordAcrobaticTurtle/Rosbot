@@ -33,6 +33,9 @@ Rosbot::Rosbot() :
     m_qEst.q2 = 0;
     m_qEst.q3 = 0;
     m_qEst.q4 = 0;
+
+    FusionAhrsInitialise(&m_ahrs);
+
 }
 
 Rosbot::~Rosbot() {}
@@ -127,7 +130,7 @@ void Rosbot::run() {
 
 
     if (m_isLocalisationOn) {
-        static FrequencyTimer funcTimer(HZ_1000_MICROSECONDS); 
+        static FrequencyTimer funcTimer(HZ_500_MICROSECONDS); 
 
         if (!funcTimer.checkEnoughTimeHasPassed()) {
             return;
@@ -143,7 +146,7 @@ void Rosbot::run() {
     }
 
     if (m_isControlOn) {
-        static FrequencyTimer funcTimer(HZ_100_MICROSECONDS);
+        static FrequencyTimer funcTimer(HZ_200_MICROSECONDS);
 
         if (!funcTimer.checkEnoughTimeHasPassed()) {
             return;
@@ -240,16 +243,26 @@ void Rosbot::runLocalisation () {
     //     m_zeroOffsetData.gyroRates.z
     // );
     
-
-
-
-    // imu_filter(m_imuData.accelData.x, m_imuData.accelData.y, m_imuData.accelData.z, 
-    //             m_imuData.gyroRates.x, m_imuData.gyroRates.y, m_imuData.gyroRates.z, m_qEst);
+    const FusionVector gyroSample = {
+        m_imuData.gyroRates.x,
+        m_imuData.gyroRates.y,
+        m_imuData.gyroRates.z
+    };
     
+    const FusionVector accelSample = {
+        m_imuData.accelData.x,
+        m_imuData.accelData.y,
+        m_imuData.accelData.z
+    };
+
+    FusionAhrsUpdateNoMagnetometer(&m_ahrs, gyroSample, accelSample,  0.002);
+
+    const FusionEuler euler = FusionQuaternionToEuler(FusionAhrsGetQuaternion(&m_ahrs));
     float roll, pitch, yaw;
-    // eulerAngles(m_qEst, &roll, &pitch, &yaw);
     
-
+    roll = euler.angle.roll;
+    pitch = euler.angle.pitch;
+    yaw = euler.angle.yaw;
 
     m_imuData.orientation.x = roll - m_zeroOffsetData.orientation.x;
     m_imuData.orientation.y = pitch - m_zeroOffsetData.orientation.y;

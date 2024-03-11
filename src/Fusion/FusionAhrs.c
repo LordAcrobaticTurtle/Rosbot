@@ -9,7 +9,7 @@
 // Includes
 
 #include <float.h> // FLT_MAX
-#include "FusionAhrs.h"
+#include "Fusion/FusionAhrs.h"
 #include <math.h> // atan2f, cosf, powf, sinf
 
 //------------------------------------------------------------------------------
