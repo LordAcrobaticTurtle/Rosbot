@@ -128,9 +128,9 @@ void Rosbot::run() {
         m_status.mix(0, 0, 255);
     }
 
-
+    
     if (m_isLocalisationOn) {
-        static FrequencyTimer funcTimer(HZ_500_MICROSECONDS); 
+        static FrequencyTimer funcTimer(20000); 
 
         if (!funcTimer.checkEnoughTimeHasPassed()) {
             return;
@@ -255,7 +255,7 @@ void Rosbot::runLocalisation () {
         m_imuData.accelData.z
     };
 
-    FusionAhrsUpdateNoMagnetometer(&m_ahrs, gyroSample, accelSample,  0.002);
+    FusionAhrsUpdateNoMagnetometer(&m_ahrs, gyroSample, accelSample,  0.02);
 
     const FusionEuler euler = FusionQuaternionToEuler(FusionAhrsGetQuaternion(&m_ahrs));
     float roll, pitch, yaw;

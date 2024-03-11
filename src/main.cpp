@@ -39,9 +39,28 @@ void setupMainloop() {
     Serial.print("Start");
 }
  
+int i = 0;
 void loop()
 {
+    long int start = micros();
     mainloop();
+    long int end = micros();
+    if (i >= 100) {
+        Serial.print("Loop time: ");
+        Serial.println(end-start);
+        i = 0;
+    }
+
+    i++;
+}
+
+
+void mainloop() {    
+    comms->run();
+    robot->run();
+}
+
+
     // static FrequencyTimer timer(HZ_100_MICROSECONDS);
 
     // if (!timer.checkEnoughTimeHasPassed()) {
@@ -64,11 +83,3 @@ void loop()
     // Serial.println(String(PWMResponse) + ", " + String(position));
     // driver.setThrottle(-PWMResponse);
     // driver.setThrottle(20);
-}
-
-
-void mainloop() {    
-    comms->run();
-    robot->run();
-}
-
