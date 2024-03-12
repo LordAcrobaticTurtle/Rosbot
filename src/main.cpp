@@ -55,11 +55,17 @@ void loop()
 }
 
 
-void mainloop() {    
-    comms->run();
+void mainloop() { 
+
+    static FrequencyTimer commsTimer(HZ_50_MICROSECONDS);
+
+    // 50 times a second is not a lot of data. 
+    if (commsTimer.checkEnoughTimeHasPassed()) {
+        comms->run();
+    }
+    
     robot->run();
 }
-
 
     // static FrequencyTimer timer(HZ_100_MICROSECONDS);
 

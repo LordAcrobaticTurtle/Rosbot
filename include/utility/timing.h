@@ -20,10 +20,11 @@ class HardwareTime : public SystemTimeI {
 void setupGlobalTimer ();
 
 
-#define HZ_100_MICROSECONDS 10000
 #define HZ_1000_MICROSECONDS 1000
-#define HZ_200_MICROSECONDS 5000
-#define HZ_500_MICROSECONDS 2000
+#define HZ_500_MICROSECONDS  2000
+#define HZ_200_MICROSECONDS  5000
+#define HZ_100_MICROSECONDS  10000
+#define HZ_50_MICROSECONDS   20000
 
 class FrequencyTimer {
     public:

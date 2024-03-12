@@ -37,10 +37,6 @@ int Comms::run() {
         byte buffer[BUFFER_SIZE];
         m_transceiver->readBytes(buffer, numBytesInSerialBuffer);
         m_commsBuffer.insert((const char *) buffer, numBytesInSerialBuffer);
-    
-        // for (int i = 0; i < m_commsBuffer.getTailPos() + 1; i++) {
-        //     Serial.println(m_commsBuffer[i]);
-        // }
     }
 
     MessageContents packet;

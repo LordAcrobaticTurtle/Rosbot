@@ -1,10 +1,8 @@
 #include "comms/cli/turtle_shell.h"
 #include <unistd.h>
-// #include <Arduino.h>
 
 CliCommandIndex TurtleShell::searchForCommand(CircularQueue &queue, int &argc, char argv[][CLI_MAX_ARGUMENT_LENGTH]) {
     
-
     // Search for a newline
     // If none exists, return early. 
     // If one does exist, look for parse for commands and arguments
@@ -28,8 +26,6 @@ CliCommandIndex TurtleShell::searchForCommand(CircularQueue &queue, int &argc, c
     }
 
     auto command = parseCommand(argv[0], strlen(argv[0]));
-    // Serial.println(String(argv[0]));
-    // Serial.println("RESETTING BUFFER");
     queue.reset();
     
     return command;

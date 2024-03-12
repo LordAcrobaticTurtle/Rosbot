@@ -140,9 +140,9 @@ void Rosbot::run() {
         long int start = elapsedMicros();
         runLocalisation();
         long int end = elapsedMicros();
-        if (end - start >= 1000) {
-            Serial.println("Warning - Localisation run time: " + String(end-start));
-        }
+        // if (end - start >= 1000) {
+        Serial.println("Localisation run time: " + String(end-start));
+        // }
     }
 
     if (m_isControlOn) {
@@ -152,7 +152,11 @@ void Rosbot::run() {
             return;
         }
 
+        long int start = elapsedMicros();
         runControl();     
+        long int end = elapsedMicros();
+        // if (end - start >= 1000) {
+        Serial.println("Control run time: " + String(end-start));
 
     }
 }
