@@ -7,7 +7,7 @@ catsMPU6050::catsMPU6050() {
     pinMode(m_interruptPin, INPUT);
     Wire.begin();
     Wire.setClock(400000);
-
+    
     if (m_imu.dmpInitialize() == 0) {
         m_imu.CalibrateAccel(6);
         m_imu.CalibrateGyro(6);
@@ -27,24 +27,21 @@ int catsMPU6050::run () {
         return 0;
     }
 
-
-
     if (m_imu.dmpGetCurrentFIFOPacket(fifoBuffer)) {
         VectorInt16 accelRaw;
         VectorInt16 gyroRaw;
         m_imu.dmpGetQuaternion(&q, fifoBuffer);
         m_imu.dmpGetGravity(&gravity, &q);
         m_imu.dmpGetEuler(ypr, &q);
-        // m_imu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
         m_imu.dmpGetAccel(&accelRaw, fifoBuffer);
         m_imu.dmpGetGyro(&gyroRaw, fifoBuffer);
-        axf = accelRaw.x / 4096.0 * GRAVITY;
-        ayf = accelRaw.y / 4096.0 * GRAVITY;
-        azf = accelRaw.z / 4096.0 * GRAVITY;
+        axf = accelRaw.x / 2048.0 * GRAVITY;
+        ayf = accelRaw.y / 2048.0 * GRAVITY;
+        azf = accelRaw.z / 2048.0 * GRAVITY;
 
-        gxf = gyroRaw.x / 32.8;
-        gyf = gyroRaw.y / 32.8;
-        gzf = gyroRaw.z / 32.8;
+        gxf = gyroRaw.x / 16.4;
+        gyf = gyroRaw.y / 16.4;
+        gzf = gyroRaw.z / 16.4;
     } else {
         Serial.println("DMP not ready");
     }
@@ -57,7 +54,6 @@ int catsMPU6050::readImuData (ImuData &data) {
     readAccel(data.accelData);
     readGyroRates(data.gyroRates);
     readOrientation(data.orientation);
-
     return 0;
 }
 
@@ -78,9 +74,9 @@ int catsMPU6050::readGyroRates (vector3D &data) {
 }
 
 int catsMPU6050::readOrientation (vector3D &data) {
-    data.x = ypr[0];
-    data.y = ypr[1];
-    data.z = ypr[3];
+    data.x = ypr[2] * 180 / M_PI;
+    data.y = ypr[1] * 180 / M_PI;
+    data.z = ypr[0] * 180 / M_PI;
 
     return 0;
 }
