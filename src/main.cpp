@@ -2,7 +2,6 @@
 #include <Rosbot.h>
 #include <comms/comms.h>
 #include <drivers/encoder_N20.h>
-#include <i2c_device.h>
 #include <drivers/DRV8876.h>
 #include <utility/timing.h>
 
@@ -19,10 +18,10 @@ void setupMainloop();
 
 void setup()
 {  
-    Serial.begin(9600);
+    Serial.begin(115200);
     Serial.println("Begin!");
-    Serial4.begin(9600);
-    Master.begin(100 * 1000U);
+    Serial4.begin(115200);
+    // Master.begin(400 * 1000U);
     setupMainloop();
     
     // driver.wakeup(true);
@@ -45,13 +44,16 @@ void loop()
     long int start = micros();
     mainloop();
     long int end = micros();
-    if (i >= 100) {
-        Serial.print("Loop time: ");
-        Serial.println(end-start);
-        i = 0;
-    }
 
-    i++;
+    static FrequencyTimer loopTimer(HZ_200_MICROSECONDS);
+
+
+    // if (loopTimer.checkEnoughTimeHasPassed()) {
+    //     Serial.print("Loop time: ");
+    //     Serial.println(end-start);
+    // }
+
+    
 }
 
 

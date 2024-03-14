@@ -1,3 +1,4 @@
+#ifdef __USE_I2C_DRIVER_WIRE__
 #include "drivers/I2CInterface.h"
 
 I2Cinterface::I2Cinterface() {}
@@ -30,3 +31,4 @@ bool I2Cinterface::isDeviceConnected() {
     return m_wirePtr->endTransmission(true);
 }
 
+#endif

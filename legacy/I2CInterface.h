@@ -1,4 +1,5 @@
 #pragma once
+#ifdef __USE_I2C_DRIVER_WIRE__
 #include <i2c_device.h>
 #include <i2c_driver_wire.h>
 
@@ -32,3 +33,4 @@ class I2Cinterface {
         int m_deviceAddress;
 
 };
+#endif

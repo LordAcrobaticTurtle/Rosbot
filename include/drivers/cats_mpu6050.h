@@ -3,6 +3,7 @@
 
 #include <interfaces/imu_interface.h>
 #include <MPU6050_6Axis_MotionApps20.h>
+#include "I2Cdev.h"
 
 class catsMPU6050 : public ImuInterface {
     public:
@@ -11,8 +12,8 @@ class catsMPU6050 : public ImuInterface {
         virtual int readGyroRates (vector3D &rates)         override;
         virtual int readOrientation (vector3D &orientation) override;
         virtual int readAccel (vector3D &accel)             override;
-        virtual int readTemperature (float *temp)           override;
-        virtual int readMagnetField (vector3D &field)       override;
+        virtual int readTemperature (float *temp)           override {};
+        virtual int readMagnetField (vector3D &field)       override {};
         virtual int readImuData (ImuData &data)             override;
         
         // Updates all data objects
@@ -22,7 +23,7 @@ class catsMPU6050 : public ImuInterface {
 
         MPU6050 m_imu;
         // MPU control/status vars
-        bool dmpReady = false;  // set true if DMP init was successful
+        bool m_dmpReady = false;  // set true if DMP init was successful
         uint8_t mpuIntStatus;   // holds actual interrupt status byte from MPU
         uint8_t devStatus;      // return status after each device operation (0 = success, !0 = error)
         uint16_t packetSize;    // expected DMP packet size (default is 42 bytes)
@@ -39,5 +40,11 @@ class catsMPU6050 : public ImuInterface {
         float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
 
         const int m_interruptPin = 15;
+
+        int16_t ax, ay, az;
+        int16_t gx, gy, gz;
+
+        float axf, ayf, azf;
+        float gxf, gyf, gzf;
 
 };

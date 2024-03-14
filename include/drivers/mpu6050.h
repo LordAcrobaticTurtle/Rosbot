@@ -1,4 +1,5 @@
 #pragma once
+#ifdef __USE_I2C_DRIVER_WIRE__
 #include <Arduino.h>
 #include <i2c_device.h>
 #include <memory>
@@ -117,3 +118,4 @@ class Mpu6050 : public ImuInterface {
         // VectorFloat gravity;    // [x, y, z]            gravity vector
         // float euler[3];         // [psi, theta, phi]    Euler angle container
         // float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
+#endif

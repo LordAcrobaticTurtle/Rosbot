@@ -1,4 +1,5 @@
 #pragma once
+#ifdef __USE_I2C_DRIVER_WIRE__
 #include <Arduino.h>
 #include <i2c_device.h>
 #include <memory>
@@ -118,3 +119,4 @@ class AS5600 {
             0x1B,0x1C
         };
 };
+#endif

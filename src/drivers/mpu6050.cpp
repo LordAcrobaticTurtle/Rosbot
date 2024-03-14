@@ -1,5 +1,7 @@
 #include "drivers/mpu6050.h"
 
+#ifdef __USE_I2C_DRIVER_WIRE__
+
 Mpu6050::Mpu6050(I2CMaster &interface)
 {
     memset(m_eulerXYZ, 0, sizeof(float) * 3);
@@ -145,6 +147,7 @@ void Mpu6050::parseRawData() {
 }
 
 int Mpu6050::calculateEulerAngles() {
+
     if (!m_configured) {
         return 0;
     }
@@ -170,3 +173,5 @@ int Mpu6050::calculateEulerAngles() {
     // Serial.println();
     return 0;
 }
+
+#endif

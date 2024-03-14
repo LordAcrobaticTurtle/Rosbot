@@ -1,11 +1,11 @@
 #include <Rosbot.h>
 #include <drivers/bluetooth_transceiver.h>
-#include <drivers/mpu6050.h>
+// #include <drivers/mpu6050.h>
 #include <drivers/DRV8876.h>
 #include <drivers/encoder_N20.h>
 #include <utility/timing.h>
+#include <drivers/cats_mpu6050.h>
 
-I2CMaster& master = Master;
 
 Rosbot::Rosbot() : 
     m_status(4,3,2,false),
@@ -47,7 +47,8 @@ void Rosbot::setup()
     // Drivers need to inherit
     // Then can create drivers here, and pass into respective classes
     m_status.switchRedOn();
-    m_imu = std::make_shared<Mpu6050>(Master);
+    // m_imu = std::make_shared<Mpu6050>(Master);
+    m_imu = std::make_shared<catsMPU6050>();
     m_status.switchGreenOn();
     m_motorL = std::make_shared<DRV8876>(12, 11, 10, -1, 5);
     m_motorR = std::make_shared<DRV8876>(23, 21, 14, -1, 20);
@@ -130,7 +131,7 @@ void Rosbot::run() {
 
     
     if (m_isLocalisationOn) {
-        static FrequencyTimer funcTimer(20000); 
+        static FrequencyTimer funcTimer(HZ_100_MICROSECONDS); 
 
         if (!funcTimer.checkEnoughTimeHasPassed()) {
             return;
@@ -234,6 +235,8 @@ void Rosbot::runLocalisation () {
     m_encoderR->run();
     
     m_imu->readImuData(m_imuData);
+
+    m_imuData.orientation.scale(180.0 / M_PI, 180.0 / M_PI, 180.0 / M_PI);
     // Apply offsets
     // m_imuData.accelData.subtract(
     //     m_zeroOffsetData.accelData.x, 
@@ -247,30 +250,30 @@ void Rosbot::runLocalisation () {
     //     m_zeroOffsetData.gyroRates.z
     // );
     
-    const FusionVector gyroSample = {
-        m_imuData.gyroRates.x,
-        m_imuData.gyroRates.y,
-        m_imuData.gyroRates.z
-    };
+    // const FusionVector gyroSample = {
+    //     m_imuData.gyroRates.x,
+    //     m_imuData.gyroRates.y,
+    //     m_imuData.gyroRates.z
+    // };
     
-    const FusionVector accelSample = {
-        m_imuData.accelData.x,
-        m_imuData.accelData.y,
-        m_imuData.accelData.z
-    };
+    // const FusionVector accelSample = {
+    //     m_imuData.accelData.x,
+    //     m_imuData.accelData.y,
+    //     m_imuData.accelData.z
+    // };
 
-    FusionAhrsUpdateNoMagnetometer(&m_ahrs, gyroSample, accelSample,  0.02);
+    // // FusionAhrsUpdateNoMagnetometer(&m_ahrs, gyroSample, accelSample,  0.01);
 
-    const FusionEuler euler = FusionQuaternionToEuler(FusionAhrsGetQuaternion(&m_ahrs));
-    float roll, pitch, yaw;
+    // // const FusionEuler euler = FusionQuaternionToEuler(FusionAhrsGetQuaternion(&m_ahrs));
+    // float roll, pitch, yaw;
     
-    roll = euler.angle.roll;
-    pitch = euler.angle.pitch;
-    yaw = euler.angle.yaw;
+    // roll = euler.angle.roll;
+    // pitch = euler.angle.pitch;
+    // yaw = euler.angle.yaw;
 
-    m_imuData.orientation.x = roll - m_zeroOffsetData.orientation.x;
-    m_imuData.orientation.y = pitch - m_zeroOffsetData.orientation.y;
-    m_imuData.orientation.z = yaw - m_zeroOffsetData.orientation.z;
+    // m_imuData.orientation.x = roll - m_zeroOffsetData.orientation.x;
+    // m_imuData.orientation.y = pitch - m_zeroOffsetData.orientation.y;
+    // m_imuData.orientation.z = yaw - m_zeroOffsetData.orientation.z;
     
     m_vwheel.v1 = m_encoderL->readRPM();
     m_vwheel.v2 = m_encoderR->readRPM();

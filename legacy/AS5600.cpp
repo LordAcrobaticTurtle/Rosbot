@@ -1,4 +1,5 @@
 #include "AS5600.h"
+#ifdef __USE_I2C_DRIVER_WIRE__
 
 double floatMap(double value, double preMin, double preMax, double postMin, double postMax);
 
@@ -111,3 +112,4 @@ double floatMap(
 }
 
 
+#endif
