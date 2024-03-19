@@ -3,11 +3,19 @@
 #define GRAVITY 9.81
 
 catsMPU6050::catsMPU6050() {
-    m_imu.initialize();
     pinMode(m_interruptPin, INPUT);
     Wire.begin();
     Wire.setClock(400000);
     
+    m_imu.initialize();
+    
+    m_imu.setXAccelOffset(1679);
+    m_imu.setYAccelOffset(-2945);
+    m_imu.setZAccelOffset(1788); // 1688 factory default for my test chip
+    m_imu.setXGyroOffset(-20);
+    m_imu.setYGyroOffset(63);
+    m_imu.setZGyroOffset(31);
+
     if (m_imu.dmpInitialize() == 0) {
         m_imu.CalibrateAccel(6);
         m_imu.CalibrateGyro(6);
@@ -30,14 +38,14 @@ int catsMPU6050::run () {
         VectorInt16 accelRaw;
         VectorInt16 gyroRaw;
         m_imu.dmpGetQuaternion(&q, fifoBuffer);
-        m_imu.dmpGetGravity(&gravity, &q);
-        m_imu.dmpGetEuler(ypr, &q);
+        // m_imu.dmpGetGravity(&gravity, &q);
+        m_imu.dmpGetEuler(euler, &q);
         m_imu.dmpGetAccel(&accelRaw, fifoBuffer);
         m_imu.dmpGetGyro(&gyroRaw, fifoBuffer);
         axf = accelRaw.x / 2048.0 * GRAVITY;
         ayf = accelRaw.y / 2048.0 * GRAVITY;
         azf = accelRaw.z / 2048.0 * GRAVITY;
-
+ 
         gxf = gyroRaw.x / 16.4;
         gyf = gyroRaw.y / 16.4;
         gzf = gyroRaw.z / 16.4;
@@ -73,9 +81,9 @@ int catsMPU6050::readGyroRates (vector3D &data) {
 }
 
 int catsMPU6050::readOrientation (vector3D &data) {
-    data.x = ypr[2] * 180 / M_PI;
-    data.y = ypr[1] * 180 / M_PI;
-    data.z = ypr[0] * 180 / M_PI;
+    data.x = euler[2]; // * 180.0 / M_PI;
+    data.y = euler[1]; // * 180.0 / M_PI;
+    data.z = euler[0]; // * 180.0 / M_PI;
 
     return 0;
 }

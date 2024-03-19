@@ -89,8 +89,8 @@ bool RadioInterface::hasLostConnection()
 
 bool RadioInterface::isSafetyOff()
 {
-    return m_isDeadSwitchOff;
-    // return m_channelValues[CHANNEL_SAFETY] > 500;
+    // return m_isDeadSwitchOff;
+    return m_channelValues[CHANNEL_SAFETY] > 500;
 }
 
 int RadioInterface::readSBUS() 

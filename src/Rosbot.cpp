@@ -16,6 +16,9 @@ Rosbot::Rosbot() :
 { 
     m_anglePidParams.bounds[0] = -1;
     m_anglePidParams.bounds[1] = 1;
+    m_anglePidParams.kp = 0.1;
+    m_anglePidParams.ki = 0.001;
+    m_anglePidParams.kd = 0.001;
     
     m_positionPidParams.bounds[0] = -1;
     m_positionPidParams.bounds[1] = 1;
@@ -35,6 +38,8 @@ Rosbot::Rosbot() :
     m_qEst.q4 = 0;
 
     FusionAhrsInitialise(&m_ahrs);
+
+    
 
 }
 
@@ -118,8 +123,24 @@ LocalisationResponse Rosbot::getLocalisationResponse() {
 
 void Rosbot::run() {
     // If standby is on, comms must still run
-
+    m_rx->run();
     // This can be written more efficiently
+    double channels[16];
+    memset(channels, 0, sizeof(double)*16);
+
+    // m_rx->getChannelPercentage(channels, 1.0);
+
+    if (m_rx->isSafetyOff()) {
+        m_isControlOn = true;
+        m_isLocalisationOn = true;
+        m_isStandbyOn = false;
+    } else {
+        m_isLocalisationOn = false;
+        m_isControlOn = false;
+        m_isStandbyOn = true;
+    }
+
+
     if (m_isStandbyOn) {
         m_status.mix(255, 163, 0);
         m_motorL->setThrottle(0);
@@ -131,7 +152,7 @@ void Rosbot::run() {
 
     
     if (m_isLocalisationOn) {
-        static FrequencyTimer funcTimer(HZ_100_MICROSECONDS); 
+        static FrequencyTimer funcTimer(HZ_200_MICROSECONDS); 
 
         if (!funcTimer.checkEnoughTimeHasPassed()) {
             return;
@@ -142,7 +163,7 @@ void Rosbot::run() {
         runLocalisation();
         long int end = elapsedMicros();
         // if (end - start >= 1000) {
-        Serial.println("Localisation run time: " + String(end-start));
+        // Serial.println("Localisation run time: " + String(end-start));
         // }
     }
 
@@ -157,7 +178,7 @@ void Rosbot::run() {
         runControl();     
         long int end = elapsedMicros();
         // if (end - start >= 1000) {
-        Serial.println("Control run time: " + String(end-start));
+        // Serial.println("Control run time: " + String(end-start));
 
     }
 }
@@ -165,40 +186,47 @@ void Rosbot::run() {
 void Rosbot::runControl () {
         
 
-        // Serial.println(currR, 8);
+    // double scaleFactor = 1.0;
+    // m_rx.getChannelPercentage(m_channels, scaleFactor);
+    // double steering = m_channels[0];
+    // double throttle = m_channels[2];
+    // steering = floatMap(steering, 0, scaleFactor, -0.5, 0.5);
+    // throttle = floatMap(throttle, 0, scaleFactor, -1, 1);
 
-        // // Get count from encoders
-        long int countLeft = m_encoderL->readPosition();
-        long int countRight = m_encoderR->readPosition();
-        
+    m_motorLPositionParams = m_positionPidParams;
+    m_motorRPositionParams = m_positionPidParams;
 
-        m_motorLPositionParams = m_positionPidParams;
-        m_motorRPositionParams = m_positionPidParams;
+    // // Scale to 10 degs
+    double channels[16];
+    memset(channels, 0, sizeof(double)*16);
 
+    double scaleFactor = 1.0;
+    m_rx->getChannelPercentage(channels, scaleFactor);
+    // m_anglePidParams.target = channels[CHANNEL_ROLL];
+    double steering = channels[0];
+    double throttle = channels[1];
 
-        m_anglePidParams.currValue = m_imuData.orientation.x;
-        m_anglePidParams.dt = 0.01;
-        Serial.println(m_anglePidParams.target);
-        float angleResponse = PIDController::computeResponse(m_anglePidParams);
-        int PWMAngleResponse = angleResponse * 255.0;
-        
-        m_motorL->setThrottle(PWMAngleResponse);
-        m_motorR->setThrottle(-PWMAngleResponse);
-        
-        // m_motorLPositionParams.currValue = ;
-        // m_motorRPositionParams.currValue = ;
+    steering = floatMap(steering, 0, scaleFactor, -50.0, 50.0);
+    throttle = floatMap(throttle, 0, scaleFactor, -20.0, 20.0);
 
-        // float leftPosRes = PIDController::computeResponse(m_motorLPositionParams);
-        // float rightPosRes = PIDController::computeResponse(m_motorRPositionParams);
+    m_anglePidParams.target = throttle;
 
-        // // int leftPWMResponse = leftPosRes * 255.0;
-        // // int rightPWMResponse = rightPosRes * 255.0;
+    Serial.println("steering: " + String(steering) + ", throttle: " + String(throttle));
+    
+    m_anglePidParams.currValue = m_imuData.orientation.x;
+    m_anglePidParams.dt = 0.005;
+    Serial.println(m_anglePidParams.target);
+    float angleResponse = PIDController::computeResponse(m_anglePidParams);
+    int PWMAngleResponse = angleResponse * 255.0;
+    int PWMSteering = int(steering);
 
-        // // Take average of left and right responses.
-        // float avgRes = (leftPosRes + rightPosRes) / 2;
+    // if (m_imuData.orientation.x >= 40 || m_imuData.orientation.x <= -40) {
+    //     return;
+    // }
 
-        // // Scale to 10 degs
-        // m_anglePidParams.target = 0.0;
+    m_motorL->setThrottle(PWMAngleResponse +  PWMSteering);
+    m_motorR->setThrottle(-PWMAngleResponse + PWMSteering);
+    
 // ===================================================================
 // Keep this
         // m_anglePidParams.currValue = m_imuData.orientation.y;
