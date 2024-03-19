@@ -168,12 +168,23 @@ void Rosbot::runControl () {
         // Serial.println(currR, 8);
 
         // // Get count from encoders
-        // long int countLeft = m_encoderL->readPosition();
-        // long int countRight = m_encoderR->readPosition();
+        long int countLeft = m_encoderL->readPosition();
+        long int countRight = m_encoderR->readPosition();
+        
 
         m_motorLPositionParams = m_positionPidParams;
         m_motorRPositionParams = m_positionPidParams;
 
+
+        m_anglePidParams.currValue = m_imuData.orientation.x;
+        m_anglePidParams.dt = 0.01;
+        Serial.println(m_anglePidParams.target);
+        float angleResponse = PIDController::computeResponse(m_anglePidParams);
+        int PWMAngleResponse = angleResponse * 255.0;
+        
+        m_motorL->setThrottle(PWMAngleResponse);
+        m_motorR->setThrottle(-PWMAngleResponse);
+        
         // m_motorLPositionParams.currValue = ;
         // m_motorRPositionParams.currValue = ;
 
@@ -188,15 +199,6 @@ void Rosbot::runControl () {
 
         // // Scale to 10 degs
         // m_anglePidParams.target = 0.0;
-        m_anglePidParams.currValue = m_imuData.orientation.x;
-        m_anglePidParams.dt = 0.01;
-        Serial.println(m_anglePidParams.target);
-        float angleResponse = PIDController::computeResponse(m_anglePidParams);
-        int PWMAngleResponse = angleResponse * 255.0;
-        
-        m_motorL->setThrottle(PWMAngleResponse);
-        m_motorR->setThrottle(-PWMAngleResponse);
-        
 // ===================================================================
 // Keep this
         // m_anglePidParams.currValue = m_imuData.orientation.y;

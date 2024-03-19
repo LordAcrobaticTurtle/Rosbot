@@ -14,6 +14,8 @@ class catsMPU6050 : public ImuInterface {
         virtual int readAccel (vector3D &accel)             override;
         virtual int readTemperature (float *temp)           override {};
         virtual int readMagnetField (vector3D &field)       override {};
+
+        /* Returns orientation in radians */
         virtual int readImuData (ImuData &data)             override;
         
         // Updates all data objects

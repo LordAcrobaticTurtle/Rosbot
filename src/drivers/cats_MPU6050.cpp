@@ -17,7 +17,6 @@ catsMPU6050::catsMPU6050() {
         m_imu.setFullScaleAccelRange(3);
         m_imu.setFullScaleGyroRange(3);
     }
-
 }
 
 

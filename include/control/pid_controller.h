@@ -49,7 +49,7 @@ typedef struct PIDParams {
         bounds[0] = newParams.bounds[0];
         bounds[1] = newParams.bounds[1];
     }
-} PIDParams;
+};
 
 
 class PIDController {
