@@ -66,14 +66,25 @@ int DRV8876::readCurrentAnalog() {
 }
 
 
-void DRV8876::setPosition (PIDParams params) {
-    
+void DRV8876::setPosition (PIDParams &params) {
+    runPositionControl(params);
+}
+
+void DRV8876::run () {
+    // Run position control update
+}
+
+void DRV8876::runPositionControl (PIDParams &params) {
+    // Assume the PID params struct has been updated appropriately 
     // Use a PID controller. Compare the encoder position and the desired position. 
+    
+    // Bounds should be [-1,1]
     float response = PIDController::computeResponse(params);
     
     // Generate a throttle value
     int scaledResponse = response * 255.0;
 
-    setThrottle(scaledResponse);
+    // Drive currValue to set point 
+    setThrottle(-scaledResponse);
 }
 

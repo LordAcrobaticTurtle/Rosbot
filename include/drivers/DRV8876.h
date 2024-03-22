@@ -25,25 +25,24 @@ class DRV8876 : public DcMotorInterface {
                 int pinNFault, int pinSleep);
         ~DRV8876() {};
         // Clamp between 0 and 255
-        virtual void setVoltage(float voltage);
-        virtual void setThrottle(int throttle);
-        virtual void setDirection(bool isClockwise);
-
-        void wakeup(bool setAwake);
-
-
+        virtual void setVoltage(float voltage)      override;
+        virtual void setThrottle(int throttle)      override;
+        virtual void setDirection(bool isClockwise) override;
+        
         /** Read current is tricky. Greatly depends on what state the driver is
         * in. Fairly certain it is only useful when actively driving or braking
         * Returns current in Amps
         */ 
-        virtual double readCurrent();
+        virtual double readCurrent()                override;
+        virtual void run ()                         override;
+        void setPosition (PIDParams &params)        override;
+
+        void wakeup(bool setAwake);
 
         int readCurrentAnalog();
 
-        void setPosition (PIDParams params);
-
     private:
-
+        void runPositionControl (PIDParams &params);
 
     private:
         int m_throttle; 
