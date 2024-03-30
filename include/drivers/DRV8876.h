@@ -34,6 +34,14 @@ class DRV8876 : public DcMotorInterface {
         * Returns current in Amps
         */ 
         virtual double readCurrent()                override;
+
+        /**
+         * @brief Sets the class variable current to be used in torque estimation.
+         * This function was only added to sidestep the hardware mistake of mapping an analog signal to a 
+         * digital pin
+         * @param current 
+         */
+        virtual void setCurrent (double current)    override;
         virtual void run ()                         override;
         void setPosition (PIDParams &params)        override;
 
@@ -54,6 +62,7 @@ class DRV8876 : public DcMotorInterface {
         int m_pinNFault;
         int m_pinSleep;
 
+        double m_current;
         PIDParams m_positionParams;
 
 };

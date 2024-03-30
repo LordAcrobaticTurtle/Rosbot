@@ -5,14 +5,20 @@
 #include <drivers/encoder_N20.h>
 #include <utility/timing.h>
 #include <drivers/cats_mpu6050.h>
-
+#include <hardwareParameters/hardwareParameters.h>
 
 Rosbot::Rosbot() : 
     m_status(4,3,2,false),
     m_isStandbyOn(true),
     m_isControlOn(false),
     m_isLocalisationOn(false),
-    m_isRadioConnected(false)
+    m_isRadioConnected(false),
+    m_A(4,4),
+    m_B(4,1),
+    m_C(1,4),
+    m_D(1,1),
+    m_state(4,1),
+    m_dstate(4,1)
 { 
     m_anglePidParams.bounds[0] = -1;
     m_anglePidParams.bounds[1] = 1;
@@ -39,8 +45,21 @@ Rosbot::Rosbot() :
 
     FusionAhrsInitialise(&m_ahrs);
 
-    
+    // Initialisation of matrix params.
+    // assuming state is x, dx, theta, dtheta    
+    m_B.data[0][0] = 0;
+    m_B.data[1][0] = 1.0 / HardwareParameters::cartWeight;
+    m_B.data[2][0] = 0;
+    m_B.data[3][0] = 1.0 / (HardwareParameters::cartWeight * HardwareParameters::pendulumLength);
 
+    m_A.data[0][1] = 1.0;
+    m_A.data[1][2] = HardwareParameters::pendulumWeight * HardwareParameters::gravity / HardwareParameters::cartWeight;
+    m_A.data[2][3] = 1.0;
+    m_A.data[3][2] = (HardwareParameters::cartWeight + HardwareParameters::pendulumWeight) * HardwareParameters::gravity /
+                     (HardwareParameters::cartWeight * HardwareParameters::pendulumLength);
+
+
+    
 }
 
 Rosbot::~Rosbot() {}
@@ -198,6 +217,32 @@ void Rosbot::runControl () {
     // double throttle = m_channels[2];
     // steering = floatMap(steering, 0, scaleFactor, -0.5, 0.5);
     // throttle = floatMap(throttle, 0, scaleFactor, -1, 1);
+
+    // Update state for control
+
+    // u = - k (setpoint - state)
+    // m_motorL->setTorque(u*HardwareParameters::wheelRadius)
+    // m_motorR->setTorque(-u*HardwareParameters::wheelRadius)
+    
+    // Calculate meteres from origin point. 
+    long int position = m_encoderL->readPosition();
+    // Counts /= (7*100) -> wheel Revs from origin * wheel circumference = metres from origin
+    float metresFromOrigin = (float) position * 2.0 * PI * HardwareParameters::wheelRadius / (7.0 * 100.0);
+
+    float wheelRotVelocity = m_encoderL->readRPM();
+    float translationVelocity = wheelRotVelocity * 60.0/(2*PI) * HardwareParameters::wheelRadius;
+
+    m_state.data[0][0] = metresFromOrigin;
+    m_state.data[1][0] = translationVelocity;
+    m_state.data[2][0] = m_imuData.orientation.x * PI/ 180.0;
+    m_state.data[3][0] = m_imuData.gyroRates.x * PI / 180.0;
+    
+    
+    m_motorLPositionParams = m_positionPidParams;
+    m_motorRPositionParams = m_positionPidParams;
+
+    m_motorLPositionParams.currValue = m_encoderL->readPosition();
+    m_motorRPositionParams.currValue = m_encoderR->readPosition();
 
     // // Scale to 10 degs
     double channels[16];

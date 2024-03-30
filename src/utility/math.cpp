@@ -37,7 +37,7 @@ Matrix::Matrix(int rows, int cols) {
 }
 
 bool Matrix::isValid() {
-    return (numCols > 0) && (numRows > 0);
+    return (numCols > 0) && (numRows > 0) && (numCols < MAX_ARRAY_SIZE) && (numRows < MAX_ARRAY_SIZE);
 }
 
 Matrix Matrix::multiply(Matrix a1, Matrix a2) {

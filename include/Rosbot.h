@@ -6,6 +6,7 @@
 #include <utility/quaternion.h>
 #include <drivers/radio_interface.h>
 #include <Fusion/Fusion.h>
+#include <utility/math.h>
 
 
 struct ControlResponse {
@@ -92,6 +93,21 @@ class Rosbot {
 
         vector3D m_angleOffsets;
 
+        // Gain matrix K
+        Matrix m_K;
+        // State matrix A,
+        Matrix m_A;
+        // Input matrix B,
+        Matrix m_B;
+        // Output matrix C
+        Matrix m_C;
+        // feed-forward matrix D
+        Matrix m_D; 
+        // State vector
+        Matrix m_state; 
+        // Derivative of state vector
+        Matrix m_dstate;
 
-        
+        // Desired state matrix
+        Matrix m_desiredState
 };

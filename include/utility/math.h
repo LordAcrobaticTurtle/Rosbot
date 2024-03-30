@@ -12,6 +12,8 @@ struct Matrix {
     Matrix(int rows, int cols);
     int numCols;
     int numRows;
+    // First brackets indexes row.
+    // Second indexes column. 
     int data[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE];
 
     bool isValid();
