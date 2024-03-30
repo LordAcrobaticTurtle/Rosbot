@@ -14,19 +14,20 @@ typedef struct PIDParams {
         errorSum = 0;
     }
 
-    float target;
-    float currValue;
-    float kp;
-    float ki;
-    float kd;
-    float prevError;
-    float errorSum;
-    float dt;
-    float bounds[2];
+    double response;
+    double target;
+    double currValue;
+    double kp;
+    double ki;
+    double kd;
+    double prevError;
+    double errorSum;
+    double dt;
+    double bounds[2];
 
     void toString(char *buffer) {
-        sprintf(buffer, "%f,%f,%f,%f,%f,%f,%f,%f,%f,%f", 
-            target, currValue, kp, ki, kd, prevError, errorSum, dt, bounds[0], bounds[1]
+        sprintf(buffer, "%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f", 
+            target, currValue, response,kp, ki, kd, prevError, errorSum, dt, bounds[0], bounds[1]
         );
     }
 
