@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 // target, currValue, bounds, dt + PID gains must be set.
-typedef struct PIDParams {
+struct PIDParams {
 
     PIDParams() {
         target = 0;

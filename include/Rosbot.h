@@ -56,6 +56,7 @@ class Rosbot {
         void setControlMode (bool isControlOn);
         void runLocalisation ();
         void runControl ();
+        void cascadedControl ();
 
     protected:
         // Driver related components
@@ -93,8 +94,6 @@ class Rosbot {
 
         vector3D m_angleOffsets;
 
-        // Gain matrix K
-        Matrix m_K;
         // State matrix A,
         Matrix m_A;
         // Input matrix B,
@@ -105,9 +104,12 @@ class Rosbot {
         Matrix m_D; 
         // State vector
         Matrix m_state; 
+        // Desired state matrix
+        Matrix m_desiredState;
+
         // Derivative of state vector
         Matrix m_dstate;
 
-        // Desired state matrix
-        Matrix m_desiredState
+        // Gain matrix K
+        Matrix m_K;
 };

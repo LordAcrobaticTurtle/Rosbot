@@ -18,7 +18,9 @@ Rosbot::Rosbot() :
     m_C(1,4),
     m_D(1,1),
     m_state(4,1),
-    m_dstate(4,1)
+    m_desiredState(4,1),
+    m_dstate(4,1),
+    m_K(1,4)
 { 
     m_anglePidParams.bounds[0] = -1;
     m_anglePidParams.bounds[1] = 1;
@@ -43,8 +45,6 @@ Rosbot::Rosbot() :
     m_qEst.q3 = 0;
     m_qEst.q4 = 0;
 
-    FusionAhrsInitialise(&m_ahrs);
-
     // Initialisation of matrix params.
     // assuming state is x, dx, theta, dtheta    
     m_B.data[0][0] = 0;
@@ -58,7 +58,10 @@ Rosbot::Rosbot() :
     m_A.data[3][2] = (HardwareParameters::cartWeight + HardwareParameters::pendulumWeight) * HardwareParameters::gravity /
                      (HardwareParameters::cartWeight * HardwareParameters::pendulumLength);
 
-
+    m_K.data[0][0] = -1.0;
+    m_K.data[0][1] = -1.1116;
+    m_K.data[0][2] = 7.7973;
+    m_K.data[0][3] = 0.9166;
     
 }
 
@@ -70,7 +73,7 @@ void Rosbot::setup()
     // Drivers need to inherit
     // Then can create drivers here, and pass into respective classes
     m_status.switchRedOn();
-    // m_imu = std::make_shared<Mpu6050>(Master);
+    
     m_imu = std::make_shared<catsMPU6050>();
     m_status.switchGreenOn();
     m_motorL = std::make_shared<DRV8876>(12, 11, 10, -1, 5);
@@ -110,7 +113,6 @@ void Rosbot::setLocalisationMode(bool isLocalisationOn) {
 
 void Rosbot::resetImu() {
     // Reset and recompute angle offsets. 
-    // runOffsetEstimation();
     m_status.switchRedOn();
     m_encoderL->reset();
     m_encoderR->reset();
@@ -258,36 +260,6 @@ void Rosbot::runControl () {
     throttle = floatMap(throttle, 0, scaleFactor, -20.0, 20.0);
 
 
-    const float positionFrequency = 0.01; // s
-    const float angularFrequency = 0.002; // s
-    static FrequencyTimer positionControlTimer(positionFrequency * 100000);
-    static FrequencyTimer angularControlTimer(angularFrequency * 100000);
-    
-    m_positionPidParams.target = 0;
-    m_positionPidParams.dt = positionFrequency;
-    m_anglePidParams.dt = angularFrequency;
-    
-    if (positionControlTimer.checkEnoughTimeHasPassed()) {
-        m_motorLPositionParams = m_positionPidParams;
-        m_motorRPositionParams = m_positionPidParams;
-        
-        m_motorLPositionParams.currValue = m_encoderL->readPosition();
-        m_motorRPositionParams.currValue = m_encoderR->readPosition();
-
-        PIDController::computeResponse(m_motorLPositionParams);
-        PIDController::computeResponse(m_motorRPositionParams);
-    }
-    
-    // Feed position response in as target for angle controller. 
-
-    if (angularControlTimer.checkEnoughTimeHasPassed()) {
-        m_anglePidParams.target = m_motorLPositionParams.response;
-        m_anglePidParams.currValue = m_imuData.orientation.x;
-        PIDController::computeResponse(m_anglePidParams);
-    }
-
-    m_motorL->setThrottle(int(m_anglePidParams.response * 255.0));
-    m_motorR->setThrottle(int(-m_anglePidParams.response * 255.0));
 
     // Serial.println("steering: " + String(steering) + ", throttle: " + String(throttle));
     
@@ -350,50 +322,11 @@ void Rosbot::runLocalisation () {
     
     m_imu->readImuData(m_imuData);
 
-    m_imuData.orientation.scale(180.0 / M_PI, 180.0 / M_PI, 180.0 / M_PI);
-    // Apply offsets
-    // m_imuData.accelData.subtract(
-    //     m_zeroOffsetData.accelData.x, 
-    //     m_zeroOffsetData.accelData.y,
-    //     m_zeroOffsetData.accelData.z
-    // );
-
-    // m_imuData.gyroRates.subtract(
-    //     m_zeroOffsetData.gyroRates.x, 
-    //     m_zeroOffsetData.gyroRates.y, 
-    //     m_zeroOffsetData.gyroRates.z
-    // );
-    
-    // const FusionVector gyroSample = {
-    //     m_imuData.gyroRates.x,
-    //     m_imuData.gyroRates.y,
-    //     m_imuData.gyroRates.z
-    // };
-    
-    // const FusionVector accelSample = {
-    //     m_imuData.accelData.x,
-    //     m_imuData.accelData.y,
-    //     m_imuData.accelData.z
-    // };
-
-    // // FusionAhrsUpdateNoMagnetometer(&m_ahrs, gyroSample, accelSample,  0.01);
-
-    // // const FusionEuler euler = FusionQuaternionToEuler(FusionAhrsGetQuaternion(&m_ahrs));
-    // float roll, pitch, yaw;
-    
-    // roll = euler.angle.roll;
-    // pitch = euler.angle.pitch;
-    // yaw = euler.angle.yaw;
-
-    // m_imuData.orientation.x = roll - m_zeroOffsetData.orientation.x;
-    // m_imuData.orientation.y = pitch - m_zeroOffsetData.orientation.y;
-    // m_imuData.orientation.z = yaw - m_zeroOffsetData.orientation.z;
+    // m_imuData.orientation.scale(180.0 / M_PI, 180.0 / M_PI, 180.0 / M_PI);
     
     m_vwheel.v1 = m_encoderL->readRPM();
     m_vwheel.v2 = m_encoderR->readRPM();
 
-    m_motorLPositionParams.currValue = m_encoderL->readPosition();
-    m_motorRPositionParams.currValue = m_encoderR->readPosition();
 }
 
 void Rosbot::runOffsetEstimation () {
@@ -462,68 +395,37 @@ PIDParams Rosbot::getPositionPIDParams () {
 void Rosbot::setIsRadioConnected (bool isRadioConnected) {
     m_isRadioConnected = isRadioConnected;
 }
-    // m_tf = millis();
-    // float dt = m_tf - m_ti;
-    // m_imu.update(dt/1000.0);
-    // m_rx.update();
-    // float *eulerXYZ = m_imu.getEulerXYZ();
+
+void Rosbot::cascadedControl () {
     
-    // double scaleFactor = 1.0;
-    // m_rx.getChannelPercentage(m_channels, scaleFactor);
-    // double steering = m_channels[0];
-    // double throttle = m_channels[2];
-    // steering = floatMap(steering, 0, scaleFactor, -0.5, 0.5);
-    // throttle = floatMap(throttle, 0, scaleFactor, -1, 1);
+    const float positionFrequency = 0.01; // s
+    const float angularFrequency = 0.002; // s
+    static FrequencyTimer positionControlTimer(positionFrequency * 100000);
+    static FrequencyTimer angularControlTimer(angularFrequency * 100000);
     
-    // m_angleControl.currValue = eulerXYZ[0];
-    // m_angleControl.kp = 1.0; // 3.0
-    // m_angleControl.ki = 0.2; //0.1
-    // m_angleControl.target = 0.05;
-    // m_angleControl.dt = dt;
+    m_positionPidParams.target = 0;
+    m_positionPidParams.dt = positionFrequency;
+    m_anglePidParams.dt = angularFrequency;
     
-    // // float response = PIDController::computeResponse(m_angleControl);
-    // float response = 0;
-    // // int responseInt = static_cast<int>(response);
+    if (positionControlTimer.checkEnoughTimeHasPassed()) {
+        m_motorLPositionParams = m_positionPidParams;
+        m_motorRPositionParams = m_positionPidParams;
+        
+        m_motorLPositionParams.currValue = m_encoderL->readPosition();
+        m_motorRPositionParams.currValue = m_encoderR->readPosition();
 
-    // int sumL = (throttle + steering + response)*PWM_MAX;
-    // int sumR = (throttle - steering + response)*PWM_MAX;
-
-    // if (!m_rx.isSafetyOff() || m_rx.hasLostConnection()) {
-    //     m_driverL.setThrottle(0);
-    //     m_driverR.setThrottle(0);
-    //     m_status.mix(255, 163, 0);
-    // } else {
-    //     m_driverL.setThrottle(-sumL);
-    //     m_driverR.setThrottle(sumR);
-    //     m_status.mix(0,255,0);
-    // }
- 
-    // if (millis() - m_timer > 100) {
-    //     // 
-    //     m_timer = millis();
-    //     // Serial.println("Response: " + String(response) + ", Angle: " + String(m_angleControl.currValue));
-    // }
-
-    // motorControl();
+        PIDController::computeResponse(m_motorLPositionParams);
+        PIDController::computeResponse(m_motorRPositionParams);
+    }
     
-    // m_ti = m_tf;
+    // Feed position response in as target for angle controller. 
 
-// void Rosbot::printRobotState() {
+    if (angularControlTimer.checkEnoughTimeHasPassed()) {
+        m_anglePidParams.target = m_motorLPositionParams.response;
+        m_anglePidParams.currValue = m_imuData.orientation.x;
+        PIDController::computeResponse(m_anglePidParams);
+    }
 
-// }
-
-// void Rosbot::motorControl() {
-//     // For both left and right motors
-//     // I need to control the current of the motor, then I can do velocity
-//     // Current first
-
-//     double currentL = m_driverL.readCurrent();
-    
-
-
-// }
-
-// void Rosbot::test() {
-//     m_encoder1.update();
-//     // m_encoder2.update();
-// }
+    m_motorL->setThrottle(int(m_anglePidParams.response * 255.0));
+    m_motorR->setThrottle(int(-m_anglePidParams.response * 255.0));
+}
