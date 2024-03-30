@@ -21,6 +21,11 @@ class catsMPU6050 : public ImuInterface {
         // Updates all data objects
         virtual int run () override;
 
+        virtual void reset () override;
+
+    private:
+        void init ();
+
     private:
 
         MPU6050 m_imu;

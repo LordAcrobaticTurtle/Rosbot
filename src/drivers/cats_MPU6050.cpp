@@ -7,6 +7,10 @@ catsMPU6050::catsMPU6050() {
     Wire.begin();
     Wire.setClock(400000);
     
+    init();
+}
+
+void catsMPU6050::init () {
     m_imu.initialize();
     
     m_imu.setXAccelOffset(1679);
@@ -30,7 +34,7 @@ catsMPU6050::catsMPU6050() {
 
 int catsMPU6050::run () {
     if (!m_dmpReady) {
-        Serial.println("DMP not ready");
+        Serial.println("DMP did not get configured properly");
         return 0;
     }
 
@@ -49,8 +53,6 @@ int catsMPU6050::run () {
         gxf = gyroRaw.x / 16.4;
         gyf = gyroRaw.y / 16.4;
         gzf = gyroRaw.z / 16.4;
-    } else {
-        Serial.println("DMP not ready");
     }
 
     return 0;
@@ -86,5 +88,9 @@ int catsMPU6050::readOrientation (vector3D &data) {
     data.z = euler[0]; // * 180.0 / M_PI;
 
     return 0;
+}
+
+void catsMPU6050::reset () {
+    init();
 }
 

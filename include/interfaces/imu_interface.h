@@ -18,6 +18,7 @@ public:
     virtual int readMagnetField(vector3D &field) = 0;
     virtual int run () = 0;
     virtual int readImuData(ImuData &data) = 0;
+    virtual void reset () = 0;
     // virtual int readRawAdcData(ImuData &data) = 0;
 };
 
