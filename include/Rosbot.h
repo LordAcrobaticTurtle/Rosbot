@@ -82,6 +82,9 @@ class Rosbot {
         PIDParams m_motorRPositionParams;
 
         // Mode related data
+        bool isRXControlOn;
+        bool isAppControlOn;
+
         bool m_isStandbyOn;
         bool m_isControlOn;
         bool m_isLocalisationOn;
