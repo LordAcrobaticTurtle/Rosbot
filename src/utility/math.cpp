@@ -48,8 +48,6 @@ Matrix Matrix::multiply(Matrix a1, Matrix a2) {
         return Matrix(-1,-1);
     }
 
-    
-    
     Matrix output(a2.numCols, a1.numRows);
     for (int i = 0; i < a1.numRows; i++) {
         // Compute result then insert into new matrix.
@@ -76,6 +74,22 @@ Matrix Matrix::add(Matrix a1, Matrix a2) {
     for (int i = 0; i < a1.numRows; i++) {
         for (int j=0; j < a1.numCols; j++) {
             output.data[i][j] = a1.data[i][j] + a2.data[i][j];
+        }
+    }
+
+    return output;
+}
+
+Matrix Matrix::subtract(Matrix a1, Matrix a2) {
+    if (a1.numCols != a2.numCols || a1.numRows != a2.numRows) {
+        return Matrix(-1, -1);
+    }
+
+    Matrix output(a1.numRows, a1.numCols);
+
+    for (int i = 0; i < a1.numRows; i++) {
+        for (int j=0; j < a1.numCols; j++) {
+            output.data[i][j] = a1.data[i][j] - a2.data[i][j];
         }
     }
 

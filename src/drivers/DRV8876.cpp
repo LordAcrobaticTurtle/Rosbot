@@ -94,3 +94,9 @@ void DRV8876::runPositionControl (PIDParams &params) {
     setThrottle(-scaledResponse);
 }
 
+// Model the motor
+// Find a gains matrix K
+// Set target current 
+void DRV8876::setTorqueTarget (double torqueTarget) {
+    // 
+}
