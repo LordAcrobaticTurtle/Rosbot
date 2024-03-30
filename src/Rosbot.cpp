@@ -47,7 +47,6 @@ Rosbot::~Rosbot() {}
 
 void Rosbot::setup() 
 {
-    m_status.switchRedOn();
     // m_imu.setup(Master);
     // Drivers need to inherit
     // Then can create drivers here, and pass into respective classes
@@ -92,7 +91,13 @@ void Rosbot::setLocalisationMode(bool isLocalisationOn) {
 
 void Rosbot::resetImu() {
     // Reset and recompute angle offsets. 
-    runOffsetEstimation();
+    // runOffsetEstimation();
+    m_status.switchRedOn();
+    m_encoderL->reset();
+    m_encoderR->reset();
+    m_imu->reset();
+    m_status.switchGreenOn();
+    
 }
 
 void Rosbot::setMotorPosition (int motorIndex, int throttle) {
@@ -128,18 +133,17 @@ void Rosbot::run() {
     double channels[16];
     memset(channels, 0, sizeof(double)*16);
 
-    // Get position command from controller
+    // m_rx->getChannelPercentage(channels, 1.0);
 
-
-    if (m_rx->isSafetyOff()) {
-        m_isControlOn = true;
-        m_isLocalisationOn = true;
-        m_isStandbyOn = false;
-    } else {
-        m_isLocalisationOn = false;
-        m_isControlOn = false;
-        m_isStandbyOn = true;
-    }
+    // if (m_rx->isSafetyOff()) {
+    //     m_isControlOn = true;
+    //     m_isLocalisationOn = true;
+    //     m_isStandbyOn = false;
+    // } else {
+    //     m_isLocalisationOn = false;
+    //     m_isControlOn = false;
+    //     m_isStandbyOn = true;
+    // }
 
 
     if (m_isStandbyOn) {
@@ -168,13 +172,14 @@ void Rosbot::run() {
         // }
     }
 
+
+
     if (m_isControlOn) {
-        static FrequencyTimer funcTimer(HZ_200_MICROSECONDS);
+        // static FrequencyTimer funcTimer(HZ_200_MICROSECONDS);
 
-        if (!funcTimer.checkEnoughTimeHasPassed()) {
-            return;
-        }
-
+        // if (!funcTimer.checkEnoughTimeHasPassed()) {
+        //     return;
+        // }
         long int start = elapsedMicros();
         runControl();     
         long int end = elapsedMicros();
@@ -186,20 +191,13 @@ void Rosbot::run() {
 
 void Rosbot::runControl () {
         
-    
+
     // double scaleFactor = 1.0;
     // m_rx.getChannelPercentage(m_channels, scaleFactor);
     // double steering = m_channels[0];
     // double throttle = m_channels[2];
     // steering = floatMap(steering, 0, scaleFactor, -0.5, 0.5);
     // throttle = floatMap(throttle, 0, scaleFactor, -1, 1);
-
-    // Update state for control
-    m_motorLPositionParams = m_positionPidParams;
-    m_motorRPositionParams = m_positionPidParams;
-
-    m_motorLPositionParams.currValue = m_encoderL->readPosition();
-    m_motorRPositionParams.currValue = m_encoderR->readPosition();
 
     // // Scale to 10 degs
     double channels[16];
@@ -214,19 +212,86 @@ void Rosbot::runControl () {
     steering = floatMap(steering, 0, scaleFactor, -50.0, 50.0);
     throttle = floatMap(throttle, 0, scaleFactor, -20.0, 20.0);
 
-    m_anglePidParams.target = throttle;
+
+    const float positionFrequency = 0.01; // s
+    const float angularFrequency = 0.002; // s
+    static FrequencyTimer positionControlTimer(positionFrequency * 100000);
+    static FrequencyTimer angularControlTimer(angularFrequency * 100000);
+    
+    m_positionPidParams.target = 0;
+    m_positionPidParams.dt = positionFrequency;
+    m_anglePidParams.dt = angularFrequency;
+    
+    if (positionControlTimer.checkEnoughTimeHasPassed()) {
+        m_motorLPositionParams = m_positionPidParams;
+        m_motorRPositionParams = m_positionPidParams;
+        
+        m_motorLPositionParams.currValue = m_encoderL->readPosition();
+        m_motorRPositionParams.currValue = m_encoderR->readPosition();
+
+        PIDController::computeResponse(m_motorLPositionParams);
+        PIDController::computeResponse(m_motorRPositionParams);
+    }
+    
+    // Feed position response in as target for angle controller. 
+
+    if (angularControlTimer.checkEnoughTimeHasPassed()) {
+        m_anglePidParams.target = m_motorLPositionParams.response;
+        m_anglePidParams.currValue = m_imuData.orientation.x;
+        PIDController::computeResponse(m_anglePidParams);
+    }
+
+    m_motorL->setThrottle(int(m_anglePidParams.response * 255.0));
+    m_motorR->setThrottle(int(-m_anglePidParams.response * 255.0));
 
     // Serial.println("steering: " + String(steering) + ", throttle: " + String(throttle));
-    // Serial.println(m_anglePidParams.target);
     
-    m_anglePidParams.currValue = m_imuData.orientation.x;
-    m_anglePidParams.dt = 0.005;
-    float angleResponse = PIDController::computeResponse(m_anglePidParams);
+    
+    // Serial.println(m_anglePidParams.target);
+    // float angleResponse = PIDController::computeResponse(m_anglePidParams);
     // int PWMAngleResponse = angleResponse * 255.0;
     // int PWMSteering = int(steering);
 
-    m_motorL->setPosition(m_motorLPositionParams);
-    m_motorR->setPosition(m_motorRPositionParams);
+    // if (m_imuData.orientation.x >= 40 || m_imuData.orientation.x <= -40) {
+    //     return;
+    // }
+    // m_motorLPositionParams.target += angleResponse * 700.0; // Multiple by 700 to get a full rotation of the wheel
+    // m_motorRPositionParams.target += -angleResponse * 700.0;
+    // m_motorLPositionParams.currValue = m_encoderL->readPosition();
+    // m_motorRPositionParams.currValue = m_encoderR->readPosition();
+    // m_motorL->setPosition(m_motorLPositionParams);
+    // m_motorR->setPosition(m_motorRPositionParams);
+
+
+    // m_motorL->setThrottle(PWMAngleResponse +  PWMSteering);
+    // m_motorR->setThrottle(-PWMAngleResponse + PWMSteering);
+    
+// ===================================================================
+// Keep this
+        // m_anglePidParams.currValue = m_imuData.orientation.y;
+        // m_anglePidParams.dt = 0.01;
+        // m_anglePidParams.target = 0; // Assume 
+        
+        // // Perform PID control of angle
+        // float response = PIDController::computeResponse(m_anglePidParams);
+
+        // int PWMresponse = response * 255.0;
+        // Serial.println(PWMresponse);
+
+// ===================================================================
+        // m_motorL->setThrottle(-PWMresponse);
+        // m_motorR->setThrottle(PWMresponse);
+
+        // m_motorL->setPosition(m_motorLPositionParams);
+        // m_motorL->setPosition(m_motorRPositionParams);
+
+        // Update motors with voltage command
+
+        // char buffer[64];
+        // m_imuData.orientation.toString(buffer);
+        // Serial.println(buffer);  
+
+        // Serial.println("====== Control End ======");     
 }
 
 void Rosbot::runLocalisation () {
@@ -241,6 +306,43 @@ void Rosbot::runLocalisation () {
     m_imu->readImuData(m_imuData);
 
     m_imuData.orientation.scale(180.0 / M_PI, 180.0 / M_PI, 180.0 / M_PI);
+    // Apply offsets
+    // m_imuData.accelData.subtract(
+    //     m_zeroOffsetData.accelData.x, 
+    //     m_zeroOffsetData.accelData.y,
+    //     m_zeroOffsetData.accelData.z
+    // );
+
+    // m_imuData.gyroRates.subtract(
+    //     m_zeroOffsetData.gyroRates.x, 
+    //     m_zeroOffsetData.gyroRates.y, 
+    //     m_zeroOffsetData.gyroRates.z
+    // );
+    
+    // const FusionVector gyroSample = {
+    //     m_imuData.gyroRates.x,
+    //     m_imuData.gyroRates.y,
+    //     m_imuData.gyroRates.z
+    // };
+    
+    // const FusionVector accelSample = {
+    //     m_imuData.accelData.x,
+    //     m_imuData.accelData.y,
+    //     m_imuData.accelData.z
+    // };
+
+    // // FusionAhrsUpdateNoMagnetometer(&m_ahrs, gyroSample, accelSample,  0.01);
+
+    // // const FusionEuler euler = FusionQuaternionToEuler(FusionAhrsGetQuaternion(&m_ahrs));
+    // float roll, pitch, yaw;
+    
+    // roll = euler.angle.roll;
+    // pitch = euler.angle.pitch;
+    // yaw = euler.angle.yaw;
+
+    // m_imuData.orientation.x = roll - m_zeroOffsetData.orientation.x;
+    // m_imuData.orientation.y = pitch - m_zeroOffsetData.orientation.y;
+    // m_imuData.orientation.z = yaw - m_zeroOffsetData.orientation.z;
     
     m_vwheel.v1 = m_encoderL->readRPM();
     m_vwheel.v2 = m_encoderR->readRPM();

@@ -80,7 +80,9 @@ void DRV8876::runPositionControl (PIDParams &params) {
     
     // Bounds should be [-1,1]
     float response = PIDController::computeResponse(params);
-    
+    char buffer[256];
+    params.toString(buffer);
+    Serial.println(buffer);
     // Generate a throttle value
     int scaledResponse = response * 255.0;
 
