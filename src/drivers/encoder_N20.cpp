@@ -34,6 +34,11 @@ float EncoderN20::computeRPM () {
     m_lastReadTime = m_currTime;
 }
 
+void EncoderN20::reset () {
+    m_encoder.readAndReset();
+}
+
+
 long int EncoderN20::readPosition () {
     return m_currCount;
 }

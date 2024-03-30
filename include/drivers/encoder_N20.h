@@ -20,6 +20,7 @@ class EncoderN20 : public EncoderInterface {
 
         virtual float readRPM ()         override;
         virtual long int readPosition () override;
+        virtual void reset ()            override;
 
         // This function assumes you are calling with a reasonable amount of time in between each function calls. 
         // I.e. On the scale of milliseconds, not microseconds
