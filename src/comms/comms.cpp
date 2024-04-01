@@ -197,6 +197,14 @@ int Comms::handlePacket(MessageContents packet) {
             break;
         }
 
+        case (CliCommandIndex::CLI_SENSOR_VERIFICATION): {
+            VerifiedSensorData data = m_robot->sensorVerification();
+            byte buffer[256];
+            data.toString( (char *) buffer);
+            sendResponse(buffer, CLI_SENSOR_VERIFICATION);
+            break;
+        }
+
 
         default:
             // Do nothing

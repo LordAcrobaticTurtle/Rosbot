@@ -15,7 +15,7 @@ class CommandSideBar(ttk.Frame):
     def create_window(self):
         commandFrameBase = ttk.LabelFrame(self._root, text="Robot commands", width=20)
 
-        commands = ["Begin", "Standby", "Calibrate", "Reset-IMU" ]
+        commands = ["Begin", "Standby", "Calibrate", "Reset-IMU", "Sensor-Verification" ]
         
         # for counter, c in enumerate(commands):
         button = ttk.Button(commandFrameBase, text="Begin", padding=15, command = lambda: self.button_pressed("Begin"))
@@ -29,6 +29,9 @@ class CommandSideBar(ttk.Frame):
     
         button = ttk.Button(commandFrameBase, text="Reset-IMU", padding=15, command = lambda: self.button_pressed("Reset-IMU"))
         button.grid(column=0, row=3, pady=10)
+
+        button = ttk.Button(commandFrameBase, text="Sensor-Verification", padding=15, command = lambda: self.button_pressed("Sensor-Verification"))
+        button.grid(column=0, row=4, pady=10)
     
         return commandFrameBase
     

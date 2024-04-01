@@ -1,5 +1,6 @@
 #include <drivers/encoder_N20.h>
 #include <utility/error_codes.h>
+#include <utility/timing.h>
 
 EncoderN20::EncoderN20(int pin1, int pin2) : 
     m_pin1(pin1),
@@ -25,11 +26,16 @@ float EncoderN20::computeRPM () {
     m_currTime = micros();
     const int dt = m_currTime - m_lastReadTime;
     const int countDifference = m_currCount - m_lastCount; // Could be positive or negative
+    
+    if (dt < HZ_100_MICROSECONDS) {
+        return;
+    }
 
     float dtInSeconds = dt * 1.0e-6;
 
-    float RPS = countDifference / (dtInSeconds*PPR); 
-    m_rpm = RPS *60 ;
+    // float RPS = countDifference / (dtInSeconds*PPR); 
+    // m_rpm = RPS *60 ;
+    m_rpm = m_currCount - m_lastCount;
 
     m_lastReadTime = m_currTime;
 }

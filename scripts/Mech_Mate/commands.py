@@ -13,6 +13,8 @@ class CliCommandIndex(IntEnum):
     CLI_LOCALISATION_PACKET = auto()
     CLI_GET_PID = auto()
     CLI_SET_PID = auto()
+    CLI_ANGLE_TARGET = auto()
+    CLI_SENSOR_VERIFICATION = auto()
     CLI_NUM_COMMAND = auto()
 
 commands = [
@@ -27,6 +29,8 @@ commands = [
     "LocalisationPacket",
     "Get-pid",
     "Set-pid",
+    "target",
+    "Sensor-Verification",
     "None"
 ]
 

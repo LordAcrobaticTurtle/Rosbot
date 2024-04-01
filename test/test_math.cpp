@@ -63,7 +63,38 @@ void setupTestForMultiplication() {
     correctResult.data[2][0] = 3;
     correctResult.data[2][1] = 6;
     correctResult.data[2][2] = 9;
+}
 
+void setupTestForSubtraction() {
+    a1_3x3.data[0][0] = 1;
+    a1_3x3.data[0][1] = 2;
+    a1_3x3.data[0][2] = 3;
+    a1_3x3.data[1][0] = 2;
+    a1_3x3.data[1][1] = 4;
+    a1_3x3.data[1][2] = 6;
+    a1_3x3.data[2][0] = 3;
+    a1_3x3.data[2][1] = 6;
+    a1_3x3.data[2][2] = 9;
+
+    a2_3x3.data[0][0] = 1;
+    a2_3x3.data[0][1] = 2;
+    a2_3x3.data[0][2] = 3;
+    a2_3x3.data[1][0] = 2;
+    a2_3x3.data[1][1] = 4;
+    a2_3x3.data[1][2] = 6;
+    a2_3x3.data[2][0] = 3;
+    a2_3x3.data[2][1] = 6;
+    a2_3x3.data[2][2] = 9;
+
+    correctResult.data[0][0] = 0;
+    correctResult.data[0][1] = 0;
+    correctResult.data[0][2] = 0;
+    correctResult.data[1][0] = 0;
+    correctResult.data[1][1] = 0;
+    correctResult.data[1][2] = 0;
+    correctResult.data[2][0] = 0;
+    correctResult.data[2][1] = 0;
+    correctResult.data[2][2] = 0;
 }
 
 void compareMatrices(Matrix computation, Matrix correct) {
@@ -129,5 +160,11 @@ TEST_F(TestMath, test_matrix_addition) {
     Matrix output = Matrix::add(a1_3x3, a2_3x3);
 
     compareMatrices(output, correctResult);
+}
 
+TEST_F(TestMath, test_matrix_subtraction) {
+    setupTestForSubtraction();
+    
+    Matrix output = Matrix::subtract(a1_3x3, a2_3x3);
+    compareMatrices(output, correctResult);
 }

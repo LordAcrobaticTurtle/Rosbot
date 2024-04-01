@@ -22,6 +22,19 @@ struct LocalisationResponse {
     vector2D encoderVelocities;
 };
 
+struct VerifiedSensorData {
+    long int positionLeftRaw;
+    long int positionRightRaw;
+    float velocityAvgLeft;
+    float velocityAvgRight;
+
+    void toString (char *buffer) {
+        sprintf(buffer, "%d,%d,%f,%f", 
+            positionLeftRaw, positionRightRaw, velocityAvgLeft, velocityAvgRight
+        );
+    }
+};
+
 class Rosbot {
     public:
         Rosbot();
@@ -49,6 +62,7 @@ class Rosbot {
 
         void setMotorPosition (int motorIndex, int throttle);
 
+        VerifiedSensorData sensorVerification ();
 
     protected:
         void runOffsetEstimation ();

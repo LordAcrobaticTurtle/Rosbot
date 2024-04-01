@@ -6,6 +6,7 @@
 #include <utility/timing.h>
 #include <drivers/cats_mpu6050.h>
 #include <hardwareParameters/hardwareParameters.h>
+#include <elapsedMillis.h>
 
 Rosbot::Rosbot() : 
     m_status(4,3,2,false),
@@ -185,9 +186,9 @@ void Rosbot::run() {
         }
 
         // Confirm the function doesn't run slower than 0.001s 
-        long int start = elapsedMicros();
+        long int start = micros();
         runLocalisation();
-        long int end = elapsedMicros();
+        long int end = micros();
         // if (end - start >= 1000) {
         // Serial.println("Localisation run time: " + String(end-start));
         // }
@@ -201,9 +202,9 @@ void Rosbot::run() {
         // if (!funcTimer.checkEnoughTimeHasPassed()) {
         //     return;
         // }
-        long int start = elapsedMicros();
+        long int start = micros();
         runControl();     
-        long int end = elapsedMicros();
+        long int end = micros();
         // if (end - start >= 1000) {
         // Serial.println("Control run time: " + String(end-start));
 
@@ -281,6 +282,9 @@ void Rosbot::runLocalisation () {
     m_vwheel.v1 = m_encoderL->readRPM();
     m_vwheel.v2 = m_encoderR->readRPM();
 
+    // Convert encoder position counts to metres travelled
+    // Take derivative of encoder counts to get velocity. 
+
 }
 
 void Rosbot::runOffsetEstimation () {
@@ -348,6 +352,59 @@ PIDParams Rosbot::getPositionPIDParams () {
 
 void Rosbot::setIsRadioConnected (bool isRadioConnected) {
     m_isRadioConnected = isRadioConnected;
+}
+
+VerifiedSensorData Rosbot::sensorVerification () {
+    // Set a particular voltage on the motors and wait a certain amount of time. 
+    VerifiedSensorData data;
+
+    m_status.mix(255,0,255);
+    m_motorL->setThrottle(50);
+    m_motorR->setThrottle(-50);
+    
+    long int start = micros();
+    long int end = start;
+    long int timeDelay = 2000000; // 10 seconds in microseconds
+
+    // At a particular voltage under no load we should have a constant speed. 
+    // There should also be an expected range for the encoders to reach.
+    // There should also be a constant current draw. 
+    long int counter = 0;
+    float leftWheelRPM;
+    float rightWheelRPM;
+    while (end - start <= timeDelay) {
+        runLocalisation();  
+        // Capture wheel speeds  
+        data.velocityAvgLeft += m_vwheel.v1;
+        data.velocityAvgRight += m_vwheel.v2;
+        char buffer[256];
+        m_vwheel.toString(buffer);
+        Serial.println("=== === ===");
+        Serial.println(buffer);
+        Serial.println("PosL: " + String(m_encoderL->readPosition()) + ", PosR: " + String(m_encoderR->readPosition()));
+        Serial.println("=== === ===");
+        counter++;
+        end = micros();
+    }
+
+    data.velocityAvgLeft /= (float) counter;
+    data.velocityAvgRight /= (float) counter;
+    data.positionLeftRaw = m_encoderL->readPosition();
+    data.positionRightRaw = m_encoderR->readPosition();
+    float leftPositionMetres = m_encoderL->readPosition() * 2.0 * PI * HardwareParameters::wheelRadius / (7.0 / 4.0 * 100.0);
+    float rightPositionMetres = m_encoderR->readPosition() * 2.0 * PI * HardwareParameters::wheelRadius / (7.0 / 4.0 * 100.0);
+    Serial.println("=== Sensor Verification Results === ");
+    Serial.println("Left wheel travel: " + String(leftPositionMetres));
+    Serial.println("Right wheel travel: " + String(rightPositionMetres));
+    Serial.println("=== === === === === === === === === ");
+
+    m_motorL->setThrottle(0);
+    m_motorR->setThrottle(0);
+    resetImu();
+    m_status.mix(0,255,0);
+    delay(100);
+    
+    return data;
 }
 
 void Rosbot::cascadedControl () {

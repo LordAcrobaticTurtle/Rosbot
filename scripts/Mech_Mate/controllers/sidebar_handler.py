@@ -13,3 +13,4 @@ class SidebarHandler():
         self._ui._callbacks[ui_elements.ui_command_sidebar.CommandSideBarCallbackIndex]["Standby"] = self._serialConnection.send
         self._ui._callbacks[ui_elements.ui_command_sidebar.CommandSideBarCallbackIndex]["Calibrate"] = self._serialConnection.send
         self._ui._callbacks[ui_elements.ui_command_sidebar.CommandSideBarCallbackIndex]["Reset-IMU"] = self._serialConnection.send
+        self._ui._callbacks[ui_elements.ui_command_sidebar.CommandSideBarCallbackIndex]["Sensor-Verification"] = self._serialConnection.send
