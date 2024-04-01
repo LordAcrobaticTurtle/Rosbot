@@ -198,10 +198,26 @@ int Comms::handlePacket(MessageContents packet) {
         }
 
         case (CliCommandIndex::CLI_SENSOR_VERIFICATION): {
-            VerifiedSensorData data = m_robot->sensorVerification();
-            byte buffer[256];
-            data.toString( (char *) buffer);
-            sendResponse(buffer, CLI_SENSOR_VERIFICATION);
+
+            // Unpackage arguments
+            float time = 0.0;
+            float throttle = 0.0;
+            int motorIndex = 0;
+
+            int valuesFilled = sscanf(packet.argv[1], "[%d,%f,%f]", &motorIndex, &throttle, &time);
+
+            if (valuesFilled != 2) {
+                byte buffer[] = "Sensor-Verification-NOT-Ok";
+                sendResponse(buffer, CLI_SENSOR_VERIFICATION);   
+            }
+
+            m_robot->sensorVerification(motorIndex, throttle, time);
+
+
+            // VerifiedSensorData data = m_robot->sensorVerification();
+            // byte buffer[256];
+            // data.toString( (char *) buffer);
+            // sendResponse(buffer, CLI_SENSOR_VERIFICATION);
             break;
         }
 

@@ -7,6 +7,7 @@ import ui_elements.ui_record_settings as RecordSettings
 import ui_elements.ui_serial_console as SerialConsole
 from ui_elements.ui_pid_tuning import PidTuning
 from ui_elements.ui_plot import PlotWindow
+from ui_elements.ui_verification_panel import SensorVerificationPanel
 
 APP_CALLBACK_INDEX = "APP_CALLBACK_INDEX"
 
@@ -23,6 +24,7 @@ class View(ttk.Frame):
         self._callbacks["PositionTuner"] = {}
         self._pidTuner = PidTuning(self._parent, self._callbacks)
         self._plot1 = PlotWindow(self._parent, self._callbacks)
+        self._verificationPanel = SensorVerificationPanel(self._parent, self._callbacks)
         
    
     def close(self):
@@ -57,6 +59,8 @@ class View(ttk.Frame):
         comSettingsFrame.grid(column=2, row=1, sticky=(tk.W+tk.N))
         pidTuningFrame = self._pidTuner.create_window()
         pidTuningFrame.grid(column=2, row=0)
+        verificationFrame = self._verificationPanel.create_window()
+        verificationFrame.grid(column=1, row=0)
         # plot1Frame = self._plot1.create_window()
         # plot1Frame.grid(column=1, row=0)
         # PositionPidTUningFrame = self._positionTuner.create_window()

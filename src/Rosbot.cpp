@@ -354,17 +354,24 @@ void Rosbot::setIsRadioConnected (bool isRadioConnected) {
     m_isRadioConnected = isRadioConnected;
 }
 
-VerifiedSensorData Rosbot::sensorVerification () {
+VerifiedSensorData Rosbot::sensorVerification (int motorIndex, float throttle, float time) {
     // Set a particular voltage on the motors and wait a certain amount of time. 
     VerifiedSensorData data;
-
     m_status.mix(255,0,255);
-    m_motorL->setThrottle(50);
-    m_motorR->setThrottle(-50);
-    
+
+    int intThrottle = int(throttle);
+
+    // m_motorL->setThrottle(intThrottle);
+    // m_motorR->setThrottle(intThrottle);
+    if (motorIndex == 0) {
+        m_motorL->setThrottle(intThrottle);
+    } else if (motorIndex == 1) {
+        m_motorR->setThrottle(intThrottle);
+    }
+    float timeInMicroseconds = time * 1000000;
     long int start = micros();
     long int end = start;
-    long int timeDelay = 2000000; // 10 seconds in microseconds
+    long int timeDelay = timeInMicroseconds; // 10 seconds in microseconds
 
     // At a particular voltage under no load we should have a constant speed. 
     // There should also be an expected range for the encoders to reach.

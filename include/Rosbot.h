@@ -62,7 +62,7 @@ class Rosbot {
 
         void setMotorPosition (int motorIndex, int throttle);
 
-        VerifiedSensorData sensorVerification ();
+        VerifiedSensorData sensorVerification (int motorIndex, float throttle, float time);
 
     protected:
         void runOffsetEstimation ();
