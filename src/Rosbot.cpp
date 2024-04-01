@@ -357,8 +357,9 @@ void Rosbot::setIsRadioConnected (bool isRadioConnected) {
 VerifiedSensorData Rosbot::sensorVerification (int motorIndex, float throttle, float time) {
     // Set a particular voltage on the motors and wait a certain amount of time. 
     VerifiedSensorData data;
+    m_status.mix(255,0,0);
+    resetImu();
     m_status.mix(255,0,255);
-
     int intThrottle = int(throttle);
 
     // m_motorL->setThrottle(intThrottle);
@@ -368,6 +369,7 @@ VerifiedSensorData Rosbot::sensorVerification (int motorIndex, float throttle, f
     } else if (motorIndex == 1) {
         m_motorR->setThrottle(intThrottle);
     }
+
     float timeInMicroseconds = time * 1000000;
     long int start = micros();
     long int end = start;
@@ -407,6 +409,7 @@ VerifiedSensorData Rosbot::sensorVerification (int motorIndex, float throttle, f
 
     m_motorL->setThrottle(0);
     m_motorR->setThrottle(0);
+    m_status.mix(255,0,0);
     resetImu();
     m_status.mix(0,255,0);
     delay(100);

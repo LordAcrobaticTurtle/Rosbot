@@ -30,7 +30,7 @@ class CommandSideBar(ttk.Frame):
         button = ttk.Button(commandFrameBase, text="Reset-IMU", padding=15, command = lambda: self.button_pressed("Reset-IMU"))
         button.grid(column=0, row=3, pady=10)
 
-        button = ttk.Button(commandFrameBase, text="Sensor-Verification", padding=15, command = lambda: self.button_pressed("Sensor-Verification"))
+        button = ttk.Button(commandFrameBase, text="Verify", padding=15, command = lambda: self.button_pressed("Sensor-Verification"))
         button.grid(column=0, row=4, pady=10)
     
         return commandFrameBase

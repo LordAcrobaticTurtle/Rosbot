@@ -37,6 +37,11 @@ int Comms::run() {
         byte buffer[BUFFER_SIZE];
         m_transceiver->readBytes(buffer, numBytesInSerialBuffer);
         m_commsBuffer.insert((const char *) buffer, numBytesInSerialBuffer);
+        
+
+        for (int i = 0; i < m_commsBuffer.getTailPos(); i++) {
+            Serial.print((char) m_commsBuffer[i]);
+        }
     }
 
     MessageContents packet;
@@ -50,7 +55,11 @@ int Comms::run() {
 }
 
 int Comms::handlePacket(MessageContents packet) {
-    
+
+    if (packet.argc < 1) {
+        return;
+    }
+
     switch (packet.command) {
         case (CliCommandIndex::CLI_BEGIN): {
             m_robot->ActivateControlMode();
@@ -198,7 +207,6 @@ int Comms::handlePacket(MessageContents packet) {
         }
 
         case (CliCommandIndex::CLI_SENSOR_VERIFICATION): {
-
             // Unpackage arguments
             float time = 0.0;
             float throttle = 0.0;
@@ -206,24 +214,27 @@ int Comms::handlePacket(MessageContents packet) {
 
             int valuesFilled = sscanf(packet.argv[1], "[%d,%f,%f]", &motorIndex, &throttle, &time);
 
-            if (valuesFilled != 2) {
+            if (valuesFilled != 3) {
                 byte buffer[] = "Sensor-Verification-NOT-Ok";
                 sendResponse(buffer, CLI_SENSOR_VERIFICATION);   
+                return;
             }
 
-            m_robot->sensorVerification(motorIndex, throttle, time);
+            VerifiedSensorData data = m_robot->sensorVerification(motorIndex, throttle, time);
+            byte dataBuffer[256];
+            data.toString( (char *) dataBuffer);
+            sendResponse(dataBuffer, CLI_SENSOR_VERIFICATION);
 
-
-            // VerifiedSensorData data = m_robot->sensorVerification();
-            // byte buffer[256];
-            // data.toString( (char *) buffer);
-            // sendResponse(buffer, CLI_SENSOR_VERIFICATION);
+            byte okBuffer[256] = "Sensor-verification-OK";
+            sendResponse(okBuffer, CLI_SENSOR_VERIFICATION);
             break;
         }
 
-
         default:
             // Do nothing
+            byte notOkBuffer[256];
+            sprintf((char *) notOkBuffer, "Packet-Not-Recognised: %d, %d", (int) packet.command, packet.argc);
+            sendResponse(notOkBuffer, CLI_CLI);
             break;
     }
     return 0;

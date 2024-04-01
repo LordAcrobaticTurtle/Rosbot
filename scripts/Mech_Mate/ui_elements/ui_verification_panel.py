@@ -12,7 +12,7 @@ class SensorVerificationPanel(ttk.Frame):
         callbacks[SensorVerificationPanel] = {}
 
     def create_window(self):
-        baseFrame = ttk.LabelFrame(self._root, text="Sensor Verification")
+        baseFrame = ttk.LabelFrame(self._root, text="Sensor-Verification")
         self._text = {}
 
         leftMotor = self.create_pid_entries(baseFrame, "Left Motor")

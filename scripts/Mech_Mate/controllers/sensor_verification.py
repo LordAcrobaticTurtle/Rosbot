@@ -12,7 +12,7 @@ class SensorVerification():
         self._ui._callbacks[SensorVerificationPanel]["Send"] = self.send
         
     def send(self, controlIndex : int,  throttle : float, time : float):
-        buffer = f"Sensor-Verification [{controlIndex},{throttle},{time}]"
+        buffer = f"Verify [{controlIndex},{throttle},{time}]"
         self._serialConnection.send(buffer)
 
     

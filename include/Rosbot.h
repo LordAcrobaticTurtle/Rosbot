@@ -29,7 +29,7 @@ struct VerifiedSensorData {
     float velocityAvgRight;
 
     void toString (char *buffer) {
-        sprintf(buffer, "%d,%d,%f,%f", 
+        sprintf(buffer, "%ld,%ld,%f,%f", 
             positionLeftRaw, positionRightRaw, velocityAvgLeft, velocityAvgRight
         );
     }

@@ -40,7 +40,7 @@ const char cliCommands[CLI_NUM_COMMANDS+1][64] = {
     "Set-pid",
     "Get-pid",
     "target",
-    "Sensor-Verification",
+    "Verify",
     "None"
 };
 
