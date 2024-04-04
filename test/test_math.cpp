@@ -2,7 +2,7 @@
 #include "utility/math.h"
 
 #include "gtest/gtest.h"
-
+#include <stdio.h>
 
 Matrix a1_3x3(3,3);
 Matrix a2_3x3(3,3);
@@ -168,3 +168,33 @@ TEST_F(TestMath, test_matrix_subtraction) {
     Matrix output = Matrix::subtract(a1_3x3, a2_3x3);
     compareMatrices(output, correctResult);
 }
+
+TEST_F(TestMath, test_matrix_control_operations) {
+    Matrix K(1,4);
+    Matrix state(4,1);
+    Matrix desired(4,1);
+    K.data[0][0] = -1.0;
+    K.data[0][1] = -1.1116;
+    K.data[0][2] = 7.7973;
+    K.data[0][3] = 0.9166;
+
+
+    state.data[0][0] = 1.0;
+    state.data[1][0] = 1.0;
+    state.data[2][0] = 1.0;
+    state.data[3][0] = 1.0;
+
+    desired.data[0][0] = 2.0;
+    desired.data[1][0] = 2.0;
+    desired.data[2][0] = 2.0;
+    desired.data[3][0] = 2.0;
+
+    Matrix u(1,1);
+    u = Matrix::multiply(K, Matrix::subtract(desired,state));
+    
+    EXPECT_FLOAT_EQ(u.data[0][0], 6.6023);
+    EXPECT_FLOAT_EQ(u.data[1][0], 0);
+    EXPECT_FLOAT_EQ(u.data[0][1], 0);
+    EXPECT_FLOAT_EQ(u.data[1][1], 0);
+}
+
