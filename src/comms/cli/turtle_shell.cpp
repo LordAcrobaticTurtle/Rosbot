@@ -34,11 +34,6 @@ CliCommandIndex TurtleShell::searchForCommand(CircularQueue &queue, int &argc, c
 CliCommandIndex TurtleShell::parseCommand(const char *buffer, unsigned int bufferLength) {
     // Test if buffer is equal to cli
     // if (strncmp(buffer, cliCommands[CLI_CLI], bufferLength) == 0) { toggleShell(); }
-    
-    // if (!m_isShellActive) {
-    //     return CLI_NUM_COMMANDS;
-    // }
-
     for (int command = 0; command < CliCommandIndex::CLI_NUM_COMMANDS; command++) { 
         
         if (strncmp(buffer, cliCommands[command], bufferLength) == 0) {
