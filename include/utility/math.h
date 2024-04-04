@@ -14,7 +14,7 @@ struct Matrix {
     int numRows;
     // First brackets indexes row.
     // Second indexes column. 
-    int data[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE];
+    float data[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE];
 
     bool isValid();
     static Matrix multiply(Matrix a1, Matrix a2);
