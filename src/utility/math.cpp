@@ -29,8 +29,8 @@ Matrix::Matrix(int rows, int cols) {
 
     numRows = rows;
     numCols = cols;
-    for (int i = 0; i < numRows; i++) {
-        for (int j = 0 ; j < numCols; j++) {
+    for (int i = 0; i < MAX_ARRAY_SIZE; i++) {
+        for (int j = 0 ; j < MAX_ARRAY_SIZE; j++) {
             data[i][j] = 0;
         }
     }
