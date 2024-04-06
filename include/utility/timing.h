@@ -25,6 +25,7 @@ void setupGlobalTimer ();
 #define HZ_200_MICROSECONDS  5000
 #define HZ_100_MICROSECONDS  10000
 #define HZ_50_MICROSECONDS   20000
+#define HZ_1_MICROSECONDS    1000000
 
 class FrequencyTimer {
     public:

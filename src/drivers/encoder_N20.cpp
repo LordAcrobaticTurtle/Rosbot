@@ -9,35 +9,66 @@ EncoderN20::EncoderN20(int pin1, int pin2) :
 {
     m_lastCount = 0;
     m_lastReadTime = 0;
+    m_radsPerSecond = 0;
 }
 
 void EncoderN20::run() {
     m_currCount = m_encoder.read();
+    m_currTime = micros();
+    computeRadsTravelled();
+    computeRadsPerSecond();
     computeRPM();
-    m_lastCount = m_currCount;
+
+    // Timeout check for velocity;
+    // static FrequencyTimer timer(HZ_50_MICROSECONDS);
+    
+    // if (timer.checkEnoughTimeHasPassed()) {
+    //     if (m_timeoutCountCheck == m_currCount) {
+    //         m_radsPerSecond = 0;
+    //         m_rpm = 0;
+    //         m_lastCount = m_currCount;
+    //     }
+        
+    //     m_timeoutCountCheck = m_currCount;
+    // }
+
 }
 
 float EncoderN20::readRPM() {
     return m_rpm;
 }
 
-float EncoderN20::computeRPM () {
+float EncoderN20::readRadsPerSecond () {
+    return m_radsPerSecond;
+}
 
-    m_currTime = micros();
-    const int dt = m_currTime - m_lastReadTime;
+float EncoderN20::readRadsTravelled () {
+    return m_radsTravelled;
+}
+
+float EncoderN20::computeRadsTravelled () {
+    m_radsTravelled = (float) m_currCount / CPR_WHEEL * 2 * PI;
+    Serial.println("Rads travelled: " + String(m_radsTravelled));
+}
+
+float EncoderN20::computeRadsPerSecond () {
     const int countDifference = m_currCount - m_lastCount; // Could be positive or negative
     
-    if (dt < HZ_100_MICROSECONDS) {
-        return;
+    if (countDifference == 0) {
+        return 0.0;
     }
 
+    const int dt = m_currTime - m_lastReadTime;
     float dtInSeconds = dt * 1.0e-6;
 
-    // float RPS = countDifference / (dtInSeconds*PPR); 
-    // m_rpm = RPS *60 ;
-    m_rpm = m_currCount - m_lastCount;
-
+    m_radsPerSecond = (float) countDifference / CPR_WHEEL * 2 * PI / dtInSeconds;
     m_lastReadTime = m_currTime;
+    m_lastCount = m_currCount;
+    return m_radsPerSecond;
+}
+
+float EncoderN20::computeRPM () {
+    m_rpm = m_radsPerSecond * 60 / (2 * PI);
 }
 
 void EncoderN20::reset () {

@@ -123,10 +123,14 @@ void Rosbot::resetImu() {
 }
 
 void Rosbot::setMotorPosition (int motorIndex, int throttle) {
-    
+
     if (motorIndex == 0) {
         m_motorL->setThrottle(throttle);
+        // m_motorL->setPosition(m_motorLPositionParams);
+        // m_motorLPositionParams.target = throttle;
     } else if (motorIndex == 1) {
+        // m_motorR->setPosition(m_motorRPositionParams);
+        // m_motorRPositionParams.target = throttle;
         m_motorR->setThrottle(throttle);
     }
 }
@@ -242,8 +246,8 @@ void Rosbot::runControl () {
     m_state.data[2][0] = m_imuData.orientation.x * PI/ 180.0;
     m_state.data[3][0] = m_imuData.gyroRates.x * PI / 180.0;
     
-    m_motorLPositionParams = m_positionPidParams;
-    m_motorRPositionParams = m_positionPidParams;
+    // m_motorLPositionParams = m_positionPidParams;
+    // m_motorRPositionParams = m_positionPidParams;
 
     m_motorLPositionParams.currValue = m_encoderL->readPosition();
     m_motorRPositionParams.currValue = m_encoderR->readPosition();
@@ -253,12 +257,14 @@ void Rosbot::runControl () {
     m_desiredState.data[2][0] = 0;
     m_desiredState.data[3][0] = 0;
 
-    Matrix error = Matrix::subtract(m_desiredState, m_state);
-    Matrix u = Matrix::multiply(m_K, error);
-    Serial.println("x1: " + String(m_state.data[0][0]) + ", x2: " + String(m_state.data[1][0]) + ", x3: " + String(m_state.data[2][0]) + ", x4: " + String(m_state.data[3][0]));
-    m_motorL->setThrottle(-u.data[0][0]);
-    m_motorR->setThrottle(u.data[0][0]);
-    Serial.println(u.data[0][0]);
+    m_motorL->setPosition(m_motorLPositionParams);
+    m_motorR->setPosition(m_motorRPositionParams);
+    // Matrix error = Matrix::subtract(m_desiredState, m_state);
+    // Matrix u = Matrix::multiply(m_K, error);
+    // Serial.println("x1: " + String(m_state.data[0][0]) + ", x2: " + String(m_state.data[1][0]) + ", x3: " + String(m_state.data[2][0]) + ", x4: " + String(m_state.data[3][0]));
+    // m_motorL->setThrottle(-u.data[0][0]);
+    // m_motorR->setThrottle(u.data[0][0]);
+    // Serial.println(u.data[0][0]);
     // m_motorL->setTorqueTarget(u.data[0][0] * HardwareParameters::wheelRadius);
     // m_motorR->setTorqueTarget(-u.data[0][0] * HardwareParameters::wheelRadius);
     // m_motorL->setTorque(u*HardwareParameters::wheelRadius)
@@ -278,12 +284,12 @@ void Rosbot::runLocalisation () {
     m_imu->readImuData(m_imuData);
 
     // m_imuData.orientation.scale(180.0 / M_PI, 180.0 / M_PI, 180.0 / M_PI);
-    
-    m_vwheel.v1 = m_encoderL->readRPM();
-    m_vwheel.v2 = m_encoderR->readRPM();
+    float leftPos = m_encoderL->readRadsTravelled() * HardwareParameters::wheelRadius;
+    float rightPos = m_encoderR->readRadsTravelled() * HardwareParameters::wheelRadius;
+    float leftVel = m_encoderL->readRadsPerSecond() * HardwareParameters::wheelRadius;
+    float rightVel = m_encoderR->readRadsPerSecond() * HardwareParameters::wheelRadius;
 
-    // Convert encoder position counts to metres travelled
-    // Take derivative of encoder counts to get velocity. 
+    Serial.println("Left pos: " + String(leftPos) + ", Right pos: " + String(rightPos) + ", Left vel: " + String(leftVel) + ", Right vel:" + String(rightVel));
 
 }
 
@@ -343,7 +349,9 @@ void Rosbot::setAnglePIDParams (PIDParams params) {
 }
 
 void Rosbot::setPositionPIDParams (PIDParams params) {
-    m_positionPidParams = params;
+    // m_positionPidParams = params;
+    m_motorLPositionParams = params;
+    m_motorRPositionParams = params;
 }
 
 PIDParams Rosbot::getPositionPIDParams () {

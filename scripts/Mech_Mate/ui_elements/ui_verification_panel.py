@@ -51,7 +51,7 @@ class SensorVerificationPanel(ttk.Frame):
             self._callbacks[SensorVerificationPanel]["Send"](controlIndex, float(self._text[whichButton]["Throttle"].get()), float(self._text[whichButton]["Time"].get()))
         elif whichButton == "Right Motor": 
             controlIndex = 1
-            self._callbacks[SensorVerificationPanel]["Send"](controlIndex, float(self._text[whichButton]["Time"].get()), float(self._text[whichButton]["Time"].get()))
+            self._callbacks[SensorVerificationPanel]["Send"](controlIndex, float(self._text[whichButton]["Throttle"].get()), float(self._text[whichButton]["Time"].get()))
         return 
             
         
