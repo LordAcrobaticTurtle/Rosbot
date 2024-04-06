@@ -48,7 +48,6 @@ float EncoderN20::readRadsTravelled () {
 
 float EncoderN20::computeRadsTravelled () {
     m_radsTravelled = (float) m_currCount / CPR_WHEEL * 2 * PI;
-    Serial.println("Rads travelled: " + String(m_radsTravelled));
 }
 
 float EncoderN20::computeRadsPerSecond () {
