@@ -230,21 +230,12 @@ void Rosbot::runControl () {
     steering = floatMap(steering, 0, scaleFactor, -50.0, 50.0);
     throttle = floatMap(throttle, 0, scaleFactor, -20.0, 20.0);
 
-
-    // Update state for control
-    
-    // Calculate meteres from origin point. 
-    long int position = m_encoderL->readPosition();
-    // Counts /= (7*100) -> wheel Revs from origin * wheel circumference = metres from origin
-    float metresFromOrigin = (float) position * 2.0 * PI * HardwareParameters::wheelRadius / (7.0 * 100.0);
-
-    float wheelRotVelocity = m_encoderL->readRPM();
-    float translationVelocity = wheelRotVelocity * 60.0/(2*PI) * HardwareParameters::wheelRadius;
-
-    m_state.data[0][0] = metresFromOrigin;
-    m_state.data[1][0] = translationVelocity;
-    m_state.data[2][0] = m_imuData.orientation.x * PI/ 180.0;
-    m_state.data[3][0] = m_imuData.gyroRates.x * PI / 180.0;
+    // State update is made in runLocalisation()
+    // // Update state for control
+    // m_state.data[0][0] = metresFromOrigin;
+    // m_state.data[1][0] = translationVelocity;
+    // m_state.data[2][0] = m_imuData.orientation.x * PI/ 180.0;
+    // m_state.data[3][0] = m_imuData.gyroRates.x * PI / 180.0;
     
     // m_motorLPositionParams = m_positionPidParams;
     // m_motorRPositionParams = m_positionPidParams;
@@ -289,7 +280,17 @@ void Rosbot::runLocalisation () {
     float leftVel = m_encoderL->readRadsPerSecond() * HardwareParameters::wheelRadius;
     float rightVel = m_encoderR->readRadsPerSecond() * HardwareParameters::wheelRadius;
 
-    Serial.println("Left pos: " + String(leftPos) + ", Right pos: " + String(rightPos) + ", Left vel: " + String(leftVel) + ", Right vel:" + String(rightVel));
+    float averageTransPos = (leftPos + rightPos) / 2;
+    float averageTransVel = (leftVel + rightVel) / 2;
+
+    m_state.data[0][0] = averageTransPos;
+    m_state.data[1][0] = averageTransVel;
+    m_state.data[2][0] = m_imuData.orientation.x * PI/ 180.0;
+    m_state.data[3][0] = m_imuData.gyroRates.x * PI / 180.0;
+
+    m_vwheel.v1 = leftVel;
+    m_vwheel.v2 = rightVel;
+    // Serial.println("Left pos: " + String(leftPos) + ", Right pos: " + String(rightPos) + ", Left vel: " + String(leftVel) + ", Right vel:" + String(rightVel));
 
 }
 
