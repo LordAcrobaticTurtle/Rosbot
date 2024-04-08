@@ -11,7 +11,7 @@ DRV8876::DRV8876(
     m_pinCurrSense = pinCurrSense;
     m_pinNFault = pinNFault;
     m_pinSleep = pinSleep;
-
+    m_batteryVoltage = 0;
 
     pinMode(m_pinPWM, OUTPUT);
     pinMode(m_pinDirection, OUTPUT);
@@ -23,12 +23,26 @@ DRV8876::DRV8876(
     setThrottle(0);
 }
 
+// Model the motor
+// Find a gains matrix K
+// Set target current 
 void DRV8876::wakeup(bool setAwake) {
     digitalWrite(m_pinSleep, setAwake);
 }
 
 void DRV8876::setVoltage(float voltage) {
+    // Scale voltage to something between 
+    if (m_batteryVoltage == 0) {
+        return;
+    }
+
+    float scale = voltage / m_batteryVoltage;
+    
     return;
+}
+
+void DRV8876::setBatteryVoltage (float voltage) {
+    m_batteryVoltage = voltage;
 }
 
 // Expects values between -255 and 255
@@ -92,11 +106,4 @@ void DRV8876::runPositionControl (PIDParams &params) {
 
     // Drive currValue to set point 
     setThrottle(-scaledResponse);
-}
-
-// Model the motor
-// Find a gains matrix K
-// Set target current 
-void DRV8876::setTorqueTarget (double torqueTarget) {
-    // 
 }

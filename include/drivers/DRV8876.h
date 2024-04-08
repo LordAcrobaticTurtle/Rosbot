@@ -25,29 +25,11 @@ class DRV8876 : public DcMotorInterface {
                 int pinNFault, int pinSleep);
         ~DRV8876() {};
         // Clamp between 0 and 255
+        virtual void setBatteryVoltage (float voltage)     override;
         virtual void setVoltage(float voltage)             override;
         virtual void setThrottle(int throttle)             override;
         virtual void setDirection(bool isClockwise)        override;
-        
-        /**
-         * @brief Set the Torque Target of the controller
-         * 
-         * @param torqueTarget 
-         */
-        virtual void setTorqueTarget (double torqueTarget) override;   
-
-        /** Read current is tricky. Greatly depends on what state the driver is
-        * in. Fairly certain it is only useful when actively driving or braking
-        * Returns current in Amps
-        */ 
         virtual double readCurrent()                       override;
-
-        /**
-         * @brief Sets the class variable current to be used in torque estimation.
-         * This function was only added to sidestep the hardware mistake of mapping an analog signal to a 
-         * digital pin
-         * @param current 
-         */
         virtual void setCurrent (double current)           override;
         virtual void run ()                                override;
         void setPosition (PIDParams &params)               override;
