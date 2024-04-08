@@ -171,7 +171,6 @@ void Rosbot::run() {
     //     m_isStandbyOn = true;
     // }
 
-
     if (m_isStandbyOn) {
         m_status.mix(255, 163, 0);
         m_motorL->setThrottle(0);
@@ -250,9 +249,17 @@ void Rosbot::runControl () {
 
     m_motorL->setPosition(m_motorLPositionParams);
     m_motorR->setPosition(m_motorRPositionParams);
-    // Matrix error = Matrix::subtract(m_desiredState, m_state);
-    // Matrix u = Matrix::multiply(m_K, error);
-    // Serial.println("x1: " + String(m_state.data[0][0]) + ", x2: " + String(m_state.data[1][0]) + ", x3: " + String(m_state.data[2][0]) + ", x4: " + String(m_state.data[3][0]));
+    
+    // Calculate inputForce
+    Matrix error = Matrix::subtract(m_desiredState, m_state);
+    Matrix u = Matrix::multiply(m_K, error);
+    float inputForce = u.data[0][0];
+
+    // Calculate voltage required on each motor to achieve m_desiredState
+    
+
+
+
     // m_motorL->setThrottle(-u.data[0][0]);
     // m_motorR->setThrottle(u.data[0][0]);
     // Serial.println(u.data[0][0]);
