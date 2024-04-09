@@ -12,6 +12,10 @@ struct TorqueControlParams {
     float Kt;
 };
 
+/**
+ * @brief This class is used to perform torque control on a motor. It takes hardware params like 
+ * resistance, inductance an torque constant then computes a voltage value to apply to the rotor. 
+ */
 class TorqueControl {
     public:
         TorqueControl() = default;
