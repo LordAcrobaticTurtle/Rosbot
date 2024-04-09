@@ -7,7 +7,7 @@ class DcMotorInterface {
 public:
     /**
      * @brief Sets the voltage output on the motor. 
-     * @param voltage Valid values are [0,+/- batteryVoltageMax]
+     * @param voltage Valid values are [0, +/- batteryVoltageMax]
      */
     virtual void setVoltage(float voltage) = 0;
     
@@ -28,7 +28,7 @@ public:
     virtual void setCurrent (double current) = 0;
     
     /**
-     * @brief Sets voltage for the battery. Useful for the "setVoltage()" function
+     * @brief Sets voltage for the battery. Useful for the "setVoltage()" function. Must be a positive number
      * @param voltage 
      */
     virtual void setBatteryVoltage (float voltage);
