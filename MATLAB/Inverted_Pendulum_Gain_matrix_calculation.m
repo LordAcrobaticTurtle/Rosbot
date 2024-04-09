@@ -1,6 +1,6 @@
 %% Inverted Pendulum gain matrix calculation
 M = 0.045;  % Mass of cart
-m = 0.244; % Mass of pendulum
+m = 0.226; % Mass of pendulum
 b = 0.1; % Viscous friction coefficient
 I = 0.0021; % Moment of inertia of pendulum about point attached to the cart
 g = 9.8; 
