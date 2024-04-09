@@ -31,13 +31,16 @@ void DRV8876::wakeup(bool setAwake) {
 }
 
 void DRV8876::setVoltage(float voltage) {
-    // Scale voltage to something between 
+    // Scale voltage between +/- m_battery voltage. 
     if (m_batteryVoltage == 0) {
         return;
     }
 
     float scale = voltage / m_batteryVoltage;
+    int PWMOutput = (float) scale * PWM_MAX;
     
+    setThrottle(PWMOutput);
+
     return;
 }
 
