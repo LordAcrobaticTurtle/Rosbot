@@ -1,8 +1,5 @@
 #pragma once
 
-
-
-
 class HardwareParameters {
     public:
         constexpr static float pendulumWeight = 0.25;       // kg
@@ -12,5 +9,6 @@ class HardwareParameters {
         constexpr static float motorResistance = 12.3;      // Ohms
         constexpr static float motorTorqueConstant = 0.35;  // Nm/A
         constexpr static float motorInductance = 0.004;     // Henrys
-        constexpr static float gravity = 9.81;
+        constexpr static float gravity = 9.81;              // m/s/s
+        constexpr static float batteryMax = 12.0;           // Volts
 };
