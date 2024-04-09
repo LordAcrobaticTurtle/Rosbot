@@ -1,11 +1,9 @@
 #pragma once
 
-#include <localisation/localisation.h>
-#include <control/control.h>
+#include <control/torque_control.h>
 #include <drivers/RGB_LED.h>
 #include <utility/quaternion.h>
 #include <drivers/radio_interface.h>
-#include <Fusion/Fusion.h>
 #include <utility/math.h>
 
 
@@ -89,8 +87,6 @@ class Rosbot {
         quaternion m_qEst;
         vector2D m_vwheel;
 
-        FusionAhrs m_ahrs;
-
         // Control related data
         PIDParams m_anglePidParams;
         PIDParams m_positionPidParams;
@@ -108,6 +104,8 @@ class Rosbot {
 
         vector3D m_angleOffsets;
 
+        // Control related data
+        // =========================================
         // State matrix A,
         Matrix m_A;
         // Input matrix B,
@@ -126,4 +124,8 @@ class Rosbot {
 
         // Gain matrix K
         Matrix m_K;
+
+        TorqueControl m_torqueControlLeft;
+        TorqueControl m_torqueControlRight;
+        // =========================================
 };
