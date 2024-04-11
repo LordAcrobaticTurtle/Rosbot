@@ -96,6 +96,8 @@ void Rosbot::setup()
     m_torqueControlRight.passEncoder(m_encoderR);
     m_torqueControlLeft.setHardwareParams(tparams);
     m_torqueControlRight.setHardwareParams(tparams);
+    m_motorL->setBatteryVoltage(HardwareParameters::batteryMax);
+    m_motorR->setBatteryVoltage(HardwareParameters::batteryMax);
 }
 
 void Rosbot::ActivateStandbyMode() {
@@ -268,15 +270,15 @@ void Rosbot::runControl () {
     Matrix u = Matrix::multiply(m_K, error);
     float inputForce = u.data[0][0];
     // Calculate voltage required on each motor to achieve m_desiredState
-    float voltageLeft = m_torqueControlLeft.calculatedOutputVoltage( inputForce * HardwareParameters::wheelRadius );
+    float voltageLeft = m_torqueControlLeft.calculatedOutputVoltage( - inputForce * HardwareParameters::wheelRadius );
     // Multiply by negative so they are both spinning the same direction
-    float voltageRight = m_torqueControlRight.calculatedOutputVoltage(- inputForce * HardwareParameters::wheelRadius );
+    float voltageRight = m_torqueControlRight.calculatedOutputVoltage( inputForce * HardwareParameters::wheelRadius );
     
     // Does voltage need to be constrained to within +/- battery max?
     
     Serial.println("left Voltage: " + String(voltageLeft) + ", Right voltage: " + String(voltageRight));
-    // m_motorL->setVoltage(voltageLeft);
-    // m_motorR->setVoltage(voltageRight);
+    m_motorL->setVoltage(voltageLeft);
+    m_motorR->setVoltage(voltageRight);
 }
 
 void Rosbot::runLocalisation () {
