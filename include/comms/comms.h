@@ -20,6 +20,7 @@ enum StreamMode {
     STREAM_MODE_NONE,
     STREAM_MODE_LOCALISATION_CALIBRATION,
     STREAM_MODE_CONTROL,
+    STREAM_MODE_MODEL_CONTROL,
     STREAM_MODE_NUM_MODES
 };
 
@@ -30,19 +31,24 @@ public:
     int run();
 
 protected: 
-    int handlePacket(MessageContents packet);
+    int handlePacket (MessageContents packet);
 
-    void sendResponse(byte* buffer, CliCommandIndex commandIndex);
+    void sendResponse (byte* buffer, CliCommandIndex commandIndex);
 
-    void sendHelp();
+    void sendHelp ();
 
-    void returnStreamResponse();
+    void returnStreamResponse ();
 
-    void sendControlResponse();
+    void sendControlResponse ();
 
-    void sendLocalisationResponse();
+    void sendLocalisationResponse ();
 
-    void serialHeartbeat();
+    /**
+     * @brief Send a copy of the robot state + the control input to down the serial port
+     */
+    void sendModelControlResponse ();
+
+    void serialHeartbeat ();
 
     // void sendStringWithTerminatingCharacter(byte* buffer, size_t bufferLength);
     // // Step 1

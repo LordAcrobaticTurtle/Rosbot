@@ -57,14 +57,14 @@ int Comms::run() {
 int Comms::handlePacket(MessageContents packet) {
 
     if (packet.argc < 1) {
-        return;
+        return -1;
     }
 
     switch (packet.command) {
         case (CliCommandIndex::CLI_BEGIN): {
             m_robot->ActivateControlMode();
 
-            m_streamMode = STREAM_MODE_CONTROL; // Send control information over the pipe. 
+            m_streamMode = STREAM_MODE_MODEL_CONTROL; // Send control information over the pipe. 
             byte buffer[] = "Begin-OK";
             sendResponse(buffer, CliCommandIndex::CLI_BEGIN);
             Serial.println(String((char*)buffer));
@@ -94,7 +94,8 @@ int Comms::handlePacket(MessageContents packet) {
         case (CliCommandIndex::CLI_RESET_IMU): {
             m_robot->resetImu();
             vector3D angleOffsets = m_robot->getAngleOffsets(); 
-            char angleBuffer[128];
+            // 3 floats at 6 point precision capped at 2 ish places
+            char angleBuffer[64];
             angleOffsets.toString(angleBuffer);
             byte msgOk[] = "Reset_IMU-OK";
             char buffer[128];
@@ -217,7 +218,7 @@ int Comms::handlePacket(MessageContents packet) {
             if (valuesFilled != 3) {
                 byte buffer[] = "Sensor-Verification-NOT-Ok";
                 sendResponse(buffer, CLI_SENSOR_VERIFICATION);   
-                return;
+                return -1;
             }
 
             VerifiedSensorData data = m_robot->sensorVerification(motorIndex, throttle, time);
@@ -246,7 +247,6 @@ void Comms::sendResponse(byte *buffer, CliCommandIndex packetID) {
     auto time = millis();
     sprintf((char*) bufferToSend, "0x%x %d %ld [%s] 0x%x", FRAMING_START, packetID, time - m_timerOffset, buffer, FRAMING_END);
     m_transceiver->sendBytes(bufferToSend, strlen((const char*) bufferToSend));
-    // Serial.println((char *) bufferToSend);
 }
 
 void Comms::sendHelp() {
@@ -278,6 +278,11 @@ void Comms::returnStreamResponse() {
             break;
         }
 
+        case STREAM_MODE_MODEL_CONTROL: {
+            sendModelControlResponse();
+            break;
+        }
+
         default: 
             break;
     }
@@ -303,7 +308,23 @@ void Comms::sendControlResponse() {
     sprintf(buffer, "%s", paramBuffer);
     sendResponse((byte*) buffer, CLI_CONTROL_PACKET);
 }
- 
+
+void Comms::sendModelControlResponse () {
+    ModelControlResponse res = m_robot->getModelControlResponse();
+    // How many digits per float? 6 sig figs???
+    byte buffer[128];
+    sprintf( (char *) buffer, 
+        "%f,%f,%f,%f,%f", 
+        res.inputForce, 
+        res.stateBuffer[0], 
+        res.stateBuffer[1],
+        res.stateBuffer[2], 
+        res.stateBuffer[3]
+    );
+
+    sendResponse(buffer, CliCommandIndex::CLI_CONTROL_PACKET);
+}
+
 void Comms::sendLocalisationResponse() {
     LocalisationResponse res = m_robot->getLocalisationResponse();
     byte buffer[1028];
@@ -320,7 +341,10 @@ void Comms::sendLocalisationResponse() {
     char vwheelBuffer[128] = {0};
     res.encoderVelocities.toString(vwheelBuffer);
 
-    sprintf((char *) buffer, "%s,%s,%s,%s", accelBuffer, gyroBuffer, angleBuffer, vwheelBuffer);
+    char pwheelBuffer[128] = {0};
+    res.encoderPositions.toString(pwheelBuffer);
+
+    sprintf((char *) buffer, "%s,%s,%s,%s,%s", accelBuffer, gyroBuffer, angleBuffer, pwheelBuffer, vwheelBuffer);
     sendResponse(buffer, CliCommandIndex::CLI_LOCALISATION_PACKET);
      
 }

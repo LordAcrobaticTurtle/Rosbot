@@ -41,9 +41,9 @@ void setupMainloop() {
 int i = 0;
 void loop()
 {
-    long int start = micros();
+    // long int start = micros();
     mainloop();
-    long int end = micros();
+    // long int end = micros();
 
     static FrequencyTimer loopTimer(HZ_200_MICROSECONDS);
 

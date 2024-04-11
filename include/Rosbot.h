@@ -1,16 +1,24 @@
 #pragma once
 
+#include <control/pid_controller.h>
 #include <control/torque_control.h>
+#include <interfaces/interfaces.h>
 #include <drivers/RGB_LED.h>
-#include <utility/quaternion.h>
 #include <drivers/radio_interface.h>
 #include <utility/math.h>
+#include <utility/data_types.h>
+#include <utility/quaternion.h>
 
-
+// Returns the system state to the app
 struct ControlResponse {
     size_t controlIDPlaceholder;
     PIDParams params;
     double controlResponse;
+};
+
+struct ModelControlResponse {
+    float stateBuffer[4];
+    float inputForce;
 };
 
 struct LocalisationResponse {
@@ -18,6 +26,7 @@ struct LocalisationResponse {
     vector3D gyroRates;
     vector3D accelReadings;
     vector2D encoderVelocities;
+    vector2D encoderPositions;
 };
 
 struct VerifiedSensorData {
@@ -47,6 +56,7 @@ class Rosbot {
 
         LocalisationResponse getLocalisationResponse();
         ControlResponse getControlResponse();
+        ModelControlResponse getModelControlResponse ();
         void resetImu ();
         vector3D getAngleOffsets ();
 
@@ -61,6 +71,7 @@ class Rosbot {
         void setMotorPosition (int motorIndex, int throttle);
 
         VerifiedSensorData sensorVerification (int motorIndex, float throttle, float time);
+
 
     protected:
         void runOffsetEstimation ();
@@ -127,5 +138,7 @@ class Rosbot {
 
         TorqueControl m_torqueControlLeft;
         TorqueControl m_torqueControlRight;
+
+        float m_inputForce;
         // =========================================
 };
