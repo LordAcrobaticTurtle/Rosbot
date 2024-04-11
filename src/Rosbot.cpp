@@ -158,10 +158,25 @@ ControlResponse Rosbot::getControlResponse() {
     return res;
 }
 
+ModelControlResponse Rosbot::getModelControlResponse () {
+    ModelControlResponse res;
+    res.inputForce = m_inputForce;
+    res.stateBuffer[0] = m_state.data[0][0];
+    res.stateBuffer[1] = m_state.data[1][0];
+    res.stateBuffer[2] = m_state.data[2][0];
+    res.stateBuffer[3] = m_state.data[3][0];
+
+    return res;
+}
+
+
 LocalisationResponse Rosbot::getLocalisationResponse() {
     LocalisationResponse res;
+    res.encoderVelocities.v1 = m_encoderL->readRadsPerSecond();
+    res.encoderVelocities.v2 = m_encoderR->readRadsPerSecond();
+    res.encoderPositions.v1 = m_encoderL->readRadsTravelled();
+    res.encoderPositions.v2 = m_encoderR->readRadsTravelled();
     res.accelReadings = m_imuData.accelData;
-    res.encoderVelocities = m_vwheel;
     res.gyroRates =   m_imuData.gyroRates;
     res.orientation = m_imuData.orientation;
     return res;
@@ -268,17 +283,17 @@ void Rosbot::runControl () {
     // Calculate inputForce
     Matrix error = Matrix::subtract(m_desiredState, m_state);
     Matrix u = Matrix::multiply(m_K, error);
-    float inputForce = u.data[0][0];
+    m_inputForce = -1 * u.data[0][0];
+    // U = -K*(xd - xc)
     // Calculate voltage required on each motor to achieve m_desiredState
-    float voltageLeft = m_torqueControlLeft.calculatedOutputVoltage( - inputForce * HardwareParameters::wheelRadius );
+    float voltageLeft = m_torqueControlLeft.calculatedOutputVoltage( m_inputForce * HardwareParameters::wheelRadius );
     // Multiply by negative so they are both spinning the same direction
-    float voltageRight = m_torqueControlRight.calculatedOutputVoltage( inputForce * HardwareParameters::wheelRadius );
+    float voltageRight = m_torqueControlRight.calculatedOutputVoltage(- m_inputForce * HardwareParameters::wheelRadius );
     
     // Does voltage need to be constrained to within +/- battery max?
-    
-    Serial.println("left Voltage: " + String(voltageLeft) + ", Right voltage: " + String(voltageRight));
-    m_motorL->setVoltage(voltageLeft);
-    m_motorR->setVoltage(voltageRight);
+    Serial.println("U: " + String(m_inputForce) + ", left Voltage: " + String(voltageLeft) + ", Right voltage: " + String(voltageRight));
+    // m_motorL->setVoltage(voltageLeft);
+    // m_motorR->setVoltage(voltageRight);
 }
 
 void Rosbot::runLocalisation () {
@@ -292,24 +307,18 @@ void Rosbot::runLocalisation () {
     
     m_imu->readImuData(m_imuData);
 
-    // m_imuData.orientation.scale(180.0 / M_PI, 180.0 / M_PI, 180.0 / M_PI);
     float leftPos = m_encoderL->readRadsTravelled() * HardwareParameters::wheelRadius;
-    float rightPos = m_encoderR->readRadsTravelled() * HardwareParameters::wheelRadius;
+    // float rightPos = m_encoderR->readRadsTravelled() * HardwareParameters::wheelRadius;
     float leftVel = m_encoderL->readRadsPerSecond() * HardwareParameters::wheelRadius;
     float rightVel = m_encoderR->readRadsPerSecond() * HardwareParameters::wheelRadius;
 
-    float averageTransPos = (leftPos + rightPos) / 2;
-    float averageTransVel = (leftVel + rightVel) / 2;
-
-    m_state.data[0][0] = averageTransPos;
-    m_state.data[1][0] = averageTransVel;
+    m_state.data[0][0] = leftPos;
+    m_state.data[1][0] = leftVel;
     m_state.data[2][0] = m_imuData.orientation.x * PI/ 180.0;
     m_state.data[3][0] = m_imuData.gyroRates.x * PI / 180.0;
 
     m_vwheel.v1 = leftVel;
     m_vwheel.v2 = rightVel;
-    // Serial.println("Left pos: " + String(leftPos) + ", Right pos: " + String(rightPos) + ", Left vel: " + String(leftVel) + ", Right vel:" + String(rightVel));
-
 }
 
 void Rosbot::runOffsetEstimation () {
@@ -350,7 +359,6 @@ void Rosbot::runOffsetEstimation () {
     m_zeroOffsetData.gyroRates.x = gyroRateOffset.x / numSamples;
     m_zeroOffsetData.gyroRates.y = gyroRateOffset.y / numSamples;
     m_zeroOffsetData.gyroRates.z = gyroRateOffset.z / numSamples;
-    
     
     m_status.mix(0,255,0);
 }

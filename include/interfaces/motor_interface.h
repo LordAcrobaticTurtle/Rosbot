@@ -31,7 +31,7 @@ public:
      * @brief Sets voltage for the battery. Useful for the "setVoltage()" function. Must be a positive number
      * @param voltage 
      */
-    virtual void setBatteryVoltage (float voltage);
+    virtual void setBatteryVoltage (float voltage) = 0;
 
     virtual void setDirection(bool isClockwise) = 0;
     
