@@ -4,7 +4,7 @@ class HardwareParameters {
     public:
         constexpr static float pendulumWeight = 0.25;       // kg
         constexpr static float pendulumLength = 0.13;       // m
-        constexpr static float cartWeight = 0.045;          // kg
+        constexpr static float cartMass = 0.045;          // kg
         constexpr static float wheelRadius = 0.03;          // m
         constexpr static float motorResistance = 12.3;      // Ohms
         constexpr static float motorTorqueConstant = 0.35;  // Nm/A

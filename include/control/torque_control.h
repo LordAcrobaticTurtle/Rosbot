@@ -24,6 +24,7 @@ class TorqueControl {
         float calculatedOutputVoltage (float torqueCommand);
         void passEncoder (std::shared_ptr<EncoderInterface> encoder);
         void setHardwareParams (TorqueControlParams params);
+        void resetTorqueController ();
 
     protected:
         std::shared_ptr<EncoderInterface> m_encoder;

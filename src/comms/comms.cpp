@@ -314,8 +314,9 @@ void Comms::sendModelControlResponse () {
     // How many digits per float? 6 sig figs???
     byte buffer[128];
     sprintf( (char *) buffer, 
-        "%f,%f,%f,%f,%f", 
+        "%f,%f,%f,%f,%f,%f", 
         res.inputForce, 
+        res.desiredVelocity,
         res.stateBuffer[0], 
         res.stateBuffer[1],
         res.stateBuffer[2], 

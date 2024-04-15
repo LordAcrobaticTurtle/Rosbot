@@ -2,7 +2,7 @@
 
 
 float TorqueControl::calculatedOutputVoltage (float torqueCommand) {
-    float voltage = torqueCommand * m_params.Kt / m_params.motorResistance + 
+    float voltage = 100.0*torqueCommand * m_params.Kt / m_params.motorResistance + 
                     m_params.motorResistance * m_encoder->readRadsPerSecond();
     return voltage;
 }
@@ -15,3 +15,6 @@ void TorqueControl::setHardwareParams (TorqueControlParams params) {
     m_params = params;
 }
 
+void TorqueControl::resetTorqueController () {
+    
+}

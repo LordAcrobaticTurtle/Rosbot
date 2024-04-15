@@ -1,6 +1,8 @@
 #include <drivers/DRV8876.h>
 #include <utility/math.h>
 #include <control/pid_controller.h>
+#include <Arduino.h>
+
 
 DRV8876::DRV8876(
     int pinEN, int pinPH, int pinCurrSense, 
@@ -38,8 +40,8 @@ void DRV8876::setVoltage(float voltage) {
 
     float scale = voltage / m_batteryVoltage;
     int PWMOutput = (float) scale * PWM_MAX;
-    
     setThrottle(PWMOutput);
+    // Serial.println(PWMOutput);
 
     return;
 }

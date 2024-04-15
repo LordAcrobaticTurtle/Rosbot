@@ -19,6 +19,7 @@ struct ControlResponse {
 struct ModelControlResponse {
     float stateBuffer[4];
     float inputForce;
+    float desiredVelocity;
 };
 
 struct LocalisationResponse {
@@ -139,6 +140,7 @@ class Rosbot {
         TorqueControl m_torqueControlLeft;
         TorqueControl m_torqueControlRight;
 
-        float m_inputForce;
+        float m_controlSignal;
+        float m_desiredVelocity;
         // =========================================
 };

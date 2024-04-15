@@ -72,6 +72,9 @@ float EncoderN20::computeRPM () {
 
 void EncoderN20::reset () {
     m_encoder.readAndReset();
+    m_radsPerSecond = 0;
+    m_radsTravelled = 0;
+    m_currCount = 0;
 }
 
 
