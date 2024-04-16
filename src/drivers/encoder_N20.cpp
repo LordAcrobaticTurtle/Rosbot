@@ -10,6 +10,7 @@ EncoderN20::EncoderN20(int pin1, int pin2) :
     m_lastCount = 0;
     m_lastReadTime = 0;
     m_radsPerSecond = 0;
+    m_filterInsertIndex = 0;
 }
 
 void EncoderN20::run() {
@@ -60,7 +61,22 @@ float EncoderN20::computeRadsPerSecond () {
     const int dt = m_currTime - m_lastReadTime;
     float dtInSeconds = dt * 1.0e-6;
 
-    m_radsPerSecond = (float) countDifference / CPR_WHEEL * 2 * PI / dtInSeconds;
+    float currSpeed = (float) countDifference / CPR_WHEEL * 2 * PI / dtInSeconds;
+
+    m_encoderSpeedFilter[m_filterInsertIndex++] = currSpeed;
+    
+    if (m_filterInsertIndex >= 19) {
+        m_filterInsertIndex = 0;
+    }
+
+    // Find average of array
+    float arraySum = 0;
+    for (int i = 0; i < 20; i++) {
+        arraySum += m_encoderSpeedFilter[i];
+    }
+    float average = arraySum / 20.0;
+    m_radsPerSecond = average;
+
     m_lastReadTime = m_currTime;
     m_lastCount = m_currCount;
     return m_radsPerSecond;
