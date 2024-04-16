@@ -286,11 +286,18 @@ void Rosbot::runControl () {
     Matrix error = Matrix::subtract(m_desiredState, m_state);
     Matrix u = Matrix::multiply(m_K, error);
     m_controlSignal = -1 * u.data[0][0];
+
+
+    // From MATLAB. assuming max error in [xdesired - x] = [0.2; 0.1; 0.35; 0.1]
+    // Then u_bounds = [0, 3.01]
+
     // Create actuator commmand
-    float pwm = map(m_controlSignal, -0.1, 0.1, -255.0, 255.0);
+    float pwm = map(m_controlSignal, -3.01, 3.01, -255.0, 255.0);
     Serial.println("pwm output: " + String(pwm));
-    m_motorL->setThrottle(pwm);
-    m_motorR->setThrottle(-pwm);
+    // Add a gain to increase effectiveness
+
+    m_motorL->setThrottle(pwm * m_anglePidParams.kp);
+    m_motorR->setThrottle(-pwm * m_anglePidParams.kp);
     // m_desiredVelocity = m_controlSignal * HZ_200_MICROSECONDS * 1e-6 / HardwareParameters::cartMass + m_desiredVelocity;
     // U = -K*(xd - xc)
     // // Calculate voltage required on each motor to achieve m_desiredState
