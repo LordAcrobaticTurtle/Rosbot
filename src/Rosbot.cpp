@@ -298,7 +298,7 @@ void Rosbot::runControl () {
 
     m_motorL->setThrottle(pwm * m_anglePidParams.kp);
     m_motorR->setThrottle(-pwm * m_anglePidParams.kp);
-    // m_desiredVelocity = m_controlSignal * HZ_200_MICROSECONDS * 1e-6 / HardwareParameters::cartMass + m_desiredVelocity;
+    m_desiredVelocity = m_controlSignal * HZ_200_MICROSECONDS * 1e-6 / HardwareParameters::cartMass + m_desiredVelocity;
     // U = -K*(xd - xc)
     // // Calculate voltage required on each motor to achieve m_desiredState
     // float voltageLeft = m_torqueControlLeft.calculatedOutputVoltage( m_controlSignal / 2.0f * HardwareParameters::wheelRadius );
