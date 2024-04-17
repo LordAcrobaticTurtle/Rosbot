@@ -2,6 +2,7 @@
 #include <Arduino.h>
 #include <interfaces/encoder_interface.h>
 #include <Encoder.h>
+#include <data-structures/circular_queue.h>
 #define GEARING 100
 #define PPR 7
 #define ROTATIONS_PER_COUNT_OF_WHEEL  (9.0 / 70.0)
@@ -52,4 +53,8 @@ class EncoderN20 : public EncoderInterface {
         int m_pin1, m_pin2;
 
         Encoder m_encoder;
+
+        float m_encoderSpeedFilter[20];
+        int m_filterInsertIndex;
+
 };

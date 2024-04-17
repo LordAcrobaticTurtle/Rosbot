@@ -66,6 +66,11 @@ Rosbot::Rosbot() :
     m_K.data[0][2] = 7.4802;
     m_K.data[0][3] = 0.9107;
 
+    //  m_K.data[0][0] = -10.0;
+    // m_K.data[0][1] = -6.04;
+    // m_K.data[0][2] = 19.942;
+    // m_K.data[0][3] = 2.2885;
+
 }
 
 Rosbot::~Rosbot() {}
@@ -329,8 +334,8 @@ void Rosbot::runLocalisation () {
 
     m_state.data[0][0] = (leftPos + (-rightPos)) / 2;
     m_state.data[1][0] = (leftVel + (-rightVel)) / 2;
-    m_state.data[2][0] = m_imuData.orientation.x * PI/ 180.0;
-    m_state.data[3][0] = m_imuData.gyroRates.x * PI / 180.0;
+    m_state.data[2][0] = m_imuData.orientation.x;
+    m_state.data[3][0] = m_imuData.gyroRates.x;
 
     m_vwheel.v1 = leftVel;
     m_vwheel.v2 = rightVel;
