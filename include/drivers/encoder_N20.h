@@ -3,18 +3,17 @@
 #include <interfaces/encoder_interface.h>
 #include <Encoder.h>
 #include <data-structures/circular_queue.h>
+
 #define GEARING 100
 #define PPR 7
 #define ROTATIONS_PER_COUNT_OF_WHEEL  (9.0 / 70.0)
 #define CPR_WHEEL (PPR * GEARING * 4)
+
 const int enc2_c1 = 8;
 const int enc2_c2 = 9;
 
 const int enc1_c1 = 6;
 const int enc1_c2 = 7;
-
-
-
 
 class EncoderN20 : public EncoderInterface {
 
@@ -54,6 +53,7 @@ class EncoderN20 : public EncoderInterface {
 
         Encoder m_encoder;
 
+        CircularQueue<float> m_speedFilter;
         float m_encoderSpeedFilter[20];
         int m_filterInsertIndex;
 

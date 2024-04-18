@@ -58,7 +58,7 @@ class TurtleShell {
          * @param queue 
          * @return CliCommandIndex 
          */
-        CliCommandIndex searchForCommand(CircularQueue &queue, int &argc, char argv[][CLI_MAX_ARGUMENT_LENGTH]);
+        CliCommandIndex searchForCommand(CircularQueue<char> &queue, int &argc, char argv[][CLI_MAX_ARGUMENT_LENGTH]);
 
     protected:
 
@@ -69,7 +69,7 @@ class TurtleShell {
          * @param buffer 
          * @return CliCommandIndex 
          */
-        int findCommandInPacket(CircularQueue &queue, byte* buffer);
+        int findCommandInPacket(CircularQueue<char> &queue, byte* buffer);
         
         /**
          * @brief Parses buffer and returns the command type
@@ -84,7 +84,7 @@ class TurtleShell {
          * @param queue 
          * @return int - Index of position
          */
-        int isNewlinePresent(CircularQueue &queue);
+        int isNewlinePresent(CircularQueue<char> &queue);
 
         void toggleShell() {
             m_isShellActive = !m_isShellActive;

@@ -4,14 +4,19 @@
 
 #define MAX_QUEUE_SIZE 256
 
-
+template <typename T>
 struct NextValue {
     bool valid;
-    byte value;
+    T value;
     int index;
 };
 
-
+/**
+ * @brief This circular queue has variability on queue size. It is a fixed 256. 
+ * 
+ * @tparam T 
+ */
+template<typename T>
 class CircularQueue {
     public:
         CircularQueue();
@@ -21,14 +26,14 @@ class CircularQueue {
          * @brief Inserts a byte into the circular queue at nextInsertIndex (m_dataTail + 1)
          * @param val Value to insert
          */
-        void insert(byte val);
+        void insert(T val);
 
         /**
          * @brief Insert a sequence of characters into the buffer
          * @param buffer 
          * @param bufferLength 
          */
-        void insert(const char* buffer, size_t bufferLength);
+        void insert(const T* buffer, size_t bufferLength);
 
         /**
          * @brief Get the index of the end of the m_data. The length of the queue is tailPos + 1
@@ -42,13 +47,13 @@ class CircularQueue {
          * @param i 
          * @return byte& 
          */
-        byte &operator[](int i);
+        T &operator[](int i);
 
         /**
          * @brief Get the next unread value from the buffer.
          * @return NextValue 
          */
-        NextValue getNextValue();
+        NextValue<T> getNextValue();
 
         /**
          * @brief Set the Value Index object
@@ -68,7 +73,7 @@ class CircularQueue {
          * @param minIndex 
          * @param maxIndex 
          */
-        void copyData(byte* buffer, int minIndex, int maxIndex);
+        void copyData(T* buffer, int minIndex, int maxIndex);
 
 
         /**
@@ -82,20 +87,21 @@ class CircularQueue {
          * @param ch - A valid character from the ascii table. 
          * @return int - The index position of the element. -1 Indicates it is not in the list
          */
-        int searchForCharacter(char ch);
+        int searchForCharacter(T ch);
 
         /**
          * @brief Replaces (or inserts) "value" at "index"
          * @param value 
          * @param index 
          */
-        void replace(byte value, int index);
+        void replace(T value, int index);
 
     protected:
-        byte m_data[MAX_QUEUE_SIZE];
+        T m_data[MAX_QUEUE_SIZE];
         bool m_hasDataBeenRead[MAX_QUEUE_SIZE];
         int m_dataTail;
         autoIncrementingResetInt m_nextInsertPos;
         autoIncrementingResetInt m_searchIndex;
 
 };
+

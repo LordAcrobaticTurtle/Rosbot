@@ -1,7 +1,7 @@
 #include "comms/cli/turtle_shell.h"
 #include <unistd.h>
 
-CliCommandIndex TurtleShell::searchForCommand(CircularQueue &queue, int &argc, char argv[][CLI_MAX_ARGUMENT_LENGTH]) {
+CliCommandIndex TurtleShell::searchForCommand(CircularQueue<char> &queue, int &argc, char argv[][CLI_MAX_ARGUMENT_LENGTH]) {
     
     // Search for a newline
     // If none exists, return early. 
@@ -45,7 +45,7 @@ CliCommandIndex TurtleShell::parseCommand(const char *buffer, unsigned int buffe
 }
 
 
-int TurtleShell::findCommandInPacket(CircularQueue &queue, byte* buffer) {
+int TurtleShell::findCommandInPacket(CircularQueue<char> &queue, byte* buffer) {
     // Start at index 0 because that's where the start of the message will be. After each message is found
     // Loop over queue looking for matching strings
     // Get a pointer to the first ' ' character
@@ -66,8 +66,7 @@ int TurtleShell::findCommandInPacket(CircularQueue &queue, byte* buffer) {
     return 0;
 }
 
-
-int TurtleShell::isNewlinePresent(CircularQueue &queue) {
+int TurtleShell::isNewlinePresent(CircularQueue<char> &queue) {
     return queue.searchForCharacter('\n');
 }
 

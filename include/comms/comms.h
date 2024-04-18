@@ -62,7 +62,7 @@ protected:
     std::shared_ptr<Rosbot> m_robot;
     std::shared_ptr<CommsInterface> m_transceiver;
     std::shared_ptr<RadioInterface> m_rx;
-    CircularQueue m_commsBuffer;
+    CircularQueue<char> m_commsBuffer;
     TurtleShell m_shell;
 
     StreamMode m_streamMode;    

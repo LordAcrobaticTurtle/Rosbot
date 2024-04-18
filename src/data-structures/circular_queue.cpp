@@ -3,37 +3,46 @@
 #include <stdlib.h>
 #include <cstring>
 
-CircularQueue::CircularQueue() : 
+template class CircularQueue<char>;
+template class CircularQueue<float>;
+
+template <typename T>
+CircularQueue<T>::CircularQueue () : 
     m_nextInsertPos(0, MAX_QUEUE_SIZE), m_searchIndex(0, MAX_QUEUE_SIZE) 
 {
     m_dataTail = 0;
-    memset(m_data, 0, sizeof(byte)*MAX_QUEUE_SIZE);
+    memset(m_data, 0, sizeof(T)*MAX_QUEUE_SIZE);
     memset(m_hasDataBeenRead, 0, sizeof(bool)*MAX_QUEUE_SIZE);
 }
 
-int CircularQueue::getTailPos() {
+template <typename T>
+int CircularQueue<T>::getTailPos() {
     return m_dataTail;
 }
 
-void CircularQueue::insert(byte val) {
+template <typename T>
+void CircularQueue<T>::insert(T val) {
     m_hasDataBeenRead[m_nextInsertPos.getCount()] = false;
     m_data[m_nextInsertPos.getCount()] = val;
     m_dataTail = m_nextInsertPos.getCount();
     m_nextInsertPos++;
 }
 
-void CircularQueue::insert(const char* buffer, size_t bufferLength) {
+template <typename T>
+void CircularQueue<T>::insert(const T* buffer, size_t bufferLength) {
     for (size_t i = 0; i < bufferLength; i++) {
         insert(buffer[i]);
     }
 }
 
-byte &CircularQueue::operator[](int i) {
+template <typename T>
+T &CircularQueue<T>::operator[](int i) {
     return m_data[abs(i) % MAX_QUEUE_SIZE];
 }
 
-NextValue CircularQueue::getNextValue() {
-    NextValue ret;
+template <typename T>
+NextValue<T> CircularQueue<T>::getNextValue() {
+    NextValue<T> ret;
     
     if (m_hasDataBeenRead[m_searchIndex.getCount()]) {
         ret.valid = false;
@@ -51,15 +60,18 @@ NextValue CircularQueue::getNextValue() {
     return ret;
 }
 
-void CircularQueue::setSearchIndex(int i) {
+template <typename T>
+void CircularQueue<T>::setSearchIndex(int i) {
     m_searchIndex.setCount(i);
 }
 
-void CircularQueue::setInsertIndex(int i) {
+template <typename T>
+void CircularQueue<T>::setInsertIndex(int i) {
     m_nextInsertPos.setCount(i);
 }
 
-void CircularQueue::copyData(byte* buffer, int minIndex, int maxIndex) {
+template <typename T>
+void CircularQueue<T>::copyData(T* buffer, int minIndex, int maxIndex) {
     int clampedMinIndex = clamp(minIndex, 0, MAX_QUEUE_SIZE - 1);
     int clampedMaxIndex = clamp(maxIndex, 0, MAX_QUEUE_SIZE - 1);
 
@@ -70,8 +82,8 @@ void CircularQueue::copyData(byte* buffer, int minIndex, int maxIndex) {
     memcpy(buffer, &m_data[minIndex], byteDifference);
 }
 
-
-void CircularQueue::reset() {
+template <typename T>
+void CircularQueue<T>::reset() {
     setInsertIndex(0);
     setSearchIndex(0);
     memset(m_data, 0, sizeof(byte)*MAX_QUEUE_SIZE);
@@ -79,7 +91,8 @@ void CircularQueue::reset() {
     m_dataTail = 0;
 }
 
-int CircularQueue::searchForCharacter(char ch) {
+template <typename T>
+int CircularQueue<T>::searchForCharacter(T ch) {
     for (int i=0; i<getTailPos() + 1; i++) {
         if (m_data[i] == ch) {
             return i;
@@ -89,7 +102,8 @@ int CircularQueue::searchForCharacter(char ch) {
     return -1;
 }
 
-void CircularQueue::replace(byte value, int index) {
+template <typename T>
+void CircularQueue<T>::replace(T value, int index) {
     setInsertIndex(index);
     insert(value);
 }
