@@ -6,7 +6,7 @@
 #define GEARING 100
 #define PPR 7
 #define ROTATIONS_PER_COUNT_OF_WHEEL  (9.0 / 70.0)
-#define CPR_WHEEL (PPR * GEARING * 4)
+#define CPR_WHEEL (PPR * GEARING * 4) // THIS INCLUDES THE GEAR RATIO
 const int enc2_c1 = 8;
 const int enc2_c2 = 9;
 

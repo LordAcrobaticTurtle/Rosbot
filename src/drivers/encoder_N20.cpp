@@ -49,6 +49,7 @@ float EncoderN20::readRadsTravelled () {
 
 float EncoderN20::computeRadsTravelled () {
     m_radsTravelled = (float) m_currCount / CPR_WHEEL * 2 * PI;
+    return m_radsTravelled;
 }
 
 float EncoderN20::computeRadsPerSecond () {
@@ -84,6 +85,7 @@ float EncoderN20::computeRadsPerSecond () {
 
 float EncoderN20::computeRPM () {
     m_rpm = m_radsPerSecond * 60 / (2 * PI);
+    return m_rpm;
 }
 
 void EncoderN20::reset () {
