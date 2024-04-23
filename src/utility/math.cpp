@@ -40,6 +40,18 @@ bool Matrix::isValid() {
     return (numCols > 0) && (numRows > 0) && (numCols < MAX_ARRAY_SIZE) && (numRows < MAX_ARRAY_SIZE);
 }
 
+void Matrix::copyTo (Matrix &receiver) {
+    receiver.numCols = numCols;
+    receiver.numRows = numRows;
+    
+    for (int i = 0; i < numRows; i++) {
+        for (int j = 0; j < numCols; j++) {
+            receiver.data[i][j] = data[i][j];
+        }
+    }
+
+}
+
 Matrix Matrix::multiply(Matrix a1, Matrix a2) {
     // Order matters
     // a1 * a2 != a2 * a1

@@ -17,6 +17,7 @@ struct Matrix {
     float data[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE];
 
     bool isValid();
+    void copyTo (Matrix &receiver);
     static Matrix multiply(Matrix a1, Matrix a2);
     static Matrix add(Matrix a1, Matrix a2);
     static Matrix subtract(Matrix a1, Matrix a2);
