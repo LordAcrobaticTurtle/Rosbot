@@ -16,12 +16,17 @@ set(TEST_SRC_FILES
     # test/test_packet_serializer.cpp
     test/test_main.cpp
     src/comms/packet_serializer.cpp
+    
     test/test_math.cpp
     src/utility/math.cpp
+    
     src/data-structures/circular_queue.cpp
     test/test_circular_queue.cpp
     test/test_comms.cpp
     src/comms/cli/turtle_shell.cpp
+
+    test/test_state_space_controller.cpp
+    src/control/state_space_control.cpp
 )
 
 # SET(CLI_SRC_FILES
