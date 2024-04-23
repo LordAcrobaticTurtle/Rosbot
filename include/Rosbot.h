@@ -2,6 +2,7 @@
 
 #include <control/pid_controller.h>
 #include <control/torque_control.h>
+#include "control/state_space_control.h"
 #include <interfaces/interfaces.h>
 #include <drivers/RGB_LED.h>
 #include <drivers/radio_interface.h>
@@ -137,10 +138,12 @@ class Rosbot {
         // Gain matrix K
         Matrix m_K;
 
-        TorqueControl m_torqueControlLeft;
-        TorqueControl m_torqueControlRight;
-
-        float m_controlSignal;
+        float m_inputForce;
         float m_desiredVelocity;
+        
+        StateSpaceControl m_motorControlLeft;
+        StateSpaceControl m_motorControlRight;
+        StateSpaceControl m_pendulumControl;
+
         // =========================================
 };
