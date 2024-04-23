@@ -11,4 +11,5 @@ class HardwareParameters {
         constexpr static float motorInductance = 0.004;     // Henrys
         constexpr static float gravity = 9.81;              // m/s/s
         constexpr static float batteryMax = 12.0;           // Volts
+        constexpr static float gearRatio = 100.0;
 };
