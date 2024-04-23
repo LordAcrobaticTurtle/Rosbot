@@ -19,12 +19,14 @@ class MotorStateSpaceControl {
 
         void setHardwareParams (MotorSSParams params);
         void setStateVector (stateVector state);
+        void setDesiredState (stateVector state);
 
         float calculateOutputVoltage ();
 
     protected:
         Matrix m_K;
         Matrix m_state;
+        Matrix m_desiredState;
         MotorSSParams m_hardwareParams;
 
 };
