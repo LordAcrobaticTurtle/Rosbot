@@ -299,7 +299,7 @@ void Rosbot::runControl () {
     Matrix leftMotorState(2,1);
     Matrix leftMotorDesiredState(2,1);
 
-    leftMotorState.data[0][0] = m_encoderL->readRadsPerSecond(); // rad/s
+    leftMotorState.data[0][0] = m_encoderL->readRadsPerSecond() * HardwareParameters::gearRatio; // rad/s
     leftMotorState.data[1][0] = m_motorL->readCurrent(); // amps
 
     leftMotorDesiredState.data[0][0] = motorRotationSpeed; // rad/s
@@ -308,7 +308,7 @@ void Rosbot::runControl () {
     Matrix rightMotorState(2,1);
     Matrix rightMotorDesiredState(2,1);
 
-    rightMotorState.data[0][0] = m_encoderR->readRadsPerSecond(); // rad/s
+    rightMotorState.data[0][0] = m_encoderR->readRadsPerSecond() * HardwareParameters::gearRatio; // rad/s - WHEEL SPEED
     rightMotorState.data[1][0] = m_motorR->readCurrent(); // amps
 
     rightMotorDesiredState.data[0][0] = -motorRotationSpeed; //rad/s
