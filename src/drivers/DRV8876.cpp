@@ -38,10 +38,11 @@ void DRV8876::setVoltage(float voltage) {
         return;
     }
 
-    float scale = voltage / m_batteryVoltage;
+    float constrainedVoltage = constrain(voltage, -m_batteryVoltage, m_batteryVoltage);
+
+    float scale = constrainedVoltage / m_batteryVoltage;
     int PWMOutput = (float) scale * PWM_MAX;
     setThrottle(PWMOutput);
-    // Serial.println(PWMOutput);
 
     return;
 }
