@@ -24,6 +24,7 @@ enum CliCommandIndex {
     CLI_PID_PARAMS_GET,
     CLI_ANGLE_TARGET,
     CLI_SENSOR_VERIFICATION,
+    CLI_STATE_SPACE_SET_GAINS,
     CLI_NUM_COMMANDS
 };
 
@@ -41,6 +42,7 @@ const char cliCommands[CLI_NUM_COMMANDS+1][64] = {
     "Get-pid",
     "target",
     "Verify",
+    "Set-ss-gain",
     "None"
 };
 

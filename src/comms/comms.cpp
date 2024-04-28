@@ -92,7 +92,7 @@ int Comms::handlePacket(MessageContents packet) {
         }
 
         case (CliCommandIndex::CLI_RESET_IMU): {
-            m_robot->resetImu();
+            m_robot->resetRobot();
             vector3D angleOffsets = m_robot->getAngleOffsets(); 
             // 3 floats at 6 point precision capped at 2 ish places
             char angleBuffer[64];
@@ -231,6 +231,23 @@ int Comms::handlePacket(MessageContents packet) {
             break;
         }
 
+        case (CliCommandIndex::CLI_STATE_SPACE_SET_GAINS): {
+            float pos,vel,aPos,aVel;
+
+            int valuesFilled = sscanf(packet.argv[1], "[%f,%f,%f,%f]", &pos, &vel, &aPos, &aVel);
+
+            if (valuesFilled != 4) {
+                byte buffer[] = "State-Space-Set-NOT-Ok";
+                sendResponse(buffer, CLI_STATE_SPACE_SET_GAINS);   
+                return -1;
+            }
+
+            m_robot->setStateSpaceGains(pos,vel,aPos,aVel);
+            byte okBuffer[256] = "State-Space-Set-OK";
+            sendResponse(okBuffer, CLI_STATE_SPACE_SET_GAINS);
+            break;
+        }
+
         default:
             // Do nothing
             byte notOkBuffer[256];
@@ -327,11 +344,8 @@ void Comms::sendModelControlResponse () {
 }
 
 void Comms::sendLocalisationResponse() {
-    LocalisationResponse res = m_robot->getLocalisationResponse();
+    RawSensors res = m_robot->getLocalisationResponse();
     byte buffer[1028];
-    
-    char accelBuffer[128] = {0};
-    res.accelReadings.toString(accelBuffer);
 
     char gyroBuffer[128] = {0};
     res.gyroRates.toString(gyroBuffer);
@@ -345,7 +359,10 @@ void Comms::sendLocalisationResponse() {
     char pwheelBuffer[128] = {0};
     res.encoderPositions.toString(pwheelBuffer);
 
-    sprintf((char *) buffer, "%s,%s,%s,%s,%s", accelBuffer, gyroBuffer, angleBuffer, pwheelBuffer, vwheelBuffer);
+    char currentBuffer[128] = {0};
+    res.current.toString(currentBuffer);
+
+    sprintf((char *) buffer, "%s,%s,%s,%s,%s", gyroBuffer, angleBuffer, pwheelBuffer, vwheelBuffer, currentBuffer);
     sendResponse(buffer, CliCommandIndex::CLI_LOCALISATION_PACKET);
      
 }
