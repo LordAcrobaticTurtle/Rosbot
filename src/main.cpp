@@ -59,7 +59,7 @@ void loop()
 
 void mainloop() { 
 
-    static FrequencyTimer commsTimer(HZ_50_MICROSECONDS);
+    static FrequencyTimer commsTimer(HZ_200_MICROSECONDS);
 
     // 50 times a second is not a lot of data. 
     if (commsTimer.checkEnoughTimeHasPassed()) {
