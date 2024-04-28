@@ -8,6 +8,8 @@ import ui_elements.ui_serial_console as SerialConsole
 from ui_elements.ui_pid_tuning import PidTuning
 from ui_elements.ui_plot import PlotWindow
 from ui_elements.ui_verification_panel import SensorVerificationPanel
+from ui_elements.ui_state_space_tuning import StateSpaceTuning
+
 
 APP_CALLBACK_INDEX = "APP_CALLBACK_INDEX"
 
@@ -20,9 +22,10 @@ class View(ttk.Frame):
         self._sideBar = SideBar.CommandSideBar(self._parent, self._callbacks)
         self._recordingSettings = RecordSettings.RecordSettings(self._parent, self._callbacks)
         self._serialConsoleSettings = SerialConsole.SerialConsole(self._parent, self._callbacks)
-        self._callbacks["AngleTuner"] = {}
-        self._callbacks["PositionTuner"] = {}
-        self._pidTuner = PidTuning(self._parent, self._callbacks)
+        self._callbacks["ControlTuner"] = {}
+        # self._callbacks["PositionTuner"] = {}
+        # self._pidTuner = PidTuning(self._parent, self._callbacks)
+        self._controlTuner = StateSpaceTuning(self._parent, self._callbacks)
         self._plot1 = PlotWindow(self._parent, self._callbacks)
         self._verificationPanel = SensorVerificationPanel(self._parent, self._callbacks)
         
@@ -57,8 +60,10 @@ class View(ttk.Frame):
         appSettingsFrame.grid(column=1, row=1)
         comSettingsFrame = self._serialConsoleSettings.create_window()
         comSettingsFrame.grid(column=2, row=1, sticky=(tk.W+tk.N))
-        pidTuningFrame = self._pidTuner.create_window()
-        pidTuningFrame.grid(column=2, row=0)
+        stateSpaceTuningFrame = self._controlTuner.create_window()
+        stateSpaceTuningFrame.grid(column=2, row=0)
+        # pidTuningFrame = self._pidTuner.create_window()
+        # pidTuningFrame.grid(column=2, row=0)
         verificationFrame = self._verificationPanel.create_window()
         verificationFrame.grid(column=1, row=0)
         # plot1Frame = self._plot1.create_window()

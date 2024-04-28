@@ -12,6 +12,7 @@ import controllers.sidebar_handler
 import controllers.recording_handler
 import controllers.pid_tuning_handler
 from controllers.sensor_verification import SensorVerification
+from controllers.state_space_tune_handler import StateSpaceTuningHandler
 
 class Controller:
     def __init__(self, model : model.Model, ui : view.View):
@@ -28,8 +29,10 @@ class Controller:
         self._sidebarHandler.populate_callbacks()
         self._recordingHandler = controllers.recording_handler.RecordingHandler(self.view, self.model)
         self._recordingHandler.populate_callbacks()
-        self._angleTunerHandler = controllers.pid_tuning_handler.PIDTuningHandler(self.view._pidTuner, self._robotConnection)
-        self._angleTunerHandler.populate_callbacks()
+        self._controlHandler = StateSpaceTuningHandler(self.view._controlTuner, self._robotConnection)
+        self._controlHandler.populate_callbacks()
+        # self._angleTunerHandler = controllers.pid_tuning_handler.PIDTuningHandler(self.view._pidTuner, self._robotConnection)
+        # self._angleTunerHandler.populate_callbacks()
         self._verification = SensorVerification(self.view._verificationPanel, self._robotConnection)
         self._verification.populate_callbacks()
         # self._positionTunerHandler = controllers.pid_tuning_handler.PIDTuningHandler(self.view._positionTuner, self._robotConnection)
