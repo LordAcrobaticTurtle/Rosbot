@@ -17,7 +17,7 @@ public:
      */
     virtual void setThrottle(int throttle) = 0;
     
-    virtual double readCurrent() = 0;
+    virtual float readCurrent() = 0;
     
     /**
      * @brief Sets the class variable current to be used in torque estimation.
