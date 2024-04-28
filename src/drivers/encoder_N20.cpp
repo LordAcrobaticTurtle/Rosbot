@@ -93,6 +93,7 @@ void EncoderN20::reset () {
     m_radsPerSecond = 0;
     m_radsTravelled = 0;
     m_currCount = 0;
+    m_lastCount = 0;
 }
 
 
