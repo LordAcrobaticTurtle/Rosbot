@@ -23,12 +23,13 @@ struct ModelControlResponse {
     float desiredVelocity;
 };
 
-struct LocalisationResponse {
+struct RawSensors {
     vector3D orientation;
     vector3D gyroRates;
     vector3D accelReadings;
     vector2D encoderVelocities;
     vector2D encoderPositions;
+    vector2D current;
 };
 
 struct VerifiedSensorData {
@@ -56,10 +57,10 @@ class Rosbot {
         void ActivateCalibration();
         void ActivateControlMode();
 
-        LocalisationResponse getLocalisationResponse();
+        RawSensors getLocalisationResponse();
         ControlResponse getControlResponse();
         ModelControlResponse getModelControlResponse ();
-        void resetImu ();
+        void resetRobot ();
         vector3D getAngleOffsets ();
 
         PIDParams getAnglePIDParams();
@@ -74,6 +75,7 @@ class Rosbot {
 
         VerifiedSensorData sensorVerification (int motorIndex, float throttle, float time);
 
+        void setStateSpaceGains (float posGain, float velGain, float aPosGain, float aVelGain);
 
     protected:
         void runOffsetEstimation ();
@@ -82,6 +84,7 @@ class Rosbot {
         void runLocalisation ();
         void runControl ();
         void cascadedControl ();
+        void stateSpaceControl ();
 
     protected:
         // Driver related components
