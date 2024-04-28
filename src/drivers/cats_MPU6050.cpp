@@ -50,9 +50,9 @@ int catsMPU6050::run () {
         ayf = accelRaw.y / 2048.0 * GRAVITY;
         azf = accelRaw.z / 2048.0 * GRAVITY;
  
-        gxf = gyroRaw.x / 16.4;
-        gyf = gyroRaw.y / 16.4;
-        gzf = gyroRaw.z / 16.4;
+        gxf = gyroRaw.x / 16.4 * PI / 180.0;
+        gyf = gyroRaw.y / 16.4 * PI / 180.0;
+        gzf = gyroRaw.z / 16.4 * PI / 180.0;
     }
 
     return 0;
