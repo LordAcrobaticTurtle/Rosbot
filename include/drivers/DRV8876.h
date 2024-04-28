@@ -6,7 +6,7 @@
 #define MIN_THROTTLE -255
 
 #define A_IPROPI 1000.0 // uA/A
-#define R_IPROPI 1500.0 // ohms
+#define R_IPROPI 2490.00 // ohms
 
 #define K_t
 
@@ -29,7 +29,7 @@ class DRV8876 : public DcMotorInterface {
         virtual void setVoltage(float voltage)             override;
         virtual void setThrottle(int throttle)             override;
         virtual void setDirection(bool isClockwise)        override;
-        virtual double readCurrent()                       override;
+        virtual float readCurrent()                       override;
         virtual void setCurrent (double current)           override;
         virtual void run ()                                override;
         void setPosition (PIDParams &params)               override;
@@ -53,5 +53,8 @@ class DRV8876 : public DcMotorInterface {
 
         double m_current;
         PIDParams m_positionParams;
+
+        float m_currentFilter[20];
+        int m_currentInsertIndex;
 
 };

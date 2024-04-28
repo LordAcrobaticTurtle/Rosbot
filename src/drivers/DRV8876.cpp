@@ -23,6 +23,7 @@ DRV8876::DRV8876(
     wakeup(true);
     
     setThrottle(0);
+    m_currentInsertIndex = 0;
 }
 
 // Model the motor
@@ -70,15 +71,20 @@ void DRV8876::setDirection(bool isClockwise) {
     m_isClockwise = isClockwise;
 }
 
-double DRV8876::readCurrent() {
+float DRV8876::readCurrent() {
 
     int currentAsInteger = analogRead(m_pinCurrSense);
-
+    // Serial.println("Current: " + String(currentAsInteger));
     // Convert to voltage
-    double currentAsVoltage = floatMap(currentAsInteger, ADC_MIN, ADC_MAX, VOLTAGE_MIN, VOLTAGE_MAX);
-    double I_propI = currentAsVoltage / R_IPROPI; // microamps
-    m_current = I_propI;
-    return I_propI; // Amps
+    float voltageOfADC = floatMap(currentAsInteger, ADC_MIN, ADC_MAX, VOLTAGE_MIN, VOLTAGE_MAX);
+    // Full equation is iload = ADC / R_PROPI * 1e6 (scale to micro amps) / A_PROPI
+    m_current = voltageOfADC / R_IPROPI * 1e3; // Amps
+    m_currentFilter[m_currentInsertIndex++] = m_current;
+    if (m_currentInsertIndex >= 20) {
+        m_currentInsertIndex = 0;
+    }
+
+    return m_current; // Amps
 }
 
 void DRV8876::setCurrent (double current) {
