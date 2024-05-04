@@ -75,12 +75,12 @@ Rosbot::Rosbot() :
     // m_K.data[0][3] = 2.2885;
     Matrix motorGainLeft(1,2);
     Matrix motorGainRight(1,2); 
-    // 0.0157    0.3906
-    motorGainLeft.data[0][0] = 0.0157;
-    motorGainLeft.data[0][1] = 0.3906;
+
+    motorGainLeft.data[0][0] = 0.0032;
+    motorGainLeft.data[0][1] = 0.0761;
     
-    motorGainRight.data[0][0] = 0.0157;
-    motorGainRight.data[0][1] = 0.3906;
+    motorGainRight.data[0][0] = 0.0032;
+    motorGainRight.data[0][1] = 0.0761;
 
     m_motorControlLeft.setGainMatrix(motorGainLeft);
     m_motorControlRight.setGainMatrix(motorGainRight);
