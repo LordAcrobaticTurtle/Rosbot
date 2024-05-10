@@ -15,10 +15,13 @@ class StateSpaceControl {
 
         void setGainMatrix (Matrix gains);
 
-        float calculateControlSignal (Matrix desiredState, Matrix state);
+        virtual float calculateControlSignal (Matrix desiredState, Matrix state);
 
-    private:
+    protected:
         Matrix m_state;
         Matrix m_desiredState;
         Matrix m_K;
+
+        float m_integrator;
+        float m_integratorGain;
 };
