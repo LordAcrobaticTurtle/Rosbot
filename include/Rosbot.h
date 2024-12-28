@@ -10,6 +10,9 @@
 #include <utility/data_types.h>
 #include <utility/quaternion.h>
 
+#include <PID_v1.h>
+
+
 // Returns the system state to the app
 struct ControlResponse {
     size_t controlIDPlaceholder;
@@ -71,7 +74,7 @@ class Rosbot {
 
         void setIsRadioConnected (bool isRadioConnected);
 
-        void setMotorPosition (int motorIndex, int throttle);
+        void setMotorPosition (int motorIndex, float radps);
 
         VerifiedSensorData sensorVerification (int motorIndex, float throttle, float time);
 
@@ -85,6 +88,8 @@ class Rosbot {
         void runControl ();
         void cascadedControl ();
         void stateSpaceControl ();
+        void pidControl ();
+        void TankControl (double* channels);
 
     protected:
         // Driver related components
@@ -147,6 +152,9 @@ class Rosbot {
         StateSpaceControl m_motorControlLeft;
         StateSpaceControl m_motorControlRight;
         StateSpaceControl m_pendulumControl;
+
+
+        PID m_pendulumPID;
 
         // =========================================
 };
